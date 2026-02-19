@@ -1,8 +1,13 @@
 import Image from "next/image";
+import BackgroundGrid from "./components/BackgroundLines";
+import Landing from "./components/Landing";
 
 export default function Home() {
   return (
     <>
-    hi</>
+    <BackgroundGrid>
+      <Landing/>
+    </BackgroundGrid>
+    </>
   );
 }
