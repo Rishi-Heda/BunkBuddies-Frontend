@@ -1,5 +1,6 @@
 import { Syne } from "next/font/google";
 import "./globals.css";
+import BackgroundGrid from "./components/BackgroundLines";
 
 const syne = Syne({
   variable: "--font-syne",
@@ -17,7 +18,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${syne.variable} antialiased font-sans`}
       >
-        {children}
+        <BackgroundGrid>
+          {children}
+        </BackgroundGrid>
+        
       </body>
     </html>
   );
