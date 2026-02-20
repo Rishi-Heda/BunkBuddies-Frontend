@@ -43,24 +43,26 @@ export default function Footer() {
         </svg>
       </div>
 
-      <div className="-mt-px bg-[#B78AF1] px-0 pb-10 pt-4 sm:px-0 sm:pb-12 md:px-0 md:pb-14">
+      <div className="-mt-px bg-[#B78AF1] px-4 pb-10 pt-4 sm:px-6 sm:pb-12 md:px-0 md:pb-14">
         <div className="mx-auto flex w-full max-w-none flex-col gap-10 md:flex-row md:items-end md:justify-between">
-          <div className="flex flex-col gap-9 md:gap-10" style={{ paddingLeft: 51 }}>
-            <Image
-              src="/logo.svg"
-              alt="BunkBuddies logo"
-              width={240}
-              height={100}
-              className="h-auto w-44 sm:w-48 md:w-52"
-            />
+          <div className="flex flex-col gap-9 pl-0 sm:pl-0 md:pl-[51px] md:gap-10">
+            <div className="flex w-full items-start justify-between gap-4 md:flex-col md:justify-start">
+              <Image
+                src="/logo.svg"
+                alt="BunkBuddies logo"
+                width={240}
+                height={100}
+                className="h-auto w-32 sm:w-40 md:w-52"
+              />
 
-            <Image
+              <Image
                 src="/logo.webp"
-              alt="VinnovateIT logo"
-              width={300}
-              height={90}
-              className="h-auto w-44 sm:w-48 md:w-[230px]"
-            />
+                alt="VinnovateIT logo"
+                width={300}
+                height={90}
+                className="h-auto w-32 sm:w-40 md:w-[230px]"
+              />
+            </div>
 
             {/* Social icons aligned to VinnovateIT logo width */}
             <div className="relative">
@@ -81,7 +83,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="max-w-[320px] text-black md:pb-2 md:text-right" style={{ paddingRight: 51 }}>
+          <div className="max-w-[320px] text-black md:pb-2 md:text-right md:pr-[51px]">
             <h3 className="text-[24px] font-bold font-sans leading-tight" style={{ fontWeight: 700 }}>
               Contact Us
             </h3>
@@ -91,7 +93,7 @@ export default function Footer() {
                 <IoMdMail className="h-6 w-6 shrink-0" />
                 <a
                   href="mailto:vinnovateit@vit.ac.in"
-                  className="hover:underline text-[20px] leading-tight sm:text-[20px] md:text-[20px] lg:text-[20px]"
+                  className="hover:underline text-[16px] leading-tight sm:text-[18px] md:text-[20px] lg:text-[20px] break-all sm:break-normal"
                 >
                   vinnovateit@vit.ac.in
                 </a>
@@ -106,7 +108,7 @@ export default function Footer() {
                 >
                   <path d="M12 2.5A7.5 7.5 0 0 0 4.5 10c0 5.65 6.53 11.05 7.02 11.45a.75.75 0 0 0 .96 0C12.97 21.05 19.5 15.65 19.5 10A7.5 7.5 0 0 0 12 2.5Zm0 9.75A2.25 2.25 0 1 1 12 7.75a2.25 2.25 0 0 1 0 4.5Z" />
                 </svg>
-                <p className="leading-tight text-[20px] sm:text-[20px] md:text-[20px] lg:text-[20px]">
+                <p className="leading-tight text-[16px] sm:text-[18px] md:text-[20px] lg:text-[20px]">
                   VIT, Vellore Campus
                   <br />
                   Tiruvallam Road,

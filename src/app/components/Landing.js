@@ -58,10 +58,10 @@ export default function Landing() {
           <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8"> 
           <div className="w-full flex flex-col items-center">
             <h1
-              className={`${heroSyne.className} text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4 text-center w-full mx-auto`}
+              className={`${heroSyne.className} text-[32px] sm:text-[40px] md:text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4 text-center w-full mx-auto`}
             >
-              <span className="block whitespace-nowrap">Find the roommate you'll</span>
-              <span className="block whitespace-nowrap">actually survive with.</span>
+              <span className="block whitespace-normal sm:whitespace-nowrap">Find the roommate you'll</span>
+              <span className="block whitespace-normal sm:whitespace-nowrap">actually survive with.</span>
             </h1>
 
             <p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0 max-w-xs sm:max-w-md md:max-w-lg text-center">
@@ -129,10 +129,9 @@ export default function Landing() {
 
         {/* Body */}
         <section
-          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center"
-          style={{ paddingLeft: '163px', paddingRight: '163px' }}
+          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center px-4 sm:px-8 md:px-[163px]"
         >
-          <p className="text-[32px] font-normal text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
+          <p className="text-[20px] sm:text-[24px] md:text-[32px] font-normal text-left md:text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
             <strong>Hostel roulette isn't fun.</strong> One random allocation
             can mean clashing sleep schedules, messy habits, and totally
             different ideas of quiet time. Those small differences turn into

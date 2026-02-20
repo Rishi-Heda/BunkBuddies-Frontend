@@ -39,7 +39,7 @@ const HowItWorks = () => {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left Side: Title */}
         <div className="flex justify-center md:justify-start">
-          <h2 className="text-4xl md:text-5xl font-bold text-black tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-bold text-black tracking-tight text-center md:text-left">
             How it works ?
           </h2>
         </div>
@@ -49,9 +49,9 @@ const HowItWorks = () => {
           {steps.map((step) => (
             <div
               key={step.id}
-              className={`${step.bgColor} p-6 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1`}
+              className={`${step.bgColor} p-6 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:animate-bounce-squash`}
             >
-              <h3 className="text-[32px] font-bold text-black mb-2 leading-tight">
+              <h3 className="text-[24px] sm:text-[28px] md:text-[32px] font-bold text-black mb-2 leading-tight">
                 {step.title}
               </h3>
               <p className="text-[16px] text-black/80 font-medium leading-relaxed">
@@ -66,3 +66,4 @@ const HowItWorks = () => {
 };
 
 export default HowItWorks;
+// Add custom bounce-squash animation to global styles if not present

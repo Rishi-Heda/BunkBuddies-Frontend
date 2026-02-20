@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: var(--font-syne), sans-serif;
 }
+
+@keyframes bounce-squash {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+    animation-timing-function: cubic-bezier(0.8,0,1,1);
+  }
+  10% {
+    transform: translateY(-8px) scaleY(1.08);
+    animation-timing-function: cubic-bezier(0,0,0.2,1);
+  }
+  20% {
+    transform: translateY(-16px) scaleY(0.92);
+  }
+  30% {
+    transform: translateY(-8px) scaleY(1.04);
+  }
+  40% {
+    transform: translateY(0) scaleY(0.98);
+  }
+  50% {
+    transform: translateY(-4px) scaleY(1.02);
+  }
+  60%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.animate-bounce-squash {
+  animation: bounce-squash 0.7s;
+}
