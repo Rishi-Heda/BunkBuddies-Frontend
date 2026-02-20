@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -31,29 +32,29 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="h-screen bg-[#FEE3D2] relative overflow-hidden font-[family-name:var(--font-syne)] p-2 md:p-4 lg:p-6 flex flex-col items-center justify-center">
-            {/* Header Decoration */}
-            <div className="absolute top-4 left-4 flex items-start gap-2 scale-75 md:scale-90 origin-top-left">
-                <div className="flex gap-1">
-                    <div className="w-[30px] h-[26px] bg-black" />
-                    <div className="w-[60px] h-[26px] bg-black" />
-                </div>
-                <div className="relative w-[6px] h-[26px]">
-                    <div className="absolute top-[2px] w-[5px] h-[2px] bg-black rounded-full" />
-                    <div className="absolute top-[14px] w-[5px] h-[2px] bg-black rounded-full" />
-                </div>
+        <div className="min-h-screen md:h-screen bg-[#FEE3D2] relative overflow-y-auto md:overflow-hidden font-[family-name:var(--font-syne)] p-4 md:p-6 flex flex-col items-center justify-start md:justify-center">
+            {/* Logo in Top Left - Responsive positioning */}
+            <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                <Image
+                    src="/logo.svg"
+                    alt="Logo"
+                    width={100}
+                    height={30}
+                    className="w-auto h-6 md:h-10 lg:h-12"
+                    priority
+                />
             </div>
 
-            {/* Main Card Container - Exact match with Create Room Page */}
-            <div className="w-full max-w-[860px] lg:max-w-[950px] transition-all duration-300">
+            {/* Main Card Container - Single column on mobile, 3 columns on laptop */}
+            <div className="w-full max-w-[860px] lg:max-w-[950px] transition-all duration-300 mt-16 md:mt-0 mb-8 md:mb-0">
                 <form
                     onSubmit={handleSubmit}
-                    className="w-full bg-[#BE8EF8] rounded-md border border-black shadow-[5px_5px_0px_black] p-4 sm:p-6 md:p-8 relative overflow-hidden"
+                    className="w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-6 md:p-8 relative overflow-hidden"
                 >
-                    <h1 className="text-2xl md:text-3xl font-semibold mb-4 lg:mb-6">Create Profile</h1>
+                    <h1 className="text-2xl md:text-3xl font-semibold mb-6">Create Profile</h1>
 
-                    {/* Grid: 3 cols to match Create Room Page */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3 lg:gap-x-6 lg:gap-y-4 mb-4 lg:mb-6">
+                    {/* Grid: 1 col on mobile, 3 cols on tablet+ */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
                         {/* Name */}
                         <div className="flex flex-col gap-1">
                             <label className="text-sm md:text-base font-bold">Name</label>
@@ -63,7 +64,7 @@ export default function ProfilePage() {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="Aditya Madan"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
@@ -76,7 +77,7 @@ export default function ProfilePage() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder="adityamadan01@gmail.com"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
@@ -89,7 +90,7 @@ export default function ProfilePage() {
                                 value={formData.registerNumber}
                                 onChange={handleChange}
                                 placeholder="24BCExxx"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
@@ -102,7 +103,7 @@ export default function ProfilePage() {
                                 value={formData.hostelType}
                                 onChange={handleChange}
                                 placeholder="MH"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
@@ -115,7 +116,7 @@ export default function ProfilePage() {
                                 value={formData.cgpa}
                                 onChange={handleChange}
                                 placeholder="9.99"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
@@ -128,20 +129,20 @@ export default function ProfilePage() {
                                 value={formData.contact}
                                 onChange={handleChange}
                                 placeholder="+91 XXXXX XXXXX"
-                                className="w-full h-8 md:h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
                     </div>
 
                     {/* Description */}
-                    <div className="flex flex-col gap-1 mb-6 lg:mb-8">
+                    <div className="flex flex-col gap-1 mb-8">
                         <label className="text-sm md:text-base font-bold">A Brief Description ( 200 Words )</label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
                             placeholder="Tell us about yourself..."
-                            className="w-full h-16 md:h-20 lg:h-24 bg-[#47D19D] rounded-[4px] border border-black p-3 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
+                            className="w-full h-24 bg-[#47D19D] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
                         />
                     </div>
 
@@ -149,7 +150,7 @@ export default function ProfilePage() {
                     <div className="flex justify-center">
                         <button
                             type="submit"
-                            className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_4px_0px_black] px-6 py-1.5 md:py-2 text-lg font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-[2.5px_3.5px_0px_black] transition-all active:translate-x-[3px] active:translate-y-[4px] active:shadow-none cursor-pointer"
+                            className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_4px_0px_black] px-8 py-2 text-lg font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[4px] active:shadow-none cursor-pointer"
                         >
                             Submit
                         </button>
