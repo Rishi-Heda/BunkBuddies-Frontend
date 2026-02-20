@@ -6,10 +6,10 @@ import HowItWorks from "./components/HowItWorks";
 export default function Home() {
   return (
     <>
-    <BackgroundGrid>
-      <Landing/>
-      <HowItWorks/>
-    </BackgroundGrid>
+      <BackgroundGrid>
+        <Landing />
+        <HowItWorks />
+      </BackgroundGrid>
     </>
   );
 }
