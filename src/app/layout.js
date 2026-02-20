@@ -1,13 +1,12 @@
+
+import { Syne } from "next/font/google";
 import { Geist, Geist_Mono, Syne } from "next/font/google";
+
 import "./globals.css";
+import BackgroundGrid from "./components/BackgroundLines";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
 });
 
@@ -25,9 +24,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
+        className={`${syne.variable} antialiased font-sans`}
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased`}
       >
-        {children}
+        <BackgroundGrid>
+          {children}
+        </BackgroundGrid>
+        
       </body>
     </html>
   );
