@@ -34,7 +34,7 @@ export default function Landing() {
             className="w-auto h-12 md:h-16"
           />
 
-          <CustomButton color="#7C5CBF" onClick={handleSignIn}>
+          <CustomButton color="#BE8EF8" onClick={handleSignIn}>
             <svg
               width="14"
               height="14"
@@ -56,22 +56,21 @@ export default function Landing() {
 
         {/* Hero */}
           <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8"> 
-          <div className="max-w-xs sm:max-w-md md:max-w-lg w-full">
+          <div className="w-full flex flex-col items-center">
             <h1
-              className={`${heroSyne.className} text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4`}
+              className={`${heroSyne.className} text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4 text-center w-full mx-auto`}
             >
-              Find the roommate you'll
-              <br />
-              actually survive with.
+              <span className="block whitespace-nowrap">Find the roommate you'll</span>
+              <span className="block whitespace-nowrap">actually survive with.</span>
             </h1>
 
-            <p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0">
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0 max-w-xs sm:max-w-md md:max-w-lg text-center">
               Don't leave hostel life to random allocation. Match with someone
               who fits your lifestyle, habits, and vibe.
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mb-8 sm:mb-10">
-              <CustomButton color="#3DBF7C" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
+              <CustomButton color="#BE8EF8" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
                 Find my BunkBuddy
               </CustomButton>
 
