@@ -56,7 +56,7 @@ export default function Landing() {
         </nav>
 
         {/* Hero */}
-        <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8">
+          <section className={`flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8 ${syne.className}`}> 
           <div className="max-w-xs sm:max-w-md md:max-w-lg w-full">
             <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900 mb-3 sm:mb-4">
               Find the roommate you'll
