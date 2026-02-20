@@ -55,7 +55,7 @@ export default function Footer() {
             />
 
             <Image
-              src="/black VIIT.png"
+                src="/logo.webp"
               alt="VinnovateIT logo"
               width={300}
               height={90}
