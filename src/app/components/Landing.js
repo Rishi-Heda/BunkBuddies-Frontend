@@ -30,9 +30,9 @@ export default function Landing() {
           <Image
             src="/bb_logo.svg"
             alt="BunkBuddies"
-            width={100}
-            height={30}
-            className="sm:w-[120px] sm:h-[36px]"
+            width={160}
+            height={60}
+            className="w-auto h-12 md:h-16"
           />
 
           <CustomButton color="#7C5CBF" onClick={handleSignIn}>
