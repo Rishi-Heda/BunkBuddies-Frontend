@@ -7,9 +7,10 @@ import CustomButton from "./CustomButton";
 
 import { useRouter } from "next/navigation";
 
-const syne = Syne({
+const heroSyne = Syne({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["700", "800"],
+  display: "swap",
 });
 
 export default function Landing() {
@@ -22,9 +23,7 @@ export default function Landing() {
 
   return (
     <BackgroundGrid>
-      <div
-        className={`${syne.className} min-h-screen flex flex-col overflow-hidden`}
-      >
+      <div className="min-h-screen flex flex-col overflow-hidden">
         {/* Nav */}
         <nav className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 md:px-7">
           <Image
@@ -56,9 +55,11 @@ export default function Landing() {
         </nav>
 
         {/* Hero */}
-          <section className={`flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8 ${syne.className}`}> 
+          <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8"> 
           <div className="max-w-xs sm:max-w-md md:max-w-lg w-full">
-            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900 mb-3 sm:mb-4">
+            <h1
+              className={`${heroSyne.className} text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4`}
+            >
               Find the roommate you'll
               <br />
               actually survive with.
@@ -129,7 +130,7 @@ export default function Landing() {
 
         {/* Body */}
         <section
-          className={`${syne.className} flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center`}
+          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center"
           style={{ paddingLeft: '163px', paddingRight: '163px' }}
         >
           <p className="text-[32px] font-normal text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
