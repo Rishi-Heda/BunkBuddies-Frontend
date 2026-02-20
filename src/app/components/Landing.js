@@ -5,12 +5,21 @@ import { Syne } from "next/font/google";
 import BackgroundGrid from "./BackgroundLines";
 import CustomButton from "./CustomButton";
 
+import { useRouter } from "next/navigation";
+
 const syne = Syne({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
 });
 
 export default function Landing() {
+  const router = useRouter();
+
+  const handleSignIn = () => {
+    // Redirect to the new sign-in page
+    router.push("/signin");
+  };
+
   return (
     <BackgroundGrid>
       <div
@@ -26,7 +35,7 @@ export default function Landing() {
             className="sm:w-[120px] sm:h-[36px]"
           />
 
-          <CustomButton color="#7C5CBF">
+          <CustomButton color="#7C5CBF" onClick={handleSignIn}>
             <svg
               width="14"
               height="14"
@@ -61,7 +70,7 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mb-8 sm:mb-10">
-              <CustomButton color="#3DBF7C" className="font-bold w-full sm:w-auto">
+              <CustomButton color="#3DBF7C" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
                 Find my BunkBuddy
               </CustomButton>
 

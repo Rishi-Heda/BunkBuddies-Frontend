@@ -5,11 +5,10 @@ import HowItWorks from "./components/HowItWorks";
 
 export default function Home() {
   return (
-    <>
-    <BackgroundGrid>
-      <Landing/>
-      <HowItWorks/>
-    </BackgroundGrid>
-    </>
+    <div className="h-screen overflow-hidden">
+      <BackgroundGrid>
+        <Landing />
+      </BackgroundGrid>
+    </div>
   );
 }
