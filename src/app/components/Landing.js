@@ -132,7 +132,7 @@ export default function Landing() {
           className={`${syne.className} flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center`}
           style={{ paddingLeft: '163px', paddingRight: '163px' }}
         >
-          <p className="text-[32px] leading-7 text-gray-900 max-w-[700px] mx-auto">
+          <p className="text-[32px] font-normal text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
             <strong>Hostel roulette isn't fun.</strong> One random allocation
             can mean clashing sleep schedules, messy habits, and totally
             different ideas of quiet time. Those small differences turn into
