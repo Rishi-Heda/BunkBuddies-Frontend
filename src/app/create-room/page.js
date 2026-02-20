@@ -1,10 +1,19 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Syne } from 'next/font/google';
 import BackgroundGrid from '../components/BackgroundLines';
+import Navbar from '../components/Navbar';
+
+const syne = Syne({
+    subsets: ['latin'],
+    weight: ['400', '600', '700'],
+});
 
 export default function CreateRoomPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         roomName: '',
         roomType: 'AC',
@@ -26,14 +35,33 @@ export default function CreateRoomPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Form Submitted:', formData);
-        alert('Room Created Successfully!\n' + JSON.stringify(formData, null, 2));
+
+        // Lookup profile and attach details to group
+        const storedProfile = JSON.parse(localStorage.getItem('bunkBuddies_userProfile') || '{}');
+        const newGroup = {
+            ...formData,
+            id: Date.now().toString(),
+            adminCgpa: storedProfile.cgpa || 'N/A',
+            adminName: storedProfile.name || 'Anonymous'
+        };
+
+        // Save as user's group
+        localStorage.setItem('bunkBuddies_userGroup', JSON.stringify(newGroup));
+
+        // Push to global all groups array
+        const allGroups = JSON.parse(localStorage.getItem('bunkBuddies_allGroups') || '[]');
+        localStorage.setItem('bunkBuddies_allGroups', JSON.stringify([newGroup, ...allGroups]));
+
+        alert('Room Created Successfully!');
+        router.push('/my-groups');
     };
 
     return (
         <BackgroundGrid>
-            <div className="min-h-screen md:h-screen relative overflow-y-auto md:overflow-hidden font-[family-name:var(--font-syne)] p-4 md:p-6 flex flex-col items-center justify-start md:justify-center">
-                {/* Logo in Top Left - Responsive positioning */}
-                <div className="absolute top-3 left-3 md:top-5 md:left-6">
+            <div className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}>
+
+                {/* Header Box (Logo + Navbar) - Same line on all screen sizes */}
+                <div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
                     <Image
                         src="/logo.svg"
                         alt="Logo"
@@ -42,119 +70,128 @@ export default function CreateRoomPage() {
                         className="w-auto h-8 md:h-12"
                         priority
                     />
+                    <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
                 </div>
 
-                {/* Main Card Container - Single column on mobile, 3 columns on laptop */}
-                <div className="w-full max-w-[860px] lg:max-w-[950px] transition-all duration-300 mt-16 md:mt-0 mb-8 md:mb-0">
-                    <form
-                        onSubmit={handleSubmit}
-                        className="w-full bg-[#FFB0AF] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-6 md:p-8 relative overflow-hidden"
-                    >
-                        <h1 className="text-2xl md:text-3xl font-semibold mb-6">Create Room</h1>
+                {/* Main Content Container - Exactly matched with find-buddies main */}
+                <form
+                    onSubmit={handleSubmit}
+                    className="w-full max-w-[1045px] bg-[#FFB0AF] border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0"
+                >
 
-                        {/* Grid: 1 col on mobile, 3 cols on tablet+ */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-                            {/* Room Name */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">Room Name</label>
-                                <input
-                                    type="text"
-                                    name="roomName"
-                                    value={formData.roomName}
-                                    onChange={handleChange}
-                                    placeholder="Aditya Madan"
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-                                />
-                            </div>
+                    <div className="flex flex-row justify-between items-center mb-6 md:mb-5 gap-3">
+                        <h1 className="text-xl md:text-2xl font-semibold leading-tight pt-2 md:pt-0">Create Room</h1>
+                        <button
+                            type="button"
+                            onClick={() => router.back()}
+                            className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1.5 text-[14px] sm:text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none transition-all whitespace-nowrap"
+                        >
+                            ← Go Back
+                        </button>
+                    </div>
 
-                            {/* Room Type */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">Room Type</label>
-                                <select
-                                    name="roomType"
-                                    value={formData.roomType}
-                                    onChange={handleChange}
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
-                                >
-                                    <option value="AC">AC</option>
-                                    <option value="Non-AC">Non-AC</option>
-                                </select>
-                            </div>
-
-                            {/* Room Size */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">Room Size</label>
-                                <input
-                                    type="text"
-                                    name="roomSize"
-                                    value={formData.roomSize}
-                                    onChange={handleChange}
-                                    placeholder="4"
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-                                />
-                            </div>
-
-                            {/* Block Preferences */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">1st Preference</label>
-                                <input
-                                    type="text"
-                                    name="pref1"
-                                    value={formData.pref1}
-                                    onChange={handleChange}
-                                    placeholder="AC"
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">2nd Preference</label>
-                                <input
-                                    type="text"
-                                    name="pref2"
-                                    value={formData.pref2}
-                                    onChange={handleChange}
-                                    placeholder="AC"
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm md:text-base font-bold">3rd Preference</label>
-                                <input
-                                    type="text"
-                                    name="pref3"
-                                    value={formData.pref3}
-                                    onChange={handleChange}
-                                    placeholder="AC"
-                                    className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Other Preferences */}
-                        <div className="flex flex-col gap-1 mb-8">
-                            <label className="text-sm md:text-base font-bold">Other Preferences ( 200 Words )</label>
-                            <textarea
-                                name="otherPreferences"
-                                value={formData.otherPreferences}
+                    {/* Form contents... */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-3">
+                        {/* Room Name */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">Room Name</label>
+                            <input
+                                type="text"
+                                name="roomName"
+                                value={formData.roomName}
                                 onChange={handleChange}
-                                placeholder="Tell us about your preferences..."
-                                className="w-full h-24 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
+                                placeholder="Aditya Madan"
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                             />
                         </div>
 
-                        {/* Submit Button */}
-                        <div className="flex justify-center">
-                            <button
-                                type="submit"
-                                className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_4px_0px_black] px-8 py-2 text-lg font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[4px] active:shadow-none cursor-pointer"
+                        {/* Room Type */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">Room Type</label>
+                            <select
+                                name="roomType"
+                                value={formData.roomType}
+                                onChange={handleChange}
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
                             >
-                                Submit
-                            </button>
+                                <option value="AC">AC</option>
+                                <option value="Non-AC">Non-AC</option>
+                            </select>
                         </div>
-                    </form>
-                </div>
+
+                        {/* Room Size */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">Room Size</label>
+                            <input
+                                type="text"
+                                name="roomSize"
+                                value={formData.roomSize}
+                                onChange={handleChange}
+                                placeholder="4"
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                            />
+                        </div>
+
+                        {/* Block Preferences */}
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">1st Preference</label>
+                            <input
+                                type="text"
+                                name="pref1"
+                                value={formData.pref1}
+                                onChange={handleChange}
+                                placeholder="AC"
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">2nd Preference</label>
+                            <input
+                                type="text"
+                                name="pref2"
+                                value={formData.pref2}
+                                onChange={handleChange}
+                                placeholder="AC"
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm md:text-base font-bold">3rd Preference</label>
+                            <input
+                                type="text"
+                                name="pref3"
+                                value={formData.pref3}
+                                onChange={handleChange}
+                                placeholder="AC"
+                                className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Other Preferences - Subtle refinement (80px height) */}
+                    <div className="flex flex-col gap-1 mb-5">
+                        <label className="text-sm md:text-base font-bold">Other Preferences ( 200 Words )</label>
+                        <textarea
+                            name="otherPreferences"
+                            value={formData.otherPreferences}
+                            onChange={handleChange}
+                            placeholder="Tell us about your preferences..."
+                            className="w-full h-20 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
+                        />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="flex justify-center mt-2">
+                        <button
+                            type="submit"
+                            className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] md:shadow-[3px_4px_0px_black] px-8 py-2 md:py-2.5 text-[16px] md:text-lg font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </form>
             </div>
         </BackgroundGrid>
     );
