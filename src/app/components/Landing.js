@@ -129,9 +129,10 @@ export default function Landing() {
 
         {/* Body */}
         <section
-          className={`${syne.className} flex-1 px-4 pt-6 pb-12 sm:px-8 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center`}
+          className={`${syne.className} flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center`}
+          style={{ paddingLeft: '163px', paddingRight: '163px' }}
         >
-          <p className="text-base sm:text-lg leading-7 text-gray-900 max-w-xs sm:max-w-md md:max-w-lg px-2 sm:px-0">
+          <p className="text-[32px] leading-7 text-gray-900 max-w-[700px] mx-auto">
             <strong>Hostel roulette isn't fun.</strong> One random allocation
             can mean clashing sleep schedules, messy habits, and totally
             different ideas of quiet time. Those small differences turn into

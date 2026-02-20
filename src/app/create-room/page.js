@@ -37,9 +37,9 @@ export default function CreateRoomPage() {
                     <Image
                         src="/logo.svg"
                         alt="Logo"
-                        width={120}
-                        height={40}
-                        className="w-auto h-8 md:h-12"
+                        width={160}
+                        height={60}
+                        className="w-auto h-12 md:h-16"
                         priority
                     />
                 </div>
