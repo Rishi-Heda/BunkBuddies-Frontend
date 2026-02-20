@@ -32,7 +32,10 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className={`${syne.className} w-full py-12 px-4 md:px-6 lg:px-8`}>
+    <section
+      id="how-it-works"
+      className={`${syne.className} w-full py-12 px-4 md:px-6 lg:px-8`}
+    >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left Side: Title */}
         <div className="flex justify-center md:justify-start">
