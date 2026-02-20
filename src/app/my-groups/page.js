@@ -77,7 +77,10 @@ export default function MyGroupsPage() {
                                     <div className="flex flex-wrap gap-2 md:gap-4 bg-[#FF7F70] border border-black shadow-[2.5px_3.5px_0px_black] rounded-[4.5px] px-4 py-2.5 items-center">
                                         <button className="text-black text-[15px] md:text-[18px] font-normal hover:underline whitespace-nowrap" onClick={() => { localStorage.removeItem('bunkBuddies_userGroup'); setUserGroup(null); }}>Delete Group</button>
                                         <span className="w-[1px] h-4 bg-black/20 hidden md:block"></span>
-                                        <button className="text-black text-[15px] md:text-[18px] font-normal hover:underline whitespace-nowrap">Edit Details</button>
+                                        <button className="text-black text-[15px] md:text-[18px] font-normal hover:underline whitespace-nowrap" onClick={() => {
+                                            localStorage.setItem('bunkBuddies_editGroup', JSON.stringify(userGroup));
+                                            router.push('/create-room');
+                                        }}>Edit Details</button>
                                         <span className="w-[1px] h-4 bg-black/20 hidden md:block"></span>
                                         <button className="text-black text-[15px] md:text-[18px] font-normal hover:underline whitespace-nowrap">Add Roommate</button>
                                     </div>

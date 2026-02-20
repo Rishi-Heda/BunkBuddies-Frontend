@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import BackgroundGrid from '../components/BackgroundLines';
 
 export default function ProfilePage() {
     const router = useRouter();
+    const [isAnimating, setIsAnimating] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -16,6 +17,11 @@ export default function ProfilePage() {
         contact: '',
         description: ''
     });
+
+    useEffect(() => {
+        // Trigger animation when component mounts
+        setIsAnimating(true);
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -52,7 +58,11 @@ export default function ProfilePage() {
                 <div className="w-full max-w-[860px] lg:max-w-[950px] transition-all duration-300 mt-16 md:mt-0 mb-8 md:mb-0">
                     <form
                         onSubmit={handleSubmit}
-                        className="w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-6 md:p-8 relative overflow-hidden"
+                        className={`w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-6 md:p-8 relative overflow-hidden transition-all duration-700 ease-out ${
+                            isAnimating 
+                                ? 'translate-y-0 opacity-100' 
+                                : 'translate-y-full opacity-0'
+                        }`}
                     >
                         <div className="flex justify-between items-center mb-6">
                             <h1 className="text-2xl md:text-3xl font-semibold">Create Profile</h1>

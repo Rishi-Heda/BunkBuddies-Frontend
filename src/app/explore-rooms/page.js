@@ -91,7 +91,7 @@ export default function ExploreRoomsPage() {
                             ) : rooms.map((room) => (
                                 <div
                                     key={room.id}
-                                    className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform min-h-[310px]"
+                                    className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[310px]"
                                 >
                                     <div className="mb-4">
                                         <p className="text-[#3E3E3E] text-base font-normal">{room.roomSize} Bedded {room.roomType}</p>

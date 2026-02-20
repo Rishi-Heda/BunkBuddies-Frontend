@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Syne } from 'next/font/google';
@@ -14,6 +14,8 @@ const syne = Syne({
 
 export default function CreateRoomPage() {
     const router = useRouter();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingGroupId, setEditingGroupId] = useState(null);
     const [formData, setFormData] = useState({
         roomName: '',
         roomType: 'AC',
@@ -23,6 +25,27 @@ export default function CreateRoomPage() {
         roomSize: '',
         otherPreferences: ''
     });
+
+    useEffect(() => {
+        // Check if we're editing
+        const editData = localStorage.getItem('bunkBuddies_editGroup');
+        if (editData) {
+            const groupToEdit = JSON.parse(editData);
+            setFormData({
+                roomName: groupToEdit.roomName || '',
+                roomType: groupToEdit.roomType || 'AC',
+                pref1: groupToEdit.pref1 || '',
+                pref2: groupToEdit.pref2 || '',
+                pref3: groupToEdit.pref3 || '',
+                roomSize: groupToEdit.roomSize || '',
+                otherPreferences: groupToEdit.otherPreferences || ''
+            });
+            setIsEditing(true);
+            setEditingGroupId(groupToEdit.id);
+            // Clear the edit data
+            localStorage.removeItem('bunkBuddies_editGroup');
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,21 +61,46 @@ export default function CreateRoomPage() {
 
         // Lookup profile and attach details to group
         const storedProfile = JSON.parse(localStorage.getItem('bunkBuddies_userProfile') || '{}');
-        const newGroup = {
-            ...formData,
-            id: Date.now().toString(),
-            adminCgpa: storedProfile.cgpa || 'N/A',
-            adminName: storedProfile.name || 'Anonymous'
-        };
 
-        // Save as user's group
-        localStorage.setItem('bunkBuddies_userGroup', JSON.stringify(newGroup));
+        if (isEditing && editingGroupId) {
+            // Update existing group
+            const updatedGroup = {
+                ...formData,
+                id: editingGroupId,
+                adminCgpa: storedProfile.cgpa || 'N/A',
+                adminName: storedProfile.name || 'Anonymous'
+            };
 
-        // Push to global all groups array
-        const allGroups = JSON.parse(localStorage.getItem('bunkBuddies_allGroups') || '[]');
-        localStorage.setItem('bunkBuddies_allGroups', JSON.stringify([newGroup, ...allGroups]));
+            // Update user's group
+            localStorage.setItem('bunkBuddies_userGroup', JSON.stringify(updatedGroup));
 
-        alert('Room Created Successfully!');
+            // Update in all groups array
+            const allGroups = JSON.parse(localStorage.getItem('bunkBuddies_allGroups') || '[]');
+            const updatedAllGroups = allGroups.map(group =>
+                group.id === editingGroupId ? updatedGroup : group
+            );
+            localStorage.setItem('bunkBuddies_allGroups', JSON.stringify(updatedAllGroups));
+
+            alert('Room Updated Successfully!');
+        } else {
+            // Create new group
+            const newGroup = {
+                ...formData,
+                id: Date.now().toString(),
+                adminCgpa: storedProfile.cgpa || 'N/A',
+                adminName: storedProfile.name || 'Anonymous'
+            };
+
+            // Save as user's group
+            localStorage.setItem('bunkBuddies_userGroup', JSON.stringify(newGroup));
+
+            // Push to global all groups array
+            const allGroups = JSON.parse(localStorage.getItem('bunkBuddies_allGroups') || '[]');
+            localStorage.setItem('bunkBuddies_allGroups', JSON.stringify([newGroup, ...allGroups]));
+
+            alert('Room Created Successfully!');
+        }
+
         router.push('/my-groups');
     };
 
@@ -80,7 +128,7 @@ export default function CreateRoomPage() {
                 >
 
                     <div className="flex flex-row justify-between items-center mb-6 md:mb-5 gap-3">
-                        <h1 className="text-xl md:text-2xl font-semibold leading-tight pt-2 md:pt-0">Create Room</h1>
+                        <h1 className="text-xl md:text-2xl font-semibold leading-tight pt-2 md:pt-0">{isEditing ? 'Edit Room' : 'Create Room'}</h1>
                         <button
                             type="button"
                             onClick={() => router.back()}
@@ -188,7 +236,7 @@ export default function CreateRoomPage() {
                             type="submit"
                             className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] md:shadow-[3px_4px_0px_black] px-8 py-2 md:py-2.5 text-[16px] md:text-lg font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
                         >
-                            Submit
+                            {isEditing ? 'Update Room' : 'Create Room'}
                         </button>
                     </div>
                 </form>

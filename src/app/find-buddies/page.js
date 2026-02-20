@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Syne } from 'next/font/google';
@@ -16,6 +16,12 @@ export default function FindBuddiesPage() {
     const router = useRouter();
     const [accessCode, setAccessCode] = useState('');
     const [joinRoomOpen, setJoinRoomOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    useEffect(() => {
+        // Trigger smart animate when component mounts
+        setIsAnimating(true);
+    }, []);
 
     const handleJoinRoom = (e) => {
         e.preventDefault();
@@ -41,7 +47,11 @@ export default function FindBuddiesPage() {
                 </div>
 
                 {/* Main Content Container */}
-                <main className="w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-10 relative mt-4 md:mt-0">
+                <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${
+                    isAnimating 
+                        ? 'translate-y-0 opacity-100 scale-100' 
+                        : 'translate-y-8 opacity-0 scale-95'
+                }`}>
 
                     {/* Top Bar inside container */}
                     <div className="flex flex-row justify-between items-center mb-5 md:mb-8 gap-3">
@@ -64,7 +74,13 @@ export default function FindBuddiesPage() {
                             onClick={() => router.push('/create-room')}
                             className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
                         >
-                            <div className="text-[32px] md:text-[36px] mb-1.5 md:mb-2.5">🏠</div>
+                            <Image
+                                src="/find.svg"
+                                alt="Find"
+                                width={48}
+                                height={32}
+                                className="w-10 h-6 md:w-12 md:h-8 mb-1.5 md:mb-2.5"
+                            />
                             <h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">Create a Room</h2>
                             <p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
                                 Start a new room and find your future roomies
@@ -76,7 +92,13 @@ export default function FindBuddiesPage() {
                             onClick={() => router.push('/explore-rooms')}
                             className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
                         >
-                            <div className="text-[32px] md:text-[36px] mb-1.5 md:mb-2.5">🔍</div>
+                            <Image
+                                src="/explore.svg"
+                                alt="Explore"
+                                width={40}
+                                height={40}
+                                className="w-9 h-9 md:w-10 md:h-10 mb-1.5 md:mb-2.5"
+                            />
                             <h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">Explore Rooms</h2>
                             <p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
                                 Dont have a room yet ? <br />Find your new roomates here
@@ -94,7 +116,13 @@ export default function FindBuddiesPage() {
                             >
                                 {/* Panel 1: Default view */}
                                 <div className="flex flex-col items-center justify-center text-center p-4 md:p-5 lg:p-6 h-[50%]">
-                                    <div className="text-[42px] md:text-[48px] mb-1 md:mb-2">🚪</div>
+                                    <Image
+                                        src="/link.svg"
+                                        alt="Link"
+                                        width={48}
+                                        height={48}
+                                        className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2"
+                                    />
                                     <h2 className="text-[22px] md:text-[27px] font-semibold mb-0.5 md:mb-1 leading-tight">Join a Room</h2>
                                     <p className="text-[13px] md:text-[15px] font-normal leading-tight text-black max-w-[85%]">
                                         Already have a room code? Join your new roomies
