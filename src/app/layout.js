@@ -1,6 +1,14 @@
+
 import { Syne } from "next/font/google";
+import { Geist, Geist_Mono, Syne } from "next/font/google";
+
 import "./globals.css";
 import BackgroundGrid from "./components/BackgroundLines";
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+});
 
 const syne = Syne({
   variable: "--font-syne",
@@ -17,6 +25,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${syne.variable} antialiased font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased`}
       >
         <BackgroundGrid>
           {children}
