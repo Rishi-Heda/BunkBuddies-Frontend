@@ -7,34 +7,52 @@ import CustomButton from "./CustomButton";
 
 import { useRouter } from "next/navigation";
 
-const heroSyne = Syne({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["700", "800"],
-  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export default function Landing() {
   const router = useRouter();
-
   const handleSignIn = () => {
-    // Redirect to the new sign-in page
     router.push("/signin");
   };
-
+  const steps = [
+    {
+      id: 1,
+      title: "Create a profile",
+      description:
+        "Create a profile by providing necessary details like name, VIT email ID, registration number, and Rank.",
+      bgColor: "bg-[#47D19D]",
+    },
+    {
+      id: 2,
+      title: "Find Roommates",
+      description:
+        "Search for potential roommates or groups on the website and send a request to join them with a short introduction.",
+      bgColor: "bg-[#BE8EF8]",
+    },
+    {
+      id: 3,
+      title: "Initiate Communication",
+      description:
+        "If you find a potential match, initiate communication through the app. Start with a simple introduction and try to get to know the other person better by asking questions about their lifestyle, habits, and interests",
+      bgColor: "bg-[#FB5E4C]",
+    },
+  ];
   return (
     <BackgroundGrid>
-      <div className="min-h-screen flex flex-col overflow-hidden">
+      <div className={`${syne.className} min-h-screen flex flex-col overflow-hidden`}>
         {/* Nav */}
         <nav className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 md:px-7">
           <Image
             src="/bb_logo.svg"
             alt="BunkBuddies"
-            width={160}
-            height={60}
-            className="w-auto h-12 md:h-16"
+            width={100}
+            height={30}
+            className="sm:w-[120px] sm:h-[36px]"
           />
-
-          <CustomButton color="#BE8EF8" onClick={handleSignIn}>
+          <CustomButton color="#7C5CBF" onClick={handleSignIn}>
             <svg
               width="14"
               height="14"
@@ -53,27 +71,22 @@ export default function Landing() {
             Sign In
           </CustomButton>
         </nav>
-
         {/* Hero */}
-          <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8"> 
-          <div className="w-full flex flex-col items-center">
-            <h1
-              className={`${heroSyne.className} text-[32px] sm:text-[40px] md:text-[48px] font-bold leading-tight text-gray-900 mb-3 sm:mb-4 text-center w-full mx-auto`}
-            >
-              <span className="block whitespace-normal sm:whitespace-nowrap">Find the roommate you'll</span>
-              <span className="block whitespace-normal sm:whitespace-nowrap">actually survive with.</span>
+        <section className="flex flex-col items-center text-center px-4 pt-8 sm:px-6 sm:pt-10 md:px-8">
+          <div className="max-w-xs sm:max-w-md md:max-w-lg w-full">
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900 mb-3 sm:mb-4">
+              Find the roommate you'll
+              <br />
+              actually survive with.
             </h1>
-
-            <p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0 max-w-xs sm:max-w-md md:max-w-lg text-center">
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0">
               Don't leave hostel life to random allocation. Match with someone
               who fits your lifestyle, habits, and vibe.
             </p>
-
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mb-8 sm:mb-10">
-              <CustomButton color="#BE8EF8" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
+              <CustomButton color="#3DBF7C" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
                 Find my BunkBuddy
               </CustomButton>
-
               <a
                 href="#how-it-works"
                 className="text-gray-600 text-sm font-medium underline underline-offset-2 hover:text-gray-900 transition-colors"
@@ -82,7 +95,6 @@ export default function Landing() {
               </a>
             </div>
           </div>
-
           {/* Shapes */}
           <div className="flex items-end justify-center flex-wrap gap-2 sm:gap-4 px-2 sm:px-4">
             <Image
@@ -115,7 +127,6 @@ export default function Landing() {
             />
           </div>
         </section>
-
         {/* Wave top */}
         <div className="mt-6 sm:mt-10" style={{ lineHeight: 0 }}>
           <svg
@@ -126,12 +137,9 @@ export default function Landing() {
             <path d="M0,0 Q250,80 500,0 L500,80 L0,80 Z" fill="#FB5E4C" />
           </svg>
         </div>
-
         {/* Body */}
-        <section
-          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center px-4 sm:px-8 md:px-[163px]"
-        >
-          <p className="text-[20px] sm:text-[24px] md:text-[32px] font-normal text-left md:text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
+        <section className={`${syne.className} flex-1 px-4 pt-6 pb-12 sm:px-8 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center`}>
+          <p className="text-base sm:text-lg leading-7 text-gray-900 max-w-xs sm:max-w-md md:max-w-lg px-2 sm:px-0">
             <strong>Hostel roulette isn't fun.</strong> One random allocation
             can mean clashing sleep schedules, messy habits, and totally
             different ideas of quiet time. Those small differences turn into
@@ -139,7 +147,6 @@ export default function Landing() {
             room with someone who actually fits your lifestyle.
           </p>
         </section>
-
         {/* Wave bottom */}
         <svg
           viewBox="0 0 500 80"
@@ -148,6 +155,33 @@ export default function Landing() {
         >
           <path d="M0,80 Q250,0 500,80 L500,0 L0,0 Z" fill="#FB5E4C" />
         </svg>
+        {/* How It Works Section */}
+        <section id="how-it-works" className={`${syne.className} w-full py-12 px-4 md:px-6 lg:px-8`}>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Left Side: Title */}
+            <div className="flex justify-center md:justify-start">
+              <h2 className="text-4xl md:text-5xl font-bold text-black tracking-tight">
+                How it works ?
+              </h2>
+            </div>
+            {/* Right Side: Cards */}
+            <div className="space-y-6">
+              {steps.map((step) => (
+                <div
+                  key={step.id}
+                  className={`${step.bgColor} p-6 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1`}
+                >
+                  <h3 className="text-[32px] font-bold text-black mb-2 leading-tight">
+                    {step.title}
+                  </h3>
+                  <p className="text-[16px] text-black/80 font-medium leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     </BackgroundGrid>
   );
