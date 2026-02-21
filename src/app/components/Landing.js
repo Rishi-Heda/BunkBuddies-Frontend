@@ -70,7 +70,7 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 mb-8 sm:mb-10">
-              <CustomButton color="#BE8EF8" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
+              <CustomButton color="#47D19D" className="font-bold w-full sm:w-auto" onClick={handleSignIn}>
                 Find my BunkBuddy
               </CustomButton>
 
