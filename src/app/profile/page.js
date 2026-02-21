@@ -17,6 +17,14 @@ const INITIAL_FORM_DATA = {
     description: "",
 };
 
+function sanitizeContactInput(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    if (digits.startsWith("91") && digits.length >= 12) {
+        return digits.slice(2, 12);
+    }
+    return digits.slice(0, 10);
+}
+
 
 function normalizeIndianMobileNumber(value) {
     const digits = String(value || "").replace(/\D/g, "");
@@ -61,7 +69,7 @@ export default function ProfilePage() {
                     registerNumber: user.regNo || "",
                     hostelType: user.hostelType || "",
                     cgpa: user.CGPA !== undefined && user.CGPA !== null ? String(user.CGPA) : "",
-                    contact: user.phone || "",
+                    contact: sanitizeContactInput(user.phone || ""),
                     description: user.description || "",
                 };
 
@@ -98,9 +106,10 @@ export default function ProfilePage() {
 
     const handleChange = (event) => {
         const { name, value } = event.target;
+        const nextValue = name === "contact" ? sanitizeContactInput(value) : value;
         setFormData((previous) => ({
             ...previous,
-            [name]: value,
+            [name]: nextValue,
         }));
     };
 
@@ -158,7 +167,7 @@ export default function ProfilePage() {
                 cgpa: updatedUser.CGPA !== undefined && updatedUser.CGPA !== null
                     ? String(updatedUser.CGPA)
                     : formData.cgpa,
-                contact: updatedUser.phone || formData.contact,
+                contact: sanitizeContactInput(updatedUser.phone || formData.contact),
                 description: updatedUser.description || formData.description,
             };
 
@@ -291,9 +300,10 @@ export default function ProfilePage() {
                                     name="contact"
                                     value={formData.contact}
                                     onChange={handleChange}
-                                    placeholder="+91 XXXXX XXXXX"
+                                    placeholder="9876543210"
                                     disabled={isLoading}
                                     inputMode="numeric"
+                                    maxLength={10}
                                     className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                                 />
                             </div>
