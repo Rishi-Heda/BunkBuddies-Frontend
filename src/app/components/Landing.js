@@ -22,13 +22,96 @@ const INITIAL_SESSION = {
 	shouldGoExplore: false,
 };
 
+function mapSessionPayload(payload) {
+	if (!payload?.authenticated) {
+		return {
+			...INITIAL_SESSION,
+			checked: true,
+		};
+	}
+
+	const nextRoute =
+		typeof payload?.nextRoute === "string" && payload.nextRoute.startsWith("/")
+			? payload.nextRoute
+			: "/find-buddies";
+
+	return {
+		checked: true,
+		authenticated: true,
+		nextRoute,
+		shouldGoExplore: Boolean(payload?.shouldGoExplore),
+	};
+}
+
+async function fetchSessionState() {
+	try {
+		const response = await fetch("/api/auth/session", {
+			method: "GET",
+			cache: "no-store",
+		});
+		const payload = await response.json().catch(() => ({}));
+		return mapSessionPayload(payload);
+	} catch {
+		return {
+			...INITIAL_SESSION,
+			checked: true,
+		};
+	}
+}
+
 export default function Landing() {
 	const router = useRouter();
+	const [sessionState, setSessionState] = useState(INITIAL_SESSION);
+	const [isRouting, setIsRouting] = useState(false);
 
-	const handleSignIn = () => {
-		// Redirect to the new sign-in page
-		router.push("/signin");
+	useEffect(() => {
+		let isMounted = true;
+
+		const checkSession = async () => {
+			const nextSession = await fetchSessionState();
+			if (isMounted) {
+				setSessionState(nextSession);
+			}
+		};
+
+		checkSession();
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	const handleSignIn = async () => {
+		if (isRouting) {
+			return;
+		}
+
+		setIsRouting(true);
+
+		try {
+			const nextSession = sessionState.checked
+				? sessionState
+				: await fetchSessionState();
+			if (!sessionState.checked) {
+				setSessionState(nextSession);
+			}
+			router.push(nextSession.nextRoute);
+		} finally {
+			setIsRouting(false);
+		}
 	};
+
+	const navCtaLabel = !sessionState.checked
+		? "Checking..."
+		: sessionState.authenticated
+			? "Explore"
+			: "Sign In";
+
+	const heroCtaLabel = !sessionState.checked
+		? "Checking session..."
+		: sessionState.authenticated
+			? "Find my BunkBuddy"
+			: "Find my BunkBuddy";
 
 	return (
 		<BackgroundGrid>
@@ -46,12 +129,12 @@ export default function Landing() {
 					<CustomButton color="#BE8EF8" onClick={handleSignIn}>
 						<Image
 							src="/door.svg"
-							alt="Sign In"
+							alt={navCtaLabel}
 							width={14}
 							height={14}
 							className="sm:w-4 sm:h-4"
 						/>
-						Sign In
+						{navCtaLabel}
 					</CustomButton>
 				</nav>
 
@@ -80,7 +163,7 @@ export default function Landing() {
 								className="font-bold w-full sm:w-auto"
 								onClick={handleSignIn}
 							>
-								Find my BunkBuddy
+								{heroCtaLabel}
 							</CustomButton>
 
 							<a
