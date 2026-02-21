@@ -142,11 +142,16 @@ export default function ExploreRoomsPage() {
                                 const capacity = groupCapacity(room.groupSize);
                                 const currentMembers = Array.isArray(room.students) ? room.students.length : 0;
                                 const availableBeds = Math.max(capacity - currentMembers, 0);
+                                
+                                // Find admin from students array
+                                const admin = Array.isArray(room.students) 
+                                    ? room.students.find(s => s.firebaseUID === room.adminUID) 
+                                    : null;
 
                                 return (
                                     <div
                                         key={room.id}
-                                        className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[310px]"
+                                        className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[370px]"
                                     >
                                         <div className="mb-4">
                                             <p className="text-[#3E3E3E] text-base font-normal">{room.groupSize} {room.type}</p>
@@ -154,6 +159,14 @@ export default function ExploreRoomsPage() {
                                         </div>
 
                                         <div className="space-y-1 mb-4 flex-grow">
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Group Leader</span>
+                                                <span>{admin?.name || room.adminName || "N/A"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Reg No.</span>
+                                                <span>{admin?.regNo || room.adminRegNo || "N/A"}</span>
+                                            </div>
                                             <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
                                                 <span>No. of beds available</span>
                                                 <span>{availableBeds}</span>
