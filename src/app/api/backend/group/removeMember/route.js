@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 // TODO: Replace with your actual DB logic
 async function removeMemberFromGroup(groupId, memberUID) {
     // Example: Remove memberUID from groupId in your database
