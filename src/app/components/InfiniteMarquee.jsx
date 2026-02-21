@@ -22,7 +22,7 @@ const maskStyle = (shapeSrc) => ({
 
 function ShapeMask({ shapeSrc, imgSrc }) {
 	return (
-		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0">
+		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0" style={{ filter: "drop-shadow(1px 0 0 black) drop-shadow(-1px 0 0 black) drop-shadow(0 1px 0 black) drop-shadow(0 -1px 0 black)" }}>
 			<div
 				className="absolute inset-0 overflow-hidden"
 				style={{
@@ -45,7 +45,7 @@ function ShapeMask({ shapeSrc, imgSrc }) {
 
 function Shape2Mask({ shapeSrc, imgSrc, imgSrc2 }) {
 	return (
-		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0">
+		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0" style={{ filter: "drop-shadow(1px 0 0 black) drop-shadow(-1px 0 0 black) drop-shadow(0 1px 0 black) drop-shadow(0 -1px 0 black)" }}>
 			<div
 				className="absolute inset-0 overflow-hidden"
 				style={{

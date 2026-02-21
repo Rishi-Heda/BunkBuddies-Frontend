@@ -9,11 +9,7 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleExploreClick = () => {
-        if (pathname === "/explore-rooms") {
-            router.push("/find-buddies");
-        } else {
-            router.push("/explore-rooms");
-        }
+        router.push("/find-buddies");
     };
 
     const handleLogout = async () => {
