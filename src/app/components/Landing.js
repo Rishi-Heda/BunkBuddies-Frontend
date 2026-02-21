@@ -70,7 +70,7 @@ export default function Landing() {
 						</h1>
 
 						<p className="text-xs sm:text-sm md:text-base text-gray-500 leading-relaxed mb-6 sm:mb-8 px-2 sm:px-0 max-w-xs sm:max-w-md md:max-w-lg text-center">
-							and Don't leave hostel life to random allocation. Find someone who
+							Don't leave hostel life to random allocation. Find someone who
 							fits your life not just the empty bed.
 						</p>
 
