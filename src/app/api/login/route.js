@@ -9,6 +9,26 @@ if (!BACKEND_BASE_URL) {
 }
 const BASE_URL = BACKEND_BASE_URL.replace(/\/$/, "");
 
+function enforceSelectAccountPrompt(authorizationUrl) {
+    try {
+        const parsedUrl = new URL(authorizationUrl);
+        const promptValue = parsedUrl.searchParams.get("prompt") || "";
+        const promptParts = promptValue
+            .split(/\s+/)
+            .map((value) => value.trim())
+            .filter(Boolean);
+
+        if (!promptParts.includes("select_account")) {
+            promptParts.push("select_account");
+            parsedUrl.searchParams.set("prompt", promptParts.join(" "));
+        }
+
+        return parsedUrl.toString();
+    } catch {
+        return authorizationUrl;
+    }
+}
+
 function redirectToSignin(request, errorMessage) {
     const signinUrl = new URL("/signin", request.url);
     if (errorMessage) {
@@ -38,7 +58,7 @@ export async function GET(request) {
             );
         }
 
-        return NextResponse.redirect(authorizationUrl);
+        return NextResponse.redirect(enforceSelectAccountPrompt(authorizationUrl));
     } catch {
         return redirectToSignin(
             request,

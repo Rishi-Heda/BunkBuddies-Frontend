@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 const images = Array.from({ length: 43 }).map((_, i) => ({
 	id: i,
 	src: `marquee_img/${(i % 43) + 1}.svg`,
@@ -20,9 +18,11 @@ const maskStyle = (shapeSrc) => ({
 	maskPosition: "center",
 });
 
+const preventImageDrag = (event) => event.preventDefault();
+
 function ShapeMask({ shapeSrc, imgSrc }) {
 	return (
-		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0">
+		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0" style={{ filter: "drop-shadow(2px 0 0 black) drop-shadow(-2px 0 0 black) drop-shadow(0 2px 0 black) drop-shadow(0 -2px 0 black)" }}>
 			<div
 				className="absolute inset-0 overflow-hidden"
 				style={{
@@ -37,6 +37,8 @@ function ShapeMask({ shapeSrc, imgSrc }) {
 					src={imgSrc}
 					alt="character"
 					className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[85%] h-[95%] object-contain object-bottom"
+					draggable={false}
+					onDragStart={preventImageDrag}
 				/>
 			</div>
 		</div>
@@ -45,7 +47,7 @@ function ShapeMask({ shapeSrc, imgSrc }) {
 
 function Shape2Mask({ shapeSrc, imgSrc, imgSrc2 }) {
 	return (
-		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0">
+		<div className="relative w-50 h-35 md:w-75 md:h-60 shrink-0" style={{ filter: "drop-shadow(2px 0 0 black) drop-shadow(-2px 0 0 black) drop-shadow(0 2px 0 black) drop-shadow(0 -2px 0 black)" }}>
 			<div
 				className="absolute inset-0 overflow-hidden"
 				style={{
@@ -61,12 +63,16 @@ function Shape2Mask({ shapeSrc, imgSrc, imgSrc2 }) {
 					alt="character left"
 					className="absolute -bottom-8 left-0 w-[75%] h-[95%] object-contain object-bottom"
 					style={{ objectPosition: "bottom left" }}
+					draggable={false}
+					onDragStart={preventImageDrag}
 				/>
 				<img
 					src={imgSrc2}
 					alt="character right"
 					className="absolute -bottom-8 -right-15 w-[75%] h-[95%] object-contain scale-x-[-1]"
 					style={{ objectPosition: "bottom right" }}
+					draggable={false}
+					onDragStart={preventImageDrag}
 				/>
 			</div>
 		</div>

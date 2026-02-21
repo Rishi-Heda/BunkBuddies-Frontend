@@ -159,7 +159,22 @@ export default function MyGroupsPage() {
             }
         } catch (error) {
             const message = error?.message || "Unable to update request";
-            setErrorMessage(message);
+            const lowerMessage = message.toLowerCase();
+            
+            // Check if the user is already in another group or request doesn't exist
+            const isAlreadyInGroup = lowerMessage.includes("already") && 
+                (lowerMessage.includes("group") || lowerMessage.includes("member"));
+            const requestNotFound = lowerMessage.includes("request") && 
+                (lowerMessage.includes("doesn't exist") || lowerMessage.includes("does not exist") || lowerMessage.includes("not found"));
+            
+            if ((isAlreadyInGroup || requestNotFound) && action === "ACCEPTED") {
+                // User joined another group while this request was pending
+                // Remove the stale request from the list
+                setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
+                alert("This user is already in another group. The request has been removed.");
+            } else {
+                setErrorMessage(message);
+            }
         } finally {
             setActionLoading("");
         }
@@ -173,14 +188,21 @@ export default function MyGroupsPage() {
         <BackgroundGrid bgColor="#FEE3D2">
             <div className={`${syne.className} ${plusJakartaSans.variable} min-h-screen relative flex flex-col items-center p-4 pt-20 md:pt-20 pb-10 md:pb-2`}>
                 <div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
-                    <Image
-                        src="/logo.svg"
-                        alt="Logo"
-                        width={120}
-                        height={40}
-                        className="w-auto h-8 md:h-12"
-                        priority
-                    />
+                    <button
+                        type="button"
+                        onClick={() => router.push("/")}
+                        className="focus:outline-none"
+                        aria-label="Go to homepage"
+                    >
+                        <Image
+                            src="/logo.svg"
+                            alt="Logo"
+                            width={160}
+                            height={60}
+                            className="w-auto h-12 md:h-16"
+                            priority
+                        />
+                    </button>
                     <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
                 </div>
 

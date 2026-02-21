@@ -9,14 +9,16 @@ const syne = Syne({
 export const metadata = {
   title: "BunkBuddies",
   description: "Find your perfect bunk buddy",
+  icons: {
+    icon: "/fav.png",
+    shortcut: "/fav.png",
+    apple: "/fav.png",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={syne.variable}>
-      <head>
-        <link rel="icon" href="/fav.png" type="image/png" />
-      </head>
       <body className="antialiased">
         {children}
       </body>

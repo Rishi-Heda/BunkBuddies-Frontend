@@ -7,35 +7,40 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
     const router = useRouter();
     const pathname = usePathname();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [logoutError, setLogoutError] = useState("");
 
     const handleExploreClick = () => {
-        if (pathname === "/explore-rooms") {
-            router.push("/find-buddies");
-        } else {
-            router.push("/explore-rooms");
-        }
+        router.push("/find-buddies");
     };
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
+        setLogoutError("");
 
         try {
-            await fetch("/api/logout", {
+            const response = await fetch("/api/logout", {
                 method: "POST",
                 cache: "no-store",
+                credentials: "same-origin",
             });
-        } catch {
-            // no-op: we still clear client state and redirect
-        } finally {
+
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(
+                    payload?.error || payload?.message || "Unable to logout right now",
+                );
+            }
+
             Object.keys(localStorage).forEach((key) => {
                 if (key.startsWith("bunkBuddies_")) {
                     localStorage.removeItem(key);
                 }
             });
 
+            window.location.assign("/signin?loggedOut=1");
+        } catch (error) {
+            setLogoutError(error?.message || "Unable to logout right now");
             setIsLoggingOut(false);
-            router.push("/");
-            router.refresh();
         }
     };
 
@@ -47,7 +52,7 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
                     onClick={handleExploreClick}
                     className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4"
                 >
-                    Explore
+                    Find
                 </button>
                 <button
                     type="button"
@@ -72,6 +77,11 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
                     {isLoggingOut ? "Logging out..." : "Logout"}
                 </button>
             </nav>
+            {logoutError ? (
+                <p className="mt-2 bg-[#FB5E4C] border border-black rounded-[4px] px-2 py-1 text-[12px] md:text-[13px] text-black">
+                    {logoutError}
+                </p>
+            ) : null}
         </div>
     );
 };
