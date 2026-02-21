@@ -197,7 +197,7 @@ export default function CreateRoomPage() {
                             onClick={() => router.back()}
                             className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1.5 text-[14px] sm:text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none transition-all whitespace-nowrap"
                         >
-                            {"<- Go Back"}
+                            ← Go Back
                         </button>
                     </div>
 
