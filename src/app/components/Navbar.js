@@ -56,7 +56,7 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
                     onClick={handleExploreClick}
                     className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4"
                 >
-                    Explore
+                    Find
                 </button>
                 <button
                     type="button"

@@ -189,7 +189,7 @@ export default function ProfilePage() {
                         className="w-auto h-12 md:h-16"
                         priority
                     />
-                    {isEditing && <Navbar wrapperClass="static flex items-center h-8 md:h-12" />}
+                    <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
                 </div>
 
                 <div className="w-full max-w-[945px] lg:max-w-[1045px] transition-all duration-300 mt-[101px] md:mt-[69px] mb-8 md:mb-0">
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                                 onClick={() => router.back()}
                                 className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
                             >
-                                {"<- Go Back"}
+                                ← Go Back
                             </button>
                         </div>
 

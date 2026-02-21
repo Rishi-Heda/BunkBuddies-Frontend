@@ -44,21 +44,13 @@ export default function Landing() {
           />
 
           <CustomButton color="#BE8EF8" onClick={handleSignIn}>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="sm:w-3.75 sm:h-3.75"
-            >
-              <path d="M13 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7" />
-              <path d="M17 8l4 4-4 4" />
-              <path d="M21 12H9" />
-            </svg>
+            <Image
+              src="/door.svg"
+              alt="Sign In"
+              width={14}
+              height={14}
+              className="sm:w-4 sm:h-4"
+            />
             Sign In
           </CustomButton>
         </nav>
