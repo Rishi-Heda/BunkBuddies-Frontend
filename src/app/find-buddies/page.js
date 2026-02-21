@@ -98,14 +98,14 @@ export default function FindBuddiesPage() {
 						className="focus:outline-none"
 						aria-label="Go to homepage"
 					>
-						<Image
-							src="/logo.svg"
-							alt="Logo"
-							width={120}
-							height={40}
-							className="w-auto h-8 md:h-12"
-							priority
-						/>
+                    <Image
+                        src="/logo.svg"
+                        alt="Logo"
+                        width={160}
+                        height={60}
+                        className="w-auto h-12 md:h-16"
+                        priority
+                    />
 					</button>
 					<Navbar wrapperClass="static flex items-center h-8 md:h-12" />
 				</div>
