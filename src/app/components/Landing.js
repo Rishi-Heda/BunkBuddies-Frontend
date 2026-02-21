@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import BackgroundGrid from "./BackgroundLines";
 import CustomButton from "./CustomButton";
 
-import { useRouter } from "next/navigation";
 import InfiniteMarquee from "./InfiniteMarquee";
 
 const heroSyne = Syne({
