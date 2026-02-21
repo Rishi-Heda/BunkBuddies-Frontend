@@ -38,6 +38,8 @@ export default function CreateRoomPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+    const [showValidationModal, setShowValidationModal] = useState(false);
+    const [missingFields, setMissingFields] = useState([]);
 
     useEffect(() => {
         let isMounted = true;
@@ -105,6 +107,21 @@ export default function CreateRoomPage() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setErrorMessage("");
+
+        // Check mandatory fields and show popup if any are missing
+        const missing = [];
+        if (!formData.roomName.trim()) missing.push("Room Name");
+        if (!formData.roomType) missing.push("Room Type");
+        if (!formData.roomSize) missing.push("Room Size");
+        if (!formData.pref1.trim()) missing.push("1st Preference");
+        if (!formData.pref2.trim()) missing.push("2nd Preference");
+
+        if (missing.length > 0) {
+            setMissingFields(missing);
+            setShowValidationModal(true);
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -117,10 +134,6 @@ export default function CreateRoomPage() {
                 block3: formData.pref3.trim(),
                 preferences: formData.otherPreferences.trim() || undefined,
             };
-
-            if (!payload.groupName || !payload.groupSize || !payload.block1 || !payload.block2 || !payload.block3) {
-                throw new Error("Please fill all required fields");
-            }
 
             const response = await backendFetch(
                 isEditing ? "group/updateGroup" : "group/createGroup",
@@ -196,7 +209,7 @@ export default function CreateRoomPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-3">
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm md:text-base font-bold">Room Name</label>
+                            <label className="text-sm md:text-base font-bold">Room Name <span className="text-red-600">*</span></label>
                             <input
                                 type="text"
                                 name="roomName"
@@ -209,7 +222,7 @@ export default function CreateRoomPage() {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm md:text-base font-bold">Room Type</label>
+                            <label className="text-sm md:text-base font-bold">Room Type <span className="text-red-600">*</span></label>
                             <select
                                 name="roomType"
                                 value={formData.roomType}
@@ -223,7 +236,7 @@ export default function CreateRoomPage() {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm md:text-base font-bold">Room Size</label>
+                            <label className="text-sm md:text-base font-bold">Room Size <span className="text-red-600">*</span></label>
                             <select
                                 name="roomSize"
                                 value={formData.roomSize}
@@ -239,7 +252,7 @@ export default function CreateRoomPage() {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm md:text-base font-bold">1st Preference</label>
+                            <label className="text-sm md:text-base font-bold">1st Preference <span className="text-red-600">*</span></label>
                             <input
                                 type="text"
                                 name="pref1"
@@ -252,7 +265,7 @@ export default function CreateRoomPage() {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-sm md:text-base font-bold">2nd Preference</label>
+                            <label className="text-sm md:text-base font-bold">2nd Preference <span className="text-red-600">*</span></label>
                             <input
                                 type="text"
                                 name="pref2"
@@ -300,6 +313,30 @@ export default function CreateRoomPage() {
                         </button>
                     </div>
                 </form>
+
+                {/* Validation Modal */}
+                {showValidationModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                        <div className="bg-[#FFB0AF] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+                            <h2 className="text-xl font-bold mb-4 text-center">Please Fill Required Fields</h2>
+                            <p className="text-sm mb-3">The following fields are mandatory:</p>
+                            <ul className="list-disc list-inside mb-5 bg-[#F7CC66] border border-black rounded-[4px] p-3">
+                                {missingFields.map((field, index) => (
+                                    <li key={index} className="text-sm font-medium">{field}</li>
+                                ))}
+                            </ul>
+                            <div className="flex justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowValidationModal(false)}
+                                    className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    OK, Got It
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </BackgroundGrid>
     );

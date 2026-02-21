@@ -1,5 +1,6 @@
 "use client";
 
+// ...existing code...
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -19,6 +20,23 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export default function MyGroupsPage() {
+        // Remove member from group (admin only)
+        const handleRemoveMember = async (memberUID) => {
+            if (!userGroup?.id || !memberUID) return;
+            setActionLoading(`remove-${memberUID}`);
+            try {
+                await backendFetch(`group/removeMember`, {
+                    method: "POST",
+                    body: JSON.stringify({ groupId: userGroup.id, memberUID }),
+                    headers: { "Content-Type": "application/json" },
+                });
+                await loadGroupData();
+            } catch (error) {
+                setErrorMessage(error?.message || "Unable to remove member");
+            } finally {
+                setActionLoading("");
+            }
+        };
     const router = useRouter();
     const [userGroup, setUserGroup] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
@@ -241,6 +259,67 @@ export default function MyGroupsPage() {
                                 ) : null}
                             </div>
 
+                            {/* Your Squad Section */}
+                            <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-black mt-15">Your Squad</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+                                {Array.isArray(userGroup?.students) && userGroup.students.length > 0 ? (
+                                    (() => {
+                                        const leader = userGroup.students.find(m => m.firebaseUID === userGroup.adminUID);
+                                        const others = userGroup.students.filter(m => m.firebaseUID !== userGroup.adminUID);
+                                        const renderMember = (member, idx) => (
+                                            <div key={member.firebaseUID || idx} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-5 relative" style={{outline: '0.48px black solid', outlineOffset: '-0.48px'}}>
+                                                <div>
+                                                    <p style={{color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4}}>{member.regNo || "Unknown ID"}</p>
+                                                    <h3 style={{color: 'black', fontSize: 32, fontFamily: 'Syne', fontWeight: 500, marginBottom: 8}}>{member.name || "Anonymous User"}</h3>
+                                                </div>
+                                                <div className="bg-[#DCBFFF] rounded-[5px]" style={{width: 266, minHeight: 120, margin: '0 auto', padding: '16px', position: 'relative'}}>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>Contact No.</span>
+                                                        <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.phone || "N/A"}</span>
+                                                    </div>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
+                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>Email</span>
+                                                        {/* Clickable text instead of email */}
+                                                        {member.email && (
+                                                            <span
+                                                                className="cursor-pointer hover:text-purple-900 transition-colors"
+                                                                title="Contact member"
+                                                                onClick={() => { window.location.href = `mailto:${member.email}`; }}
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                                    <rect width="24" height="24" rx="12" fill="#A084E8"/>
+                                                                    <path d="M7 8h10v8H7V8zm5 3l5-3v8H7V8l5 3z" fill="#fff"/>
+                                                                </svg>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>CGPA</span>
+                                                        <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.CGPA ?? "N/A"}</span>
+                                                    </div>
+                                                </div>
+                                                {isAdmin && member.firebaseUID !== userGroup.adminUID && (
+                                                    <button
+                                                        className="block mx-auto mt-4 bg-[#FB5E4C] border border-black shadow-[2.16px_2.88px_0px_black] rounded-[3.6px] px-7 py-2 text-[17.28px] font-[400] font-[Syne] text-black hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none transition-all outline outline-[0.72px] outline-black outline-offset-[-0.72px]"
+                                                        style={{ cursor: actionLoading === `remove-${member.firebaseUID}` ? 'not-allowed' : 'pointer' }}
+                                                        onClick={() => handleRemoveMember(member.firebaseUID)}
+                                                        disabled={actionLoading === `remove-${member.firebaseUID}`}
+                                                    >
+                                                        {actionLoading === `remove-${member.firebaseUID}` ? 'Removing...' : 'Remove'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        );
+                                        return [leader && renderMember(leader, 0), ...others.map(renderMember)];
+                                    })()
+                                ) : (
+                                    <div className="col-span-full py-10 text-center">
+                                        <p className="text-[#3E3E3E] text-lg">No squad members yet.</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Join Requests Section */}
                             {isAdmin ? (
                                 <>
                                     <div className="mb-8 mt-10">
