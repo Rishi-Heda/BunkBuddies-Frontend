@@ -17,13 +17,16 @@ export default function SignInPage() {
     const router = useRouter();
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [authError, setAuthError] = useState("");
+    const [logoutNotice, setLogoutNotice] = useState("");
     const [checkingSession, setCheckingSession] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
         const params = new URLSearchParams(window.location.search);
         const error = params.get("error");
+        const loggedOut = params.get("loggedOut") === "1";
         setAuthError(error || "");
+        setLogoutNotice(loggedOut ? "You have been logged out." : "");
 
         const loadSession = async () => {
             try {
@@ -100,6 +103,11 @@ export default function SignInPage() {
                     {authError ? (
                         <p className="w-full bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
                             {authError}
+                        </p>
+                    ) : null}
+                    {logoutNotice ? (
+                        <p className="w-full bg-[#47D19D] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
+                            {logoutNotice}
                         </p>
                     ) : null}
 
