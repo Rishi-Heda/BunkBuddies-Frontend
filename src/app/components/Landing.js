@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Syne } from "next/font/google";
+import { useRouter } from "next/navigation";
 import BackgroundGrid from "./BackgroundLines";
 import CustomButton from "./CustomButton";
 
@@ -9,10 +11,17 @@ import { useRouter } from "next/navigation";
 import InfiniteMarquee from "./InfiniteMarquee";
 
 const heroSyne = Syne({
-  subsets: ["latin"],
-  weight: ["700", "800"],
-  display: "swap",
+    subsets: ["latin"],
+    weight: ["700", "800"],
+    display: "swap",
 });
+
+const INITIAL_SESSION = {
+    checked: false,
+    authenticated: false,
+    nextRoute: "/signin",
+    shouldGoExplore: false,
+};
 
 export default function Landing() {
   const router = useRouter();
