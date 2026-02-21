@@ -85,13 +85,9 @@ export default function ProfilePage() {
 
         try {
             const payload = {};
-            const trimmedName = formData.name.trim();
             const trimmedContact = formData.contact.trim();
             const trimmedDescription = formData.description.trim();
 
-            if (trimmedName) {
-                payload.name = trimmedName;
-            }
             if (trimmedContact) {
                 payload.phone = trimmedContact;
             }
@@ -187,10 +183,10 @@ export default function ProfilePage() {
                                     type="text"
                                     name="name"
                                     value={formData.name}
-                                    onChange={handleChange}
+                                    readOnly
                                     placeholder="Aditya Madan"
                                     disabled={isLoading}
-                                    className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+                                    className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
                                 />
                             </div>
 
@@ -261,6 +257,10 @@ export default function ProfilePage() {
                                 />
                             </div>
                         </div>
+
+                        <p className="mb-5 text-xs md:text-sm text-black/80">
+                            Name, Email ID, and Register Number are auto-filled from your Google login and cannot be edited.
+                        </p>
 
                         <div className="flex flex-col gap-1 mb-8">
                             <label className="text-sm md:text-base font-bold">A Brief Description (200 Words)</label>
