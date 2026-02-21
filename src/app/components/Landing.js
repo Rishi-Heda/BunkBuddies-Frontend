@@ -63,6 +63,7 @@ export default function Landing() {
 	const router = useRouter();
 	const [sessionState, setSessionState] = useState(INITIAL_SESSION);
 	const [isRouting, setIsRouting] = useState(false);
+	const preventImageDrag = (event) => event.preventDefault();
 
 	useEffect(() => {
 		let isMounted = true;
@@ -124,6 +125,8 @@ export default function Landing() {
 						width={160}
 						height={60}
 						className="w-auto h-12 md:h-16"
+						draggable={false}
+						onDragStart={preventImageDrag}
 					/>
 
 					<CustomButton color="#BE8EF8" onClick={handleSignIn}>
@@ -133,6 +136,8 @@ export default function Landing() {
 							width={14}
 							height={14}
 							className="sm:w-4 sm:h-4"
+							draggable={false}
+							onDragStart={preventImageDrag}
 						/>
 						{navCtaLabel}
 					</CustomButton>

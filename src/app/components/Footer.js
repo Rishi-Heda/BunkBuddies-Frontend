@@ -53,6 +53,7 @@ export default function Footer() {
                 width={240}
                 height={100}
                 className="h-auto w-32 sm:w-40 md:w-52"
+                draggable={false}
               />
 
               <Image
@@ -61,6 +62,7 @@ export default function Footer() {
                 width={300}
                 height={90}
                 className="h-auto w-32 sm:w-40 md:w-[230px]"
+                draggable={false}
               />
             </div>
 
