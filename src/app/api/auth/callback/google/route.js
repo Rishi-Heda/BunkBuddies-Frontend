@@ -1,15 +1,12 @@
+export const runtime = "edge";
 
-
-export const runtime = 'edge';
 import { NextResponse } from "next/server";
 
-const BACKEND_BASE_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
-console.log('BACKEND_API_URL:', process.env.BACKEND_API_URL);
-console.log('NEXT_PUBLIC_BACKEND_API_URL:', process.env.NEXT_PUBLIC_BACKEND_API_URL);
-if (!BACKEND_BASE_URL) {
-    throw new Error("BACKEND_API_URL is not defined");
-}
-const BASE_URL = BACKEND_BASE_URL.replace(/\/$/, "");
+const BACKEND_BASE_URL = (
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+    "https://bunkbuddies-backend-ic43.onrender.com"
+).replace(/\/$/, "");
 
 function redirectToSignin(request, errorMessage) {
     const signinUrl = new URL("/signin", request.url);
@@ -17,6 +14,39 @@ function redirectToSignin(request, errorMessage) {
         signinUrl.searchParams.set("error", errorMessage);
     }
     return NextResponse.redirect(signinUrl);
+}
+
+async function resolvePostLoginPath(accessToken) {
+    try {
+        const profileResponse = await fetch(`${BACKEND_BASE_URL}/student/getStudent`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+            cache: "no-store",
+        });
+
+        if (!profileResponse.ok) {
+            return "/profile";
+        }
+
+        const payload = await profileResponse.json().catch(() => ({}));
+        const user = payload?.user || {};
+        const hasGroup = Boolean(user?.group?.id || user?.groupId);
+        const hasProfile = Boolean((user?.hostelType || "").trim());
+
+        if (hasGroup) {
+            return "/explore-rooms";
+        }
+
+        if (hasProfile) {
+            return "/find-buddies";
+        }
+
+        return "/profile";
+    } catch {
+        return "/profile";
+    }
 }
 
 export async function GET(request) {
@@ -56,7 +86,9 @@ export async function GET(request) {
             );
         }
 
-        const response = NextResponse.redirect(new URL("/profile", request.url));
+        const postLoginPath = await resolvePostLoginPath(payload.access_token);
+        const response = NextResponse.redirect(new URL(postLoginPath, request.url));
+
         response.cookies.set("bb_access_token", payload.access_token, {
             httpOnly: true,
             sameSite: "lax",
