@@ -25,36 +25,38 @@ export default function ExploreRoomsPage() {
 	useEffect(() => {
 		let isMounted = true;
 
-		const loadData = async () => {
-			try {
-				// Load user's group info
-				const studentResponse = await backendFetch("student/getStudent");
-				const student = studentResponse?.user || {};
-				if (isMounted) {
-					setUserGroup(student.group || null);
-				}
+        const loadData = async () => {
+            try {
+                const [studentResponse, groupsResponse] = await Promise.all([
+                    backendFetch("student/getStudent"),
+                    backendFetch("group/listGroups"),
+                ]);
+                if (!isMounted) {
+                    return;
+                }
 
-				// Load available rooms
-				const response = await backendFetch("group/listGroups");
-				if (!isMounted) {
-					return;
-				}
-				setRooms(response?.groups || []);
-			} catch (error) {
-				const message = error?.message || "Unable to load groups";
-				if (message.toLowerCase().includes("authorized")) {
-					router.push("/signin?error=Please login first");
-					return;
-				}
-				if (isMounted) {
-					setErrorMessage(message);
-				}
-			} finally {
-				if (isMounted) {
-					setIsLoading(false);
-				}
-			}
-		};
+                const studentHostelType = studentResponse?.user?.hostelType || "";
+                const fetchedRooms = Array.isArray(groupsResponse?.groups) ? groupsResponse.groups : [];
+                const filteredRooms = studentHostelType
+                    ? fetchedRooms.filter((room) => room?.hostelType === studentHostelType)
+                    : [];
+
+                setRooms(filteredRooms);
+            } catch (error) {
+                const message = error?.message || "Unable to load groups";
+                if (message.toLowerCase().includes("authorized")) {
+                    router.push("/signin?error=Please login first");
+                    return;
+                }
+                if (isMounted) {
+                    setErrorMessage(message);
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
 
 		loadData();
 
@@ -155,46 +157,48 @@ export default function ExploreRoomsPage() {
 								</div>
 							) : null}
 
-							{!isLoading &&
-								rooms.map((room) => {
-									const capacity = groupCapacity(room.groupSize);
-									const currentMembers = Array.isArray(room.students)
-										? room.students.length
-										: 0;
-									const availableBeds = Math.max(capacity - currentMembers, 0);
+                            {!isLoading && rooms.map((room) => {
+                                const capacity = groupCapacity(room.groupSize);
+                                const currentMembers = Array.isArray(room.students) ? room.students.length : 0;
+                                const availableBeds = Math.max(capacity - currentMembers, 0);
+                                
+                                // Find admin from students array
+                                const admin = Array.isArray(room.students) 
+                                    ? room.students.find(s => s.firebaseUID === room.adminUID) 
+                                    : null;
 
-									return (
-										<div
-											key={room.id}
-											className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[310px]"
-										>
-											<div className="mb-4">
-												<p className="text-[#3E3E3E] text-base font-normal">
-													{room.groupSize} {room.type}
-												</p>
-												<h2 className="text-black text-2xl font-normal leading-tight">
-													{room.groupName || "Unnamed Room"}
-												</h2>
-											</div>
+                                return (
+                                    <div
+                                        key={room.id}
+                                        className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[370px]"
+                                    >
+                                        <div className="mb-4">
+                                            <p className="text-[#3E3E3E] text-base font-normal">{room.groupSize} {room.type}</p>
+                                            <h2 className="text-black text-2xl font-normal leading-tight">{room.groupName || "Unnamed Room"}</h2>
+                                        </div>
 
-											<div className="space-y-1 mb-4 flex-grow">
-												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
-													<span>No. of beds available</span>
-													<span>{availableBeds}</span>
-												</div>
-												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
-													<span>Block Preference</span>
-													<span>
-														{room.block1 || "N/A"}
-														{room.block2 ? `>${room.block2}` : ""}
-														{room.block3 ? `>${room.block3}` : ""}
-													</span>
-												</div>
-												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
-													<span>Group Admin CGPA</span>
-													<span>{room.adminCGPA ?? "N/A"}</span>
-												</div>
-											</div>
+                                        <div className="space-y-1 mb-4 flex-grow">
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Group Leader</span>
+                                                <span>{admin?.name || room.adminName || "N/A"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Reg No.</span>
+                                                <span>{admin?.regNo || room.adminRegNo || "N/A"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>No. of beds available</span>
+                                                <span>{availableBeds}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Block Preference</span>
+                                                <span>{room.block1 || "N/A"}{room.block2 ? `>${room.block2}` : ""}{room.block3 ? `>${room.block3}` : ""}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Group Admin CGPA</span>
+                                                <span>{room.adminCGPA ?? "N/A"}</span>
+                                            </div>
+                                        </div>
 
 											{room.preferences ? (
 												<div className="bg-[#E7D2FF] rounded-[5px] p-2.5 mb-4 min-h-[56px]">
