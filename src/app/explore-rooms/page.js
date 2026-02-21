@@ -19,11 +19,13 @@ export default function ExploreRoomsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [sendingRoomId, setSendingRoomId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [userGroup, setUserGroup] = useState(null);
+    const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
 
-        const loadRooms = async () => {
+        const loadData = async () => {
             try {
                 const [studentResponse, groupsResponse] = await Promise.all([
                     backendFetch("student/getStudent"),
@@ -56,7 +58,7 @@ export default function ExploreRoomsPage() {
             }
         };
 
-        loadRooms();
+        loadData();
 
         return () => {
             isMounted = false;
@@ -64,6 +66,12 @@ export default function ExploreRoomsPage() {
     }, [router]);
 
     const handleSendRequest = async (roomId) => {
+        // Check if user is already in a group
+        if (userGroup) {
+            setShowLeaveGroupModal(true);
+            return;
+        }
+
         setSendingRoomId(roomId);
         setErrorMessage("");
 
@@ -107,7 +115,7 @@ export default function ExploreRoomsPage() {
                             onClick={() => router.back()}
                             className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
                         >
-                            {"<- Go Back"}
+                            ← Go Back
                         </button>
                     </div>
 
@@ -136,11 +144,16 @@ export default function ExploreRoomsPage() {
                                 const capacity = groupCapacity(room.groupSize);
                                 const currentMembers = Array.isArray(room.students) ? room.students.length : 0;
                                 const availableBeds = Math.max(capacity - currentMembers, 0);
+                                
+                                // Find admin from students array
+                                const admin = Array.isArray(room.students) 
+                                    ? room.students.find(s => s.firebaseUID === room.adminUID) 
+                                    : null;
 
                                 return (
                                     <div
                                         key={room.id}
-                                        className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[310px]"
+                                        className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[370px]"
                                     >
                                         <div className="mb-4">
                                             <p className="text-[#3E3E3E] text-base font-normal">{room.groupSize} {room.type}</p>
@@ -148,6 +161,14 @@ export default function ExploreRoomsPage() {
                                         </div>
 
                                         <div className="space-y-1 mb-4 flex-grow">
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Group Leader</span>
+                                                <span>{admin?.name || room.adminName || "N/A"}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+                                                <span>Reg No.</span>
+                                                <span>{admin?.regNo || room.adminRegNo || "N/A"}</span>
+                                            </div>
                                             <div className="flex justify-between items-center text-[#141414] text-[15.84px]">
                                                 <span>No. of beds available</span>
                                                 <span>{availableBeds}</span>
@@ -202,6 +223,32 @@ export default function ExploreRoomsPage() {
                         background: rgba(0, 0, 0, 0.3);
                     }
                 `}</style>
+
+                {/* Leave Group Modal */}
+                {showLeaveGroupModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                        <div className="bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+                            <h2 className="text-xl font-bold mb-4 text-center">Already in a Group</h2>
+                            <p className="text-sm mb-5 text-center">You are already a member of a group. Please leave your current group first before sending a request to join another group.</p>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLeaveGroupModal(false)}
+                                    className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => router.push("/my-groups")}
+                                    className="bg-[#CBA0FF] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Go to My Groups
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </BackgroundGrid>
     );
