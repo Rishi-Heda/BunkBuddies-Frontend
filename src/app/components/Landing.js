@@ -6,6 +6,7 @@ import BackgroundGrid from "./BackgroundLines";
 import CustomButton from "./CustomButton";
 
 import { useRouter } from "next/navigation";
+import InfiniteMarquee from "./InfiniteMarquee";
 
 const heroSyne = Syne({
   subsets: ["latin"],
@@ -44,7 +45,7 @@ export default function Landing() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="sm:w-[15px] sm:h-[15px]"
+              className="sm:w-3.75 sm:h-3.75"
             >
               <path d="M13 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7" />
               <path d="M17 8l4 4-4 4" />
@@ -84,36 +85,7 @@ export default function Landing() {
           </div>
 
           {/* Shapes */}
-          <div className="flex items-end justify-center flex-wrap gap-2 sm:gap-4 px-2 sm:px-4">
-            <Image
-              src="/shape1.png"
-              alt="shape"
-              width={150}
-              height={180}
-              className="w-[90px] h-auto sm:w-[120px] md:w-[150px]"
-            />
-            <Image
-              src="/shape2.png"
-              alt="shape"
-              width={170}
-              height={195}
-              className="w-[100px] h-auto sm:w-[135px] md:w-[170px]"
-            />
-            <Image
-              src="/shape3.png"
-              alt="shape"
-              width={160}
-              height={185}
-              className="w-[95px] h-auto sm:w-[125px] md:w-[160px]"
-            />
-            <Image
-              src="/shape4.png"
-              alt="shape"
-              width={148}
-              height={175}
-              className="w-[88px] h-auto sm:w-[115px] md:w-[148px]"
-            />
-          </div>
+          <InfiniteMarquee/>
         </section>
 
         {/* Wave top */}
@@ -129,9 +101,9 @@ export default function Landing() {
 
         {/* Body */}
         <section
-          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center px-4 sm:px-8 md:px-[163px]"
+          className="flex-1 pt-6 pb-12 sm:pt-10 sm:pb-16 bg-[#FB5E4C] flex flex-col items-center text-center px-4 sm:px-8 md:px-40.75"
         >
-          <p className="text-[20px] sm:text-[24px] md:text-[32px] font-normal text-left md:text-justify leading-7 text-gray-900 max-w-[900px] mx-auto">
+          <p className="text-[20px] sm:text-[24px] md:text-[32px] font-normal text-left md:text-justify leading-7 text-gray-900 max-w-225 mx-auto">
             <strong>Hostel roulette isn't fun.</strong> One random allocation
             can mean clashing sleep schedules, messy habits, and totally
             different ideas of quiet time. Those small differences turn into
