@@ -159,15 +159,19 @@ export default function MyGroupsPage() {
             }
         } catch (error) {
             const message = error?.message || "Unable to update request";
-            // Check if the user is already in another group
-            const isAlreadyInGroup = message.toLowerCase().includes("already") && 
-                (message.toLowerCase().includes("group") || message.toLowerCase().includes("member"));
+            const lowerMessage = message.toLowerCase();
             
-            if (isAlreadyInGroup && action === "ACCEPTED") {
+            // Check if the user is already in another group or request doesn't exist
+            const isAlreadyInGroup = lowerMessage.includes("already") && 
+                (lowerMessage.includes("group") || lowerMessage.includes("member"));
+            const requestNotFound = lowerMessage.includes("request") && 
+                (lowerMessage.includes("doesn't exist") || lowerMessage.includes("does not exist") || lowerMessage.includes("not found"));
+            
+            if ((isAlreadyInGroup || requestNotFound) && action === "ACCEPTED") {
                 // User joined another group while this request was pending
                 // Remove the stale request from the list
                 setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
-                alert("This user has already joined another group. The request has been removed.");
+                alert("This user is already in another group. The request has been removed.");
             } else {
                 setErrorMessage(message);
             }
