@@ -182,7 +182,7 @@ export default function FindBuddiesPage() {
 						</div>
 
 						<div
-							className="bg-[#FFB7B6] border border-black shadow-[4.23px_4.23px_0px_black] rounded-[3px] relative overflow-hidden aspect-square w-full cursor-pointer"
+							className="bg-[#FFB7B6] border border-black shadow-[4.23px_4.23px_0px_black] rounded-[3px] relative overflow-hidden aspect-square w-full cursor-pointer hover:scale-[1.01] transition-transform"
 							onClick={() => setJoinRoomOpen((previous) => !previous)}
 						>
 							<div
