@@ -70,13 +70,20 @@ export default function SignInPage() {
 				className={`${syne.className} h-screen relative flex flex-col items-center p-4 md:p-8 overflow-y-auto md:overflow-hidden`}
 			>
 				<div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
-					<Image
-						src="/logo.svg"
-						alt="Logo"
-						width={120}
-						height={40}
-						className="w-auto h-8 md:h-12"
-					/>
+					<button
+						type="button"
+						onClick={() => router.push("/")}
+						className="focus:outline-none"
+						aria-label="Go to homepage"
+					>
+						<Image
+							src="/logo.svg"
+							alt="Logo"
+							width={120}
+							height={40}
+							className="w-auto h-8 md:h-12"
+						/>
+					</button>
 				</div>
 
 				<div className="w-full max-w-5xl mt-12 sm:mt-8 md:mt-12 lg:mt-16 space-y-4 sm:space-y-6 md:space-y-8 flex-1 flex flex-col pb-6 sm:pb-8">

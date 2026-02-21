@@ -55,16 +55,16 @@ const INITIAL_FORM_DATA = {
 };
 
 export default function CreateRoomPage() {
-    const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-    const [showValidationModal, setShowValidationModal] = useState(false);
-    const [missingFields, setMissingFields] = useState([]);
-    const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
+	const router = useRouter();
+	const [isEditing, setIsEditing] = useState(false);
+	const [isAdmin, setIsAdmin] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
+	const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+	const [showValidationModal, setShowValidationModal] = useState(false);
+	const [missingFields, setMissingFields] = useState([]);
+	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -92,43 +92,47 @@ export default function CreateRoomPage() {
 					JSON.stringify(mappedProfile),
 				);
 
-                if (group && isMounted) {
-                    // Check if user is the admin of the group
-                    const userIsAdmin = Boolean(student.firebaseUID && group.adminUID && student.firebaseUID === group.adminUID);
-                    setIsAdmin(userIsAdmin);
-                    
-                    if (!userIsAdmin) {
-                        // Non-admin members cannot create a new room, show popup
-                        setShowLeaveGroupModal(true);
-                        return;
-                    }
-                    
-                    setIsEditing(true);
-                    setFormData({
-                        roomName: group.groupName || "",
-                        roomType: fromGroupType(group.type),
-                        pref1: group.block1 || "",
-                        pref2: group.block2 || "",
-                        pref3: group.block3 || "",
-                        roomSize: fromGroupSize(group.groupSize),
-                        otherPreferences: group.preferences || "",
-                    });
-                }
-            } catch (error) {
-                const message = error?.message || "Unable to load room details";
-                if (message.toLowerCase().includes("authorized")) {
-                    router.push("/signin?error=Please login first");
-                    return;
-                }
-                if (isMounted) {
-                    setErrorMessage(message);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
+				if (group && isMounted) {
+					// Check if user is the admin of the group
+					const userIsAdmin = Boolean(
+						student.firebaseUID &&
+						group.adminUID &&
+						student.firebaseUID === group.adminUID,
+					);
+					setIsAdmin(userIsAdmin);
+
+					if (!userIsAdmin) {
+						// Non-admin members cannot create a new room, show popup
+						setShowLeaveGroupModal(true);
+						return;
+					}
+
+					setIsEditing(true);
+					setFormData({
+						roomName: group.groupName || "",
+						roomType: fromGroupType(group.type),
+						pref1: group.block1 || "",
+						pref2: group.block2 || "",
+						pref3: group.block3 || "",
+						roomSize: fromGroupSize(group.groupSize),
+						otherPreferences: group.preferences || "",
+					});
+				}
+			} catch (error) {
+				const message = error?.message || "Unable to load room details";
+				if (message.toLowerCase().includes("authorized")) {
+					router.push("/signin?error=Please login first");
+					return;
+				}
+				if (isMounted) {
+					setErrorMessage(message);
+				}
+			} finally {
+				if (isMounted) {
+					setIsLoading(false);
+				}
+			}
+		};
 
 		loadStudentGroup();
 
@@ -215,37 +219,46 @@ export default function CreateRoomPage() {
 		}
 	};
 
-    return (
-        <BackgroundGrid>
-            <div className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}>
-                <div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
-                    <Image
-                        src="/logo.svg"
-                        alt="Logo"
-                        width={120}
-                        height={40}
-                        className="w-auto h-8 md:h-12"
-                        priority
-                    />
-                    <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
-                </div>
+	return (
+		<BackgroundGrid>
+			<div
+				className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}
+			>
+				<div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
+					<button
+						type="button"
+						onClick={() => router.push("/")}
+						className="focus:outline-none"
+						aria-label="Go to homepage"
+					>
+						<Image
+							src="/logo.svg"
+							alt="Logo"
+							width={120}
+							height={40}
+							className="w-auto h-8 md:h-12"
+							priority
+						/>
+					</button>
+					<Navbar wrapperClass="static flex items-center h-8 md:h-12" />
+				</div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="w-full max-w-[1045px] bg-[#FFB0AF] border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0"
-                >
-                    <div className="flex flex-row justify-between items-center mb-6 md:mb-5 gap-3">
-                        <h1 className="text-xl md:text-2xl font-semibold leading-tight pt-2 md:pt-0">
-                            {isEditing ? "Edit Room" : "Create Room"}
-                        </h1>
-                        <button
-                            type="button"
-                            onClick={() => router.back()}
-                            className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1.5 text-[14px] sm:text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none transition-all whitespace-nowrap"
-                        >
-                            ← Go Back
-                        </button>
-                    </div>
+				<form
+					onSubmit={handleSubmit}
+					className="w-full max-w-[1045px] bg-[#FFB0AF] border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0"
+				>
+					<div className="flex flex-row justify-between items-center mb-6 md:mb-5 gap-3">
+						<h1 className="text-xl md:text-2xl font-semibold leading-tight pt-2 md:pt-0">
+							{isEditing ? "Edit Room" : "Create Room"}
+						</h1>
+						<button
+							type="button"
+							onClick={() => router.back()}
+							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1.5 text-[14px] sm:text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none transition-all whitespace-nowrap"
+						>
+							← Go Back
+						</button>
+					</div>
 
 					{errorMessage ? (
 						<p className="mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
@@ -425,24 +438,29 @@ export default function CreateRoomPage() {
 					</div>
 				)}
 
-                {/* Leave Group Modal */}
-                {showLeaveGroupModal && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
-                        <div className="bg-[#FFB0AF] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
-                            <h2 className="text-xl font-bold mb-4 text-center">Already in a Group</h2>
-                            <p className="text-sm mb-5 text-center">You are already a member of a group. Please leave your current group first before creating a new room.</p>
-                            <div className="flex justify-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => router.push("/my-groups")}
-                                    className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
-                                >
-                                    Go to My Groups
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+				{/* Leave Group Modal */}
+				{showLeaveGroupModal && (
+					<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+						<div className="bg-[#FFB0AF] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+							<h2 className="text-xl font-bold mb-4 text-center">
+								Already in a Group
+							</h2>
+							<p className="text-sm mb-5 text-center">
+								You are already a member of a group. Please leave your current
+								group first before creating a new room.
+							</p>
+							<div className="flex justify-center gap-3">
+								<button
+									type="button"
+									onClick={() => router.push("/my-groups")}
+									className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+								>
+									Go to My Groups
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</BackgroundGrid>
 	);
