@@ -25,11 +25,21 @@ export default function ExploreRoomsPage() {
 
         const loadRooms = async () => {
             try {
-                const response = await backendFetch("group/listGroups");
+                const [studentResponse, groupsResponse] = await Promise.all([
+                    backendFetch("student/getStudent"),
+                    backendFetch("group/listGroups"),
+                ]);
                 if (!isMounted) {
                     return;
                 }
-                setRooms(response?.groups || []);
+
+                const studentHostelType = studentResponse?.user?.hostelType || "";
+                const fetchedRooms = Array.isArray(groupsResponse?.groups) ? groupsResponse.groups : [];
+                const filteredRooms = studentHostelType
+                    ? fetchedRooms.filter((room) => room?.hostelType === studentHostelType)
+                    : [];
+
+                setRooms(filteredRooms);
             } catch (error) {
                 const message = error?.message || "Unable to load groups";
                 if (message.toLowerCase().includes("authorized")) {
