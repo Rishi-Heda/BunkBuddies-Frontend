@@ -20,9 +20,28 @@ export default function FindBuddiesPage() {
     const [isAnimating, setIsAnimating] = useState(false);
     const [isJoining, setIsJoining] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [userGroup, setUserGroup] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
     useEffect(() => {
         setIsAnimating(true);
+        
+        const loadUserData = async () => {
+            try {
+                const response = await backendFetch("student/getStudent");
+                const student = response?.user || {};
+                const group = student.group || null;
+                setUserGroup(group);
+                if (group) {
+                    setIsAdmin(Boolean(student.firebaseUID && group.adminUID && student.firebaseUID === group.adminUID));
+                }
+            } catch {
+                // Silently fail - user might not be logged in
+            }
+        };
+        
+        loadUserData();
     }, []);
 
     const handleJoinRoom = async (event) => {
@@ -31,6 +50,12 @@ export default function FindBuddiesPage() {
 
         if (!code) {
             setErrorMessage("Please enter an access code");
+            return;
+        }
+
+        // Check if user is already in a group
+        if (userGroup) {
+            setShowLeaveGroupModal(true);
             return;
         }
 
@@ -81,7 +106,7 @@ export default function FindBuddiesPage() {
                             onClick={() => router.back()}
                             className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all whitespace-nowrap self-start mt-1 md:mt-0 md:self-auto"
                         >
-                            {"<- Go Back"}
+                            ← Go Back
                         </button>
                     </div>
 
@@ -93,7 +118,13 @@ export default function FindBuddiesPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-5 lg:gap-6 max-w-[280px] md:max-w-[900px] mx-auto">
                         <div
-                            onClick={() => router.push("/create-room")}
+                            onClick={() => {
+                                if (userGroup && !isAdmin) {
+                                    setShowLeaveGroupModal(true);
+                                } else {
+                                    router.push("/create-room");
+                                }
+                            }}
                             className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
                         >
                             <Image
@@ -173,6 +204,32 @@ export default function FindBuddiesPage() {
                         </div>
                     </div>
                 </main>
+
+                {/* Leave Group Modal */}
+                {showLeaveGroupModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                        <div className="bg-[#9AD7FD] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+                            <h2 className="text-xl font-bold mb-4 text-center">Already in a Group</h2>
+                            <p className="text-sm mb-5 text-center">You are already a member of a group. Please leave your current group first before creating or joining another group.</p>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLeaveGroupModal(false)}
+                                    className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => router.push("/my-groups")}
+                                    className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Go to My Groups
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </BackgroundGrid>
     );

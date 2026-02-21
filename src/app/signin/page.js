@@ -63,13 +63,13 @@ export default function SignInPage() {
     return (
         <BackgroundGrid>
             <div className={`${syne.className} h-screen relative flex flex-col items-center p-4 md:p-8 overflow-y-auto md:overflow-hidden`}>
-                <div className="absolute top-3 left-3 md:top-5 md:left-6">
+                <div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
                     <Image
                         src="/logo.svg"
                         alt="Logo"
-                        width={160}
-                        height={60}
-                        className="w-auto h-12 md:h-16"
+                        width={120}
+                        height={40}
+                        className="w-auto h-8 md:h-12"
                     />
                 </div>
 
