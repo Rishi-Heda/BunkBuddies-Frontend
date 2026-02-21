@@ -1,6 +1,7 @@
 "use client";
 
 // ...existing code...
+import { showToast } from "../components/Toast";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -31,6 +32,7 @@ export default function MyGroupsPage() {
                     headers: { "Content-Type": "application/json" },
                 });
                 await loadGroupData();
+                showToast("Member removed from group", "success");
             } catch (error) {
                 setErrorMessage(error?.message || "Unable to remove member");
             } finally {
@@ -108,13 +110,16 @@ export default function MyGroupsPage() {
 
     const handleDeleteGroup = async () => {
         setActionLoading("delete");
+
         try {
             await backendFetch("group/deleteGroup", { method: "DELETE" });
             await loadGroupData();
-            alert("Group deleted successfully");
+
+            showToast("Group deleted successfully", "success");
+
         } catch (error) {
             const message = error?.message || "Unable to delete group";
-            setErrorMessage(message);
+            showToast(message, "error");
         } finally {
             setActionLoading("");
         }
@@ -135,13 +140,16 @@ export default function MyGroupsPage() {
 
     const handleLeaveGroup = async () => {
         setActionLoading("leave");
+
         try {
             await backendFetch("group/leaveGroup", { method: "POST" });
             await loadGroupData();
-            alert("You left the group");
+
+            showToast("You left the group", "info");
+
         } catch (error) {
             const message = error?.message || "Unable to leave group";
-            setErrorMessage(message);
+            showToast(message, "error");
         } finally {
             setActionLoading("");
         }
@@ -150,12 +158,22 @@ export default function MyGroupsPage() {
     const handleRequestAction = async (requestId, action) => {
         setActionLoading(requestId);
         try {
-            await backendFetch(`groupRequest/updateRequest/${requestId}/${action}`, {
-                method: "POST",
-            });
-            setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
+            await backendFetch(
+                `groupRequest/updateRequest/${requestId}/${action}`,
+                { method: "POST" }
+            );
+
+            setJoinRequests((previous) =>
+                previous.filter((request) => request.id !== requestId)
+            );
+
             if (action === "ACCEPTED") {
+                showToast("Member added to group", "success");
                 await loadGroupData();
+            }
+
+            if (action === "REJECTED") {
+                showToast("Join request ignored", "info");
             }
         } catch (error) {
             const message = error?.message || "Unable to update request";
@@ -171,7 +189,10 @@ export default function MyGroupsPage() {
                 // User joined another group while this request was pending
                 // Remove the stale request from the list
                 setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
-                alert("This user is already in another group. The request has been removed.");
+                showToast(
+                    "This user is already in another group. Request removed.",
+                    "error"
+                );
             } else {
                 setErrorMessage(message);
             }
