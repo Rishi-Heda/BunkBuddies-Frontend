@@ -46,13 +46,13 @@ export default function Footer() {
       <div className="-mt-px bg-[#B78AF1] px-4 pb-10 pt-4 sm:px-6 sm:pb-12 md:px-0 md:pb-14">
         <div className="mx-auto flex w-full max-w-none flex-col gap-10 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col gap-9 pl-0 sm:pl-0 md:pl-[51px] md:gap-10">
-            <div className="flex w-full items-start justify-between gap-4 md:flex-col md:justify-start">
+            <div className="flex w-full items-start justify-between gap-5 md:flex-col md:justify-start md:gap-9">
               <Image
                 src="/logo.svg"
                 alt="BunkBuddies logo"
                 width={240}
                 height={100}
-                className="h-auto w-32 sm:w-40 md:w-52"
+                className="-mt-3 h-auto w-32 sm:-mt-5 sm:w-40 md:-mt-10 md:w-52"
                 draggable={false}
               />
 
