@@ -16,6 +16,20 @@ const INITIAL_FORM_DATA = {
     description: "",
 };
 
+
+function normalizeIndianMobileNumber(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    const withoutCountryCode = digits.startsWith("91") && digits.length === 12
+        ? digits.slice(2)
+        : digits;
+
+    if (!/^[6-9]\d{9}$/.test(withoutCountryCode)) {
+        throw new Error("Contact number must be a valid 10-digit Indian mobile number");
+    }
+
+    return `+91${withoutCountryCode}`;
+}
+
 export default function ProfilePage() {
     const router = useRouter();
     const [isAnimating, setIsAnimating] = useState(false);
@@ -89,7 +103,7 @@ export default function ProfilePage() {
             const trimmedDescription = formData.description.trim();
 
             if (trimmedContact) {
-                payload.phone = trimmedContact;
+                payload.phone = normalizeIndianMobileNumber(trimmedContact);
             }
             if (trimmedDescription) {
                 payload.description = trimmedDescription;
@@ -253,6 +267,7 @@ export default function ProfilePage() {
                                     onChange={handleChange}
                                     placeholder="+91 XXXXX XXXXX"
                                     disabled={isLoading}
+                                    inputMode="numeric"
                                     className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
                                 />
                             </div>
