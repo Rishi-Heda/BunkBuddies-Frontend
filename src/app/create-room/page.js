@@ -34,12 +34,14 @@ const INITIAL_FORM_DATA = {
 export default function CreateRoomPage() {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
     const [showValidationModal, setShowValidationModal] = useState(false);
     const [missingFields, setMissingFields] = useState([]);
+    const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -62,6 +64,16 @@ export default function CreateRoomPage() {
                 localStorage.setItem("bunkBuddies_userProfile", JSON.stringify(mappedProfile));
 
                 if (group && isMounted) {
+                    // Check if user is the admin of the group
+                    const userIsAdmin = Boolean(student.firebaseUID && group.adminUID && student.firebaseUID === group.adminUID);
+                    setIsAdmin(userIsAdmin);
+                    
+                    if (!userIsAdmin) {
+                        // Non-admin members cannot create a new room, show popup
+                        setShowLeaveGroupModal(true);
+                        return;
+                    }
+                    
                     setIsEditing(true);
                     setFormData({
                         roomName: group.groupName || "",
@@ -176,9 +188,9 @@ export default function CreateRoomPage() {
                     <Image
                         src="/logo.svg"
                         alt="Logo"
-                        width={160}
-                        height={60}
-                        className="w-auto h-12 md:h-16"
+                        width={120}
+                        height={40}
+                        className="w-auto h-8 md:h-12"
                         priority
                     />
                     <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
@@ -332,6 +344,25 @@ export default function CreateRoomPage() {
                                     className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
                                 >
                                     OK, Got It
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Leave Group Modal */}
+                {showLeaveGroupModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                        <div className="bg-[#FFB0AF] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+                            <h2 className="text-xl font-bold mb-4 text-center">Already in a Group</h2>
+                            <p className="text-sm mb-5 text-center">You are already a member of a group. Please leave your current group first before creating a new room.</p>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => router.push("/my-groups")}
+                                    className="bg-[#FD9E51] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Go to My Groups
                                 </button>
                             </div>
                         </div>
