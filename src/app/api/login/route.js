@@ -1,10 +1,10 @@
+
 export const runtime = 'edge';
 import { NextResponse } from "next/server";
 
 const BACKEND_BASE_URL = (
     process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
-    "https://bunkbuddies-backend-ic43.onrender.com"
+    process.env.NEXT_PUBLIC_BACKEND_API_URL
 ).replace(/\/$/, "");
 
 function redirectToSignin(request, errorMessage) {
