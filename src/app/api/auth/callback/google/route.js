@@ -4,6 +4,8 @@ export const runtime = 'edge';
 import { NextResponse } from "next/server";
 
 const BACKEND_BASE_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
+console.log('BACKEND_API_URL:', process.env.BACKEND_API_URL);
+console.log('NEXT_PUBLIC_BACKEND_API_URL:', process.env.NEXT_PUBLIC_BACKEND_API_URL);
 if (!BACKEND_BASE_URL) {
     throw new Error("BACKEND_API_URL is not defined");
 }
