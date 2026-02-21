@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import "./custom-scrollbar.css";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Syne } from "next/font/google";
@@ -20,29 +21,21 @@ const syne = Syne({
 });
 
 const GROUP_SIZE_OPTIONS = ["1", "2", "3", "4", "6", "8"];
-const PREFERENCE_OPTIONS = [
-	"A",
-	"B",
-	"B Annex",
-	"C",
-	"D",
-	"D Annex",
-	"E",
-	"E Annex",
-	"F",
-	"G",
-	"H",
-	"J",
-	"K",
-	"L",
-	"M",
-	"N",
-	"P",
-	"Q",
-	"R",
-	"S",
-	"T",
-];
+const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q",	"R", "S", "T"];
+const MH_BLOCKS = [ "A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
+const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "H", "J"];
+
+function getPrefOptions(allOptions, exclude) {
+	return allOptions.filter((opt) => !exclude.includes(opt));
+}
+
+function allowedBlocksForHostel(hostelType) {
+	if (!hostelType) return PREFERENCE_OPTIONS;
+	const t = String(hostelType).toUpperCase();
+	if (t === "MH") return MH_BLOCKS;
+	if (t === "LH") return LH_BLOCKS;
+	return PREFERENCE_OPTIONS;
+}
 
 const INITIAL_FORM_DATA = {
 	roomName: "",
@@ -56,6 +49,7 @@ const INITIAL_FORM_DATA = {
 
 export default function CreateRoomPage() {
 	const router = useRouter();
+	const [userHostelType, setUserHostelType] = useState("");
 	const [isEditing, setIsEditing] = useState(false);
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +67,7 @@ export default function CreateRoomPage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const student = response?.user || {};
+				setUserHostelType(student.hostelType || "");
 				const group = student.group;
 
 				const mappedProfile = {
@@ -291,7 +286,7 @@ export default function CreateRoomPage() {
 								value={formData.roomType}
 								onChange={handleChange}
 								disabled={isLoading || isSubmitting}
-								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
+								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="AC">AC</option>
 								<option value="Non-AC">Non-AC</option>
@@ -307,7 +302,7 @@ export default function CreateRoomPage() {
 								value={formData.roomSize}
 								onChange={handleChange}
 								disabled={isLoading || isSubmitting}
-								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
+								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="">Select size</option>
 								{GROUP_SIZE_OPTIONS.map((size) => (
@@ -327,14 +322,16 @@ export default function CreateRoomPage() {
 								value={formData.pref1}
 								onChange={handleChange}
 								disabled={isLoading || isSubmitting}
-								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
+								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="">Select block</option>
-								{PREFERENCE_OPTIONS.map((option) => (
-									<option key={option} value={option}>
-										{option}
-									</option>
-								))}
+								{getPrefOptions(allowedBlocksForHostel(userHostelType), []).map(
+									(option) => (
+										<option key={option} value={option}>
+											{option}
+										</option>
+									),
+								)}
 							</select>
 						</div>
 
@@ -347,10 +344,12 @@ export default function CreateRoomPage() {
 								value={formData.pref2}
 								onChange={handleChange}
 								disabled={isLoading || isSubmitting}
-								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
+								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="">Select block</option>
-								{PREFERENCE_OPTIONS.map((option) => (
+								{getPrefOptions(allowedBlocksForHostel(userHostelType), [
+									formData.pref1,
+								]).map((option) => (
 									<option key={option} value={option}>
 										{option}
 									</option>
@@ -370,7 +369,10 @@ export default function CreateRoomPage() {
 								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer"
 							>
 								<option value="">Select block</option>
-								{PREFERENCE_OPTIONS.map((option) => (
+								{getPrefOptions(allowedBlocksForHostel(userHostelType), [
+									formData.pref1,
+									formData.pref2,
+								]).map((option) => (
 									<option key={option} value={option}>
 										{option}
 									</option>
@@ -389,7 +391,7 @@ export default function CreateRoomPage() {
 							onChange={handleChange}
 							placeholder="Tell us about your preferences..."
 							disabled={isLoading || isSubmitting}
-							className="w-full h-20 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
+							className="w-full h-20 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40 custom-scrollbar"
 						/>
 					</div>
 
