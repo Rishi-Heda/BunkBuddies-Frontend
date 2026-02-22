@@ -6,8 +6,7 @@ const NETWORK_ERROR_MESSAGE =
 export const runtime = 'edge';
 const BACKEND_BASE_URL = (
     process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
-    "https://bunkbuddies-backend-ic43.onrender.com"
+    process.env.NEXT_PUBLIC_BACKEND_API_URL
 ).replace(/\/$/, "");
 
 function buildTargetUrl(pathSegments, requestUrl) {

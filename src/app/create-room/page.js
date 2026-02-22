@@ -20,10 +20,11 @@ const syne = Syne({
 	weight: ["400", "600", "700"],
 });
 
-const GROUP_SIZE_OPTIONS = ["1", "2", "3", "4", "6", "8"];
-const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q",	"R", "S", "T"];
+const GROUP_SIZE_OPTIONS = ["2", "3", "4", "6"];
+const LH_GROUP_SIZE_OPTIONS = ["2", "3", "4", "5", "6"];
+const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "G Annex", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "RGT", "LH1", "GH"];
 const MH_BLOCKS = [ "A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
-const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "H", "J"];
+const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J", "RGT", "LH1", "GH"];
 
 function getPrefOptions(allOptions, exclude) {
 	return allOptions.filter((opt) => !exclude.includes(opt));
@@ -35,6 +36,12 @@ function allowedBlocksForHostel(hostelType) {
 	if (t === "MH") return MH_BLOCKS;
 	if (t === "LH") return LH_BLOCKS;
 	return PREFERENCE_OPTIONS;
+}
+
+function groupSizeOptionsForHostel(hostelType) {
+	const t = String(hostelType || "").toUpperCase();
+	if (t === "LH") return LH_GROUP_SIZE_OPTIONS;
+	return GROUP_SIZE_OPTIONS;
 }
 
 const INITIAL_FORM_DATA = {
@@ -308,7 +315,7 @@ router.push("/my-groups");
 								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="">Select size</option>
-								{GROUP_SIZE_OPTIONS.map((size) => (
+								{groupSizeOptionsForHostel(userHostelType).map((size) => (
 									<option key={size} value={size}>
 										{size}
 									</option>
