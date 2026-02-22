@@ -126,18 +126,28 @@ export default function MyGroupsPage() {
     };
 
     const handleGenerateCode = async () => {
+
+        // ✅ Prevent generation if group already full
+        if (availableBeds === 0) {
+            showToast("Group is already full", "error");
+            return;
+        }
+
         setActionLoading("code");
+
         try {
             const response = await backendFetch("group/generateCode");
+
+            // ✅ KEEP EXISTING BEHAVIOUR
             alert(`Room code: ${response?.code || "N/A"}`);
+
         } catch (error) {
             const message = error?.message || "Unable to generate code";
-            setErrorMessage(message);
+            showToast(message, "error");
         } finally {
             setActionLoading("");
         }
     };
-
     const handleLeaveGroup = async () => {
         setActionLoading("leave");
 
