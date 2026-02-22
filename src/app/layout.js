@@ -1,4 +1,5 @@
 import { Syne } from "next/font/google";
+import ToastProvider from "./components/Toast";
 import "./globals.css";
 
 const syne = Syne({
@@ -20,7 +21,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={syne.variable}>
       <body className="antialiased">
+        <ToastProvider />
         {children}
+        
       </body>
     </html>
   );

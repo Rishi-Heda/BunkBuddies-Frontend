@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -154,7 +154,9 @@ export default function ProfilePage() {
 			if (formData.cgpa !== "") {
 				const parsedCgpa = Number(formData.cgpa);
 				if (!Number.isFinite(parsedCgpa) || parsedCgpa < 0 || parsedCgpa > 10) {
-					throw new Error("CGPA must be a number between 0 and 10");
+					showToast("CGPA must be between 0 and 10", "error");
+					setIsSaving(false);
+					return;
 				}
 				payload.CGPA = parsedCgpa;
 			}

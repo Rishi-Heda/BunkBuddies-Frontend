@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -26,6 +26,14 @@ export default function FindBuddiesPage() {
 
 	useEffect(() => {
 		setIsAnimating(true);
+		const params = new URLSearchParams(window.location.search);
+		const loginSuccess = params.get("success") === "1";
+		console.log("URL params:", window.location.search);
+		console.log("loginSuccess:", loginSuccess);
+		if (loginSuccess) {
+			showToast("Login Successful", "Welcome to BunkBuddies!");
+			window.history.replaceState({}, "", window.location.pathname);
+		}
 
 		const loadUserData = async () => {
 			try {
