@@ -47,7 +47,14 @@ export async function backendFetch(path, options = {}) {
         }
     }
 
-    const response = await fetch(url, requestConfig);
+    let response;
+
+    try {
+        response = await fetch(url, requestConfig);
+    } catch (error) {
+        // 🚨 Network failure (internet off / backend down)
+        throw new Error("Connect to internet and try again");
+    }
     const payload = await parseResponse(response);
 
     if (!response.ok) {

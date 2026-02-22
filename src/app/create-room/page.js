@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import "./custom-scrollbar.css";
 import { useRouter } from "next/navigation";
@@ -54,7 +54,6 @@ export default function CreateRoomPage() {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [errorMessage, setErrorMessage] = useState("");
 	const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 	const [showValidationModal, setShowValidationModal] = useState(false);
 	const [missingFields, setMissingFields] = useState([]);
@@ -113,14 +112,16 @@ export default function CreateRoomPage() {
 						otherPreferences: group.preferences || "",
 					});
 				}
-			} catch (error) {
-				const message = error?.message || "Unable to load room details";
+			} catch (error) {   //error message
+				const message =
+					error?.message || "Connect to internet and try again";
+
 				if (message.toLowerCase().includes("authorized")) {
 					router.push("/signin?error=Please login first");
 					return;
 				}
 				if (isMounted) {
-					setErrorMessage(message);
+					showToast(message, "error");  //toast for error
 				}
 			} finally {
 				if (isMounted) {
@@ -146,7 +147,6 @@ export default function CreateRoomPage() {
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		setErrorMessage("");
 
 		// Check mandatory fields and show popup if any are missing
 		const missing = [];
@@ -203,12 +203,15 @@ export default function CreateRoomPage() {
 			);
 			router.push("/my-groups");
 		} catch (error) {
-			const message = error?.message || "Failed to save room";
+			const message =
+				error?.message || "Connect to internet and try again";
+
 			if (message.toLowerCase().includes("authorized")) {
 				router.push("/signin?error=Please login first");
 				return;
 			}
-			setErrorMessage(message);
+
+			showToast(message, "error"); //toast for error
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -255,11 +258,6 @@ export default function CreateRoomPage() {
 						</button>
 					</div>
 
-					{errorMessage ? (
-						<p className="mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
-							{errorMessage}
-						</p>
-					) : null}
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-3">
 						<div className="flex flex-col gap-1">
