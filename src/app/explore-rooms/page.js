@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { showToast } from "../components/Toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Syne } from "next/font/google";
@@ -36,7 +37,6 @@ export default function ExploreRoomsPage() {
 	const [requestedRoomIds, setRequestedRoomIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [sendingRoomId, setSendingRoomId] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
 	const [userGroup, setUserGroup] = useState(null);
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
@@ -69,6 +69,14 @@ export default function ExploreRoomsPage() {
 	};
 
 	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const loginSuccess = params.get("success") === "1";
+		if (loginSuccess) {
+        window.history.replaceState({}, "", window.location.pathname);
+        setTimeout(() => {
+            showToast("Login Successful", "Welcome to BunkBuddies!");
+        }, 500);
+	}
 		let isMounted = true;
 
 		const loadStudent = async () => {
@@ -255,10 +263,7 @@ export default function ExploreRoomsPage() {
 					return;
 				}
 				if (isMounted) {
-					setErrorMessage(message);
-					setRooms([]);
-					setTotalCount(0);
-					setTotalPages(1);
+					showToast(message, "error");  //replaced error red bar with toast
 				}
 			} finally {
 				if (isMounted) {
@@ -359,9 +364,14 @@ export default function ExploreRoomsPage() {
 	}, [rooms, requestedRoomIds]);
 
 	const handleSendRequest = async (roomId) => {
-		// Check if user is already in a group.
+
+		// already in group
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
+			showToast(
+				"You are already in a group. Leave it first.",
+				"info"
+			);
 			return;
 		}
 
@@ -370,25 +380,42 @@ export default function ExploreRoomsPage() {
 		}
 
 		setSendingRoomId(roomId);
-		setErrorMessage("");
 
 		try {
 			await backendFetch(`groupRequest/joinRequest/${roomId}`, {
 				method: "POST",
 			});
-			markRoomAsRequested(roomId);
-			alert("Join request sent successfully!");
+
+			//  JOIN REQUEST SENT
+			showToast("Join request sent successfully", "success");
+
 		} catch (error) {
+
 			const message = error?.message || "Unable to send request";
-			if (message.toLowerCase().includes("authorized")) {
-				router.push("/signin?error=Please login first");
-				return;
+			const lower = message.toLowerCase();
+
+			// JOIN REQUEST ALREADY SENT
+			if (lower.includes("already") && lower.includes("request")) {
+				showToast("Join request already sent", "info");
 			}
-			if (message.toLowerCase().includes("already sent a request")) {
-				markRoomAsRequested(roomId);
-				return;
+
+			//  USER ALREADY IN GROUP
+			else if (
+				lower.includes("already") &&
+				(lower.includes("group") || lower.includes("member"))
+			) {
+				showToast("You are already in another group", "error");
 			}
-			setErrorMessage(message);
+
+			// ✅ GROUP ALREADY EXISTS / FULL / BLOCKED CASE
+			else if (lower.includes("exist")) {
+				showToast("Cannot join this group", "error");
+			}
+
+			else {
+				showToast(message, "error");
+			}
+
 		} finally {
 			setSendingRoomId("");
 		}
@@ -432,11 +459,6 @@ export default function ExploreRoomsPage() {
 						</button>
 					</div>
 
-					{errorMessage ? (
-						<p className="mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
-							{errorMessage}
-						</p>
-					) : null}
 
 					<div className="mb-5 bg-[#FB5E4C] border border-black shadow-[4px_4px_0px_black] rounded-[5px] p-2 md:p-2.5 shrink-0">
 						<div className="flex flex-col md:flex-row md:items-center gap-2">
