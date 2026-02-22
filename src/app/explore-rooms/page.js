@@ -680,6 +680,7 @@ export default function ExploreRoomsPage() {
 														setAppliedRoomTypes({ ...selectedRoomTypes });
 														setAppliedRoomSizes([...selectedRoomSizes]);
 														setAppliedBlocks([...selectedBlocks]);
+														setCurrentPage(1);
 														setShowRoomSizeOptions(false);
 														setShowBlockOptions(false);
 														setShowFilterDropdown(false);
