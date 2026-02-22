@@ -162,11 +162,20 @@ export default function ExploreRoomsPage() {
 										? room.students.length
 										: 0;
 									const availableBeds = Math.max(capacity - currentMembers, 0);
+									const adminStudent = Array.isArray(room.students)
+										? room.students.find(
+												(member) => member?.firebaseUID === room.adminUID,
+										  )
+										: null;
+									const groupLeaderName =
+										room.adminName || adminStudent?.name || "N/A";
+									const groupLeaderRegNo =
+										room.adminRegNo || adminStudent?.regNo || "N/A";
 
 									return (
 										<div
 											key={room.id}
-											className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[310px]"
+											className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform min-h-[360px]"
 										>
 											<div className="mb-4">
 												<p className="text-[#3E3E3E] text-base font-normal">
@@ -178,6 +187,14 @@ export default function ExploreRoomsPage() {
 											</div>
 
 											<div className="space-y-1 mb-4 flex-grow">
+												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+													<span>Group Leader</span>
+													<span>{groupLeaderName}</span>
+												</div>
+												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
+													<span>Reg No.</span>
+													<span>{groupLeaderRegNo}</span>
+												</div>
 												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
 													<span>No. of beds available</span>
 													<span>{availableBeds}</span>
