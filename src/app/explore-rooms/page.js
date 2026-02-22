@@ -33,6 +33,7 @@ export default function ExploreRoomsPage() {
 	const sortMenuRef = useRef(null);
 
 	const [rooms, setRooms] = useState([]);
+	const [requestedRoomIds, setRequestedRoomIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [sendingRoomId, setSendingRoomId] = useState("");
 	const [errorMessage, setErrorMessage] = useState("");
@@ -297,10 +298,45 @@ export default function ExploreRoomsPage() {
 		}));
 	};
 
+	const markRoomAsRequested = (roomId) => {
+		if (!roomId) {
+			return;
+		}
+		setRequestedRoomIds((previous) =>
+			previous.includes(roomId) ? previous : [...previous, roomId],
+		);
+	};
+
+	const visibleRooms = useMemo(() => {
+		if (!Array.isArray(rooms) || rooms.length === 0) {
+			return [];
+		}
+		if (requestedRoomIds.length === 0) {
+			return rooms;
+		}
+
+		const requestedLookup = new Set(requestedRoomIds);
+		return rooms
+			.map((room, index) => ({ room, index }))
+			.sort((a, b) => {
+				const aRequested = requestedLookup.has(a.room.id);
+				const bRequested = requestedLookup.has(b.room.id);
+				if (aRequested === bRequested) {
+					return a.index - b.index;
+				}
+				return aRequested ? 1 : -1;
+			})
+			.map((entry) => entry.room);
+	}, [rooms, requestedRoomIds]);
+
 	const handleSendRequest = async (roomId) => {
 		// Check if user is already in a group.
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
+			return;
+		}
+
+		if (requestedRoomIds.includes(roomId)) {
 			return;
 		}
 
@@ -311,11 +347,16 @@ export default function ExploreRoomsPage() {
 			await backendFetch(`groupRequest/joinRequest/${roomId}`, {
 				method: "POST",
 			});
+			markRoomAsRequested(roomId);
 			alert("Join request sent successfully!");
 		} catch (error) {
 			const message = error?.message || "Unable to send request";
 			if (message.toLowerCase().includes("authorized")) {
 				router.push("/signin?error=Please login first");
+				return;
+			}
+			if (message.toLowerCase().includes("already sent a request")) {
+				markRoomAsRequested(roomId);
 				return;
 			}
 			setErrorMessage(message);
@@ -575,7 +616,8 @@ export default function ExploreRoomsPage() {
 							) : null}
 
 							{!isLoading &&
-								rooms.map((room) => {
+								visibleRooms.map((room) => {
+									const isRequested = requestedRoomIds.includes(room.id);
 									const availableBeds = getAvailableBeds(room);
 									const adminStudent = Array.isArray(room.students)
 										? room.students.find(
@@ -639,12 +681,18 @@ export default function ExploreRoomsPage() {
 											<div className="mt-auto flex justify-center">
 												<button
 													onClick={() => handleSendRequest(room.id)}
-													disabled={sendingRoomId === room.id}
-													className="bg-[#47D19D] border border-black shadow-[1.6px_2.2px_0px_black] rounded-[2.7px] px-3 py-1.5 text-black text-[12.96px] font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[1.6px] active:translate-y-[2.2px] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+													disabled={sendingRoomId === room.id || isRequested}
+													className={`border border-black shadow-[1.6px_2.2px_0px_black] rounded-[2.7px] px-3 py-1.5 text-black text-[12.96px] font-normal transition-all disabled:opacity-70 disabled:cursor-not-allowed ${
+														isRequested
+															? "bg-[#F7A640]"
+															: "bg-[#47D19D] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[1.6px] active:translate-y-[2.2px]"
+													}`}
 												>
 													{sendingRoomId === room.id
 														? "Sending..."
-														: "Send Request to join"}
+														: isRequested
+															? "Request sent"
+															: "Send Request to join"}
 												</button>
 											</div>
 										</div>
