@@ -43,13 +43,14 @@ export default function ExploreRoomsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 	const [showSortDropdown, setShowSortDropdown] = useState(false);
+	const [showRoomSizeOptions, setShowRoomSizeOptions] = useState(false);
 	const [showBlockOptions, setShowBlockOptions] = useState(false);
 	const [selectedRoomTypes, setSelectedRoomTypes] = useState({
 		ac: false,
 		nac: false,
 	});
-	const [selectedRoomSize, setSelectedRoomSize] = useState("");
-	const [selectedBlock, setSelectedBlock] = useState("");
+	const [selectedRoomSizes, setSelectedRoomSizes] = useState([]);
+	const [selectedBlocks, setSelectedBlocks] = useState([]);
 	const [sortBy, setSortBy] = useState("none");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalCount, setTotalCount] = useState(0);
@@ -104,6 +105,7 @@ export default function ExploreRoomsPage() {
 				!filterMenuRef.current.contains(event.target)
 			) {
 				setShowFilterDropdown(false);
+				setShowRoomSizeOptions(false);
 				setShowBlockOptions(false);
 			}
 			if (
@@ -156,40 +158,35 @@ export default function ExploreRoomsPage() {
 			return optionsFromBackend.sort((a, b) => a - b);
 		}
 
-		const normalizedBlock = normalizeBlock(selectedBlock);
-		const isMH = normalizedBlock === "MH";
-		const isLH = normalizedBlock === "LH";
-
-		if (isMH) {
+		const hostelType = normalizeBlock(backendFilterOptions.hostelType);
+		if (hostelType === "MH") {
 			return MH_ROOM_SIZES;
 		}
-		if (isLH) {
+		if (hostelType === "LH") {
 			return LH_ROOM_SIZES;
 		}
 		return DEFAULT_ROOM_SIZES;
-	}, [backendFilterOptions.roomSizes, selectedBlock]);
+	}, [backendFilterOptions.hostelType, backendFilterOptions.roomSizes]);
 
 	useEffect(() => {
-		if (selectedRoomSize && !allowedRoomSizes.includes(Number.parseInt(selectedRoomSize, 10))) {
-			setSelectedRoomSize("");
-		}
-	}, [allowedRoomSizes, selectedRoomSize]);
+		const allowed = new Set(allowedRoomSizes.map((size) => String(size)));
+		setSelectedRoomSizes((previous) => {
+			const next = previous.filter((size) => allowed.has(String(size)));
+			return next.length === previous.length ? previous : next;
+		});
+	}, [allowedRoomSizes]);
 
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [searchQuery, selectedRoomTypes, selectedRoomSize, selectedBlock, sortBy]);
+	}, [searchQuery, selectedRoomTypes, selectedRoomSizes, selectedBlocks, sortBy]);
 
 	useEffect(() => {
-		if (!selectedBlock) {
-			return;
-		}
-		const exists = blockOptions.some(
-			(block) => normalizeBlock(block) === normalizeBlock(selectedBlock),
-		);
-		if (!exists) {
-			setSelectedBlock("");
-		}
-	}, [blockOptions, selectedBlock]);
+		const allowed = new Set(blockOptions.map((block) => normalizeBlock(block)));
+		setSelectedBlocks((previous) => {
+			const next = previous.filter((block) => allowed.has(normalizeBlock(block)));
+			return next.length === previous.length ? previous : next;
+		});
+	}, [blockOptions]);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -207,12 +204,12 @@ export default function ExploreRoomsPage() {
 				if (trimmedSearch) {
 					params.set("search", trimmedSearch);
 				}
-				if (selectedRoomSize) {
-					params.set("groupSize", `${selectedRoomSize}-Bedded`);
-				}
-				if (selectedBlock) {
-					params.set("block1", selectedBlock);
-				}
+				selectedRoomSizes.forEach((roomSize) => {
+					params.append("groupSizes", `${roomSize}-Bedded`);
+				});
+				selectedBlocks.forEach((block) => {
+					params.append("blocks", block);
+				});
 				if (sortBy !== "none") {
 					params.set("sortBy", sortBy);
 					params.set("sortOrder", "desc");
@@ -279,8 +276,8 @@ export default function ExploreRoomsPage() {
 		currentPage,
 		router,
 		searchQuery,
-		selectedBlock,
-		selectedRoomSize,
+		selectedBlocks,
+		selectedRoomSizes,
 		selectedRoomTypes,
 		sortBy,
 	]);
@@ -298,6 +295,36 @@ export default function ExploreRoomsPage() {
 			...previous,
 			[typeKey]: !previous[typeKey],
 		}));
+	};
+
+	const toggleRoomSize = (size) => {
+		const normalizedSize = String(size);
+		setSelectedRoomSizes((previous) => {
+			if (previous.includes(normalizedSize)) {
+				return previous.filter((value) => value !== normalizedSize);
+			}
+			return [...previous, normalizedSize].sort(
+				(a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10),
+			);
+		});
+	};
+
+	const toggleBlock = (block) => {
+		const normalizedBlockValue = normalizeText(block);
+		if (!normalizedBlockValue) {
+			return;
+		}
+		setSelectedBlocks((previous) => {
+			const isSelected = previous.some(
+				(value) => normalizeBlock(value) === normalizeBlock(normalizedBlockValue),
+			);
+			if (isSelected) {
+				return previous.filter(
+					(value) => normalizeBlock(value) !== normalizeBlock(normalizedBlockValue),
+				);
+			}
+			return [...previous, normalizedBlockValue];
+		});
 	};
 
 	const markRoomAsRequested = (roomId) => {
@@ -434,6 +461,7 @@ export default function ExploreRoomsPage() {
 										onClick={() => {
 											setShowFilterDropdown((previous) => !previous);
 											setShowSortDropdown(false);
+											setShowRoomSizeOptions(false);
 											setShowBlockOptions(false);
 										}}
 										className="bg-[#F7A640] border border-black rounded-[4px] px-2.5 py-2 text-sm text-black flex items-center gap-1.5"
@@ -474,37 +502,80 @@ export default function ExploreRoomsPage() {
 
 											<div className="mb-4">
 												<p className="text-black text-base mb-2">Room Size</p>
-												<div className="relative w-[110px]">
-													<select
-														value={selectedRoomSize}
-														onChange={(event) => setSelectedRoomSize(event.target.value)}
-														className="appearance-none w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black focus:outline-none"
+												<div className="relative w-[124px]">
+													<button
+														type="button"
+														onClick={() => {
+															setShowRoomSizeOptions((previous) => !previous);
+															setShowBlockOptions(false);
+														}}
+														className="w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black text-left focus:outline-none relative"
 													>
-														<option value="">All</option>
-														{allowedRoomSizes.map((size) => (
-															<option key={size} value={size}>
-																{size}
-															</option>
-														))}
-													</select>
-													<FiChevronDown
-														aria-hidden="true"
-														className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm"
-													/>
+														{selectedRoomSizes.length === 0
+															? "All"
+															: selectedRoomSizes.length === 1
+																? selectedRoomSizes[0]
+																: `${selectedRoomSizes.length} selected`}
+														<FiChevronDown
+															aria-hidden="true"
+															className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm transition-transform ${
+																showRoomSizeOptions ? "rotate-180" : ""
+															}`}
+														/>
+													</button>
+													{showRoomSizeOptions ? (
+														<div className="mint-scrollbar absolute left-0 top-[calc(100%+6px)] z-50 w-[124px] max-h-[220px] overflow-y-auto bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] py-1">
+															<button
+																type="button"
+																onClick={() => setSelectedRoomSizes([])}
+																className={`w-full text-left px-3 py-1.5 text-sm ${
+																	selectedRoomSizes.length > 0
+																		? "text-black hover:bg-[#7DDDBC]"
+																		: "bg-[#2E73D4] text-white"
+																}`}
+															>
+																All
+															</button>
+															{allowedRoomSizes.map((size) => {
+																const roomSizeValue = String(size);
+																const isSelected =
+																	selectedRoomSizes.includes(roomSizeValue);
+																return (
+																	<button
+																		key={roomSizeValue}
+																		type="button"
+																		onClick={() => toggleRoomSize(roomSizeValue)}
+																		className={`w-full text-left px-3 py-1.5 text-sm ${
+																			isSelected
+																				? "bg-[#2E73D4] text-white"
+																				: "text-black hover:bg-[#7DDDBC]"
+																		}`}
+																	>
+																		{roomSizeValue}
+																	</button>
+																);
+															})}
+														</div>
+													) : null}
 												</div>
 											</div>
 
 											<div className="mb-3">
 												<p className="text-black text-base mb-2">Preferred Block</p>
-												<div className="relative w-[110px]">
+												<div className="relative w-[124px]">
 													<button
 														type="button"
-														onClick={() =>
-															setShowBlockOptions((previous) => !previous)
-														}
+														onClick={() => {
+															setShowBlockOptions((previous) => !previous);
+															setShowRoomSizeOptions(false);
+														}}
 														className="w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black text-left focus:outline-none relative"
 													>
-														{selectedBlock || "All"}
+														{selectedBlocks.length === 0
+															? "All"
+															: selectedBlocks.length === 1
+																? selectedBlocks[0]
+																: `${selectedBlocks.length} selected`}
 														<FiChevronDown
 															aria-hidden="true"
 															className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm transition-transform ${
@@ -516,12 +587,9 @@ export default function ExploreRoomsPage() {
 														<div className="mint-scrollbar absolute left-0 top-[calc(100%+6px)] z-50 w-[124px] max-h-[350px] overflow-y-auto bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] py-1">
 															<button
 																type="button"
-																onClick={() => {
-																	setSelectedBlock("");
-																	setShowBlockOptions(false);
-																}}
+																onClick={() => setSelectedBlocks([])}
 																className={`w-full text-left px-3 py-1.5 text-sm ${
-																	selectedBlock
+																	selectedBlocks.length > 0
 																		? "text-black hover:bg-[#7DDDBC]"
 																		: "bg-[#2E73D4] text-white"
 																}`}
@@ -530,16 +598,16 @@ export default function ExploreRoomsPage() {
 															</button>
 															{blockOptions.map((block) => {
 																const isSelected =
-																	normalizeBlock(selectedBlock) ===
-																	normalizeBlock(block);
+																	selectedBlocks.some(
+																		(value) =>
+																			normalizeBlock(value) ===
+																			normalizeBlock(block),
+																	);
 																return (
 																	<button
 																		key={block}
 																		type="button"
-																		onClick={() => {
-																			setSelectedBlock(block);
-																			setShowBlockOptions(false);
-																		}}
+																		onClick={() => toggleBlock(block)}
 																		className={`w-full text-left px-3 py-1.5 text-sm ${
 																			isSelected
 																				? "bg-[#2E73D4] text-white"
@@ -560,8 +628,9 @@ export default function ExploreRoomsPage() {
 													type="button"
 													onClick={() => {
 														setSelectedRoomTypes({ ac: false, nac: false });
-														setSelectedRoomSize("");
-														setSelectedBlock("");
+														setSelectedRoomSizes([]);
+														setSelectedBlocks([]);
+														setShowRoomSizeOptions(false);
 														setShowBlockOptions(false);
 													}}
 													className="w-[78px] bg-[#F2E6DE] border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-3 py-1 text-xs"
@@ -571,6 +640,7 @@ export default function ExploreRoomsPage() {
 												<button
 													type="button"
 													onClick={() => {
+														setShowRoomSizeOptions(false);
 														setShowBlockOptions(false);
 														setShowFilterDropdown(false);
 													}}
@@ -589,6 +659,7 @@ export default function ExploreRoomsPage() {
 										onClick={() => {
 											setShowSortDropdown((previous) => !previous);
 											setShowFilterDropdown(false);
+											setShowRoomSizeOptions(false);
 											setShowBlockOptions(false);
 										}}
 										className="bg-[#F7A640] border border-black rounded-[4px] px-2.5 py-2 text-sm text-black flex items-center gap-1.5"
