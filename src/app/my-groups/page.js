@@ -439,15 +439,26 @@ export default function MyGroupsPage() {
                         <div className="bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center">
                             <h2 className="text-xl font-bold mb-2">Room Code</h2>
                             <p className="text-sm mb-4">Share this code with your roommate to join your room!</p>
-                            <div className="bg-[#F7CC66] border border-black rounded-[4px] px-6 py-3 text-2xl font-bold tracking-widest mb-6">
+                            <div className="bg-[#F7CC66] border border-black rounded-[4px] px-6 py-3 text-2xl font-bold tracking-widest mb-4">
                                 {roomCode}
                             </div>
-                            <button
-                                onClick={() => setRoomCode(null)}
-                                className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
-                            >
-                                Close
-                            </button>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(roomCode);
+                                        showToast("Code copied to clipboard!", "success");
+                                    }}
+                                    className="bg-[#47D19D] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Copy Code
+                                </button>
+                                <button
+                                    onClick={() => setRoomCode(null)}
+                                    className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
