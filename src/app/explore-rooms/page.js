@@ -43,6 +43,7 @@ export default function ExploreRoomsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 	const [showSortDropdown, setShowSortDropdown] = useState(false);
+	const [showBlockOptions, setShowBlockOptions] = useState(false);
 	const [selectedRoomTypes, setSelectedRoomTypes] = useState({
 		ac: false,
 		nac: false,
@@ -103,6 +104,7 @@ export default function ExploreRoomsPage() {
 				!filterMenuRef.current.contains(event.target)
 			) {
 				setShowFilterDropdown(false);
+				setShowBlockOptions(false);
 			}
 			if (
 				showSortDropdown &&
@@ -432,6 +434,7 @@ export default function ExploreRoomsPage() {
 										onClick={() => {
 											setShowFilterDropdown((previous) => !previous);
 											setShowSortDropdown(false);
+											setShowBlockOptions(false);
 										}}
 										className="bg-[#F7A640] border border-black rounded-[4px] px-2.5 py-2 text-sm text-black flex items-center gap-1.5"
 									>
@@ -494,22 +497,61 @@ export default function ExploreRoomsPage() {
 											<div className="mb-3">
 												<p className="text-black text-base mb-2">Preferred Block</p>
 												<div className="relative w-[110px]">
-													<select
-														value={selectedBlock}
-														onChange={(event) => setSelectedBlock(event.target.value)}
-														className="appearance-none w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black focus:outline-none"
+													<button
+														type="button"
+														onClick={() =>
+															setShowBlockOptions((previous) => !previous)
+														}
+														className="w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black text-left focus:outline-none relative"
 													>
-														<option value="">All</option>
-														{blockOptions.map((block) => (
-															<option key={block} value={block}>
-																{block}
-															</option>
-														))}
-													</select>
-													<FiChevronDown
-														aria-hidden="true"
-														className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm"
-													/>
+														{selectedBlock || "All"}
+														<FiChevronDown
+															aria-hidden="true"
+															className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm transition-transform ${
+																showBlockOptions ? "rotate-180" : ""
+															}`}
+														/>
+													</button>
+													{showBlockOptions ? (
+														<div className="mint-scrollbar absolute left-0 top-[calc(100%+6px)] z-50 w-[124px] max-h-[350px] overflow-y-auto bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] py-1">
+															<button
+																type="button"
+																onClick={() => {
+																	setSelectedBlock("");
+																	setShowBlockOptions(false);
+																}}
+																className={`w-full text-left px-3 py-1.5 text-sm ${
+																	selectedBlock
+																		? "text-black hover:bg-[#7DDDBC]"
+																		: "bg-[#2E73D4] text-white"
+																}`}
+															>
+																All
+															</button>
+															{blockOptions.map((block) => {
+																const isSelected =
+																	normalizeBlock(selectedBlock) ===
+																	normalizeBlock(block);
+																return (
+																	<button
+																		key={block}
+																		type="button"
+																		onClick={() => {
+																			setSelectedBlock(block);
+																			setShowBlockOptions(false);
+																		}}
+																		className={`w-full text-left px-3 py-1.5 text-sm ${
+																			isSelected
+																				? "bg-[#2E73D4] text-white"
+																				: "text-black hover:bg-[#7DDDBC]"
+																		}`}
+																	>
+																		{block}
+																	</button>
+																);
+															})}
+														</div>
+													) : null}
 												</div>
 											</div>
 
@@ -520,6 +562,7 @@ export default function ExploreRoomsPage() {
 														setSelectedRoomTypes({ ac: false, nac: false });
 														setSelectedRoomSize("");
 														setSelectedBlock("");
+														setShowBlockOptions(false);
 													}}
 													className="w-[78px] bg-[#F2E6DE] border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-3 py-1 text-xs"
 												>
@@ -527,7 +570,10 @@ export default function ExploreRoomsPage() {
 												</button>
 												<button
 													type="button"
-													onClick={() => setShowFilterDropdown(false)}
+													onClick={() => {
+														setShowBlockOptions(false);
+														setShowFilterDropdown(false);
+													}}
 													className="w-[126px] bg-[#FB5E4C] border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-4 py-1 text-xs"
 												>
 													Filter Rooms
@@ -543,6 +589,7 @@ export default function ExploreRoomsPage() {
 										onClick={() => {
 											setShowSortDropdown((previous) => !previous);
 											setShowFilterDropdown(false);
+											setShowBlockOptions(false);
 										}}
 										className="bg-[#F7A640] border border-black rounded-[4px] px-2.5 py-2 text-sm text-black flex items-center gap-1.5"
 									>
