@@ -37,6 +37,7 @@ export default function ExploreRoomsPage() {
 	const [requestedRoomIds, setRequestedRoomIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [sendingRoomId, setSendingRoomId] = useState("");
+	const [errorMessage, setErrorMessage] = useState("");
 	const [userGroup, setUserGroup] = useState(null);
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
