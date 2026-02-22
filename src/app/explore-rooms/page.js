@@ -18,7 +18,6 @@ export default function ExploreRoomsPage() {
 	const [rooms, setRooms] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [sendingRoomId, setSendingRoomId] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
 	const [userGroup, setUserGroup] = useState(null);
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
@@ -55,7 +54,7 @@ export default function ExploreRoomsPage() {
 					return;
 				}
 				if (isMounted) {
-					setErrorMessage(message);
+					showToast(message, "error");  //replaced error red bar with toast
 				}
 			} finally {
 				if (isMounted) {
@@ -84,7 +83,6 @@ export default function ExploreRoomsPage() {
 		}
 
 		setSendingRoomId(roomId);
-		setErrorMessage("");
 
 		try {
 			await backendFetch(`groupRequest/joinRequest/${roomId}`, {
@@ -164,11 +162,6 @@ export default function ExploreRoomsPage() {
 						</button>
 					</div>
 
-					{errorMessage ? (
-						<p className="mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
-							{errorMessage}
-						</p>
-					) : null}
 
 					<div className="overflow-visible md:overflow-y-auto overflow-x-hidden custom-scrollbar pt-2 px-2 md:flex-1 min-h-0 -mx-2">
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-4 max-w-[900px] mx-auto px-2 h-max">
