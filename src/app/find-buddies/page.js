@@ -1,4 +1,4 @@
-"use client";
+"use client"; //comment 
 import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -96,7 +96,10 @@ export default function FindBuddiesPage() {
 			}
 
 			// ✅ TASK: Group doesn't exist (code)
-			if (
+			if (lowerMessage.includes("expired")) {
+				showToast("Code has expired!", "error");
+			}
+			else if (
 				lowerMessage.includes("not found") ||
 				lowerMessage.includes("doesn't exist") ||
 				lowerMessage.includes("invalid")
@@ -106,7 +109,6 @@ export default function FindBuddiesPage() {
 			else {
 				showToast(message, "error");
 			}
-
 		} finally {
 			setIsJoining(false);
 		}
