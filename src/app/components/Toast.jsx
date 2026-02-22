@@ -12,8 +12,18 @@ import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 let showToastExternal;
 
 export const showToast = (message, variant = "success") => {
+  let safeMessage = message;
+
+  //  normalize objects coming from backend (pls review this part)
+  if (typeof message === "object") {
+    safeMessage =
+      message?.message ||
+      message?.error ||
+      JSON.stringify(message);
+  }
+
   if (showToastExternal) {
-    showToastExternal(message, variant);
+    showToastExternal(String(safeMessage), variant);
   }
 };
 
