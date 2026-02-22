@@ -59,35 +59,54 @@ export default function FindBuddiesPage() {
 
 	const handleJoinRoom = async (event) => {
 		event.preventDefault();
+
 		const code = accessCode.trim();
 
 		if (!code) {
-			setErrorMessage("Please enter an access code");
+			showToast("Please enter an access code", "error");
 			return;
 		}
 
-		// Check if user is already in a group
+		// Already in group
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
 			return;
 		}
 
 		setIsJoining(true);
-		setErrorMessage("");
 
 		try {
-			await backendFetch(`group/joinGroup/${encodeURIComponent(code)}`, {
-				method: "POST",
-			});
-			alert("Joined group successfully!");
+			await backendFetch(
+				`group/joinGroup/${encodeURIComponent(code)}`,
+				{ method: "POST" }
+			);
+
+			// ✅ TASK: Joined room with code
+			showToast("Joined room successfully", "success");
+
 			router.push("/my-groups");
+
 		} catch (error) {
 			const message = error?.message || "Unable to join group";
-			if (message.toLowerCase().includes("authorized")) {
+			const lowerMessage = message.toLowerCase();
+
+			if (lowerMessage.includes("authorized")) {
 				router.push("/signin?error=Please login first");
 				return;
 			}
-			setErrorMessage(message);
+
+			// ✅ TASK: Group doesn't exist (code)
+			if (
+				lowerMessage.includes("not found") ||
+				lowerMessage.includes("doesn't exist") ||
+				lowerMessage.includes("invalid")
+			) {
+				showToast("Group doesn't exist for this code", "error");
+			}
+			else {
+				showToast(message, "error");
+			}
+
 		} finally {
 			setIsJoining(false);
 		}
