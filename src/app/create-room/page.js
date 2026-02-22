@@ -22,9 +22,9 @@ const syne = Syne({
 
 const GROUP_SIZE_OPTIONS = ["2", "3", "4", "6"];
 const LH_GROUP_SIZE_OPTIONS = ["2", "3", "4", "5", "6"];
-const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q",	"R", "S", "T"];
+const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "G Annex", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "RGT", "LH1", "GH"];
 const MH_BLOCKS = [ "A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
-const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J"];
+const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J", "RGT", "LH1", "GH"];
 
 function getPrefOptions(allOptions, exclude) {
 	return allOptions.filter((opt) => !exclude.includes(opt));
