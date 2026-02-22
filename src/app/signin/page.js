@@ -29,8 +29,12 @@ export default function SignInPage() {
 		const loginSuccess = params.get("success") === "1";
 
 		setAuthError(error || "");
-		setLogoutNotice(loggedOut ? "You have been logged out." : "");
-		
+		setLogoutNotice("");
+		if (loggedOut) {
+			setTimeout(() => {
+				showToast("You have been logged out.", "success");
+			}, 500);
+		}
 
 		const loadSession = async () => {
 			try {

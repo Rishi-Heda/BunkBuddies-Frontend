@@ -141,10 +141,15 @@ export default function ProfilePage() {
 			const payload = {};
 			const trimmedContact = formData.contact.trim();
 			const trimmedDescription = formData.description.trim();
-
 			if (trimmedContact) {
-				payload.phone = normalizeIndianMobileNumber(trimmedContact);
-			}
+				try {
+					payload.phone = normalizeIndianMobileNumber(trimmedContact);
+				} catch (e) {
+					showToast("Invalid Mobile Number", "error");
+					setIsSaving(false);
+					return;
+				}
+}
 			if (trimmedDescription) {
 				payload.description = trimmedDescription;
 			}
