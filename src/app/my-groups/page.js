@@ -319,6 +319,12 @@ export default function MyGroupsPage() {
                                                         <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>CGPA</span>
                                                         <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.CGPA ?? "N/A"}</span>
                                                     </div>
+                                                    <div style={{marginTop: 12}}>
+                                                        <span style={{display: 'block', color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500, marginBottom: 4}}>Description</span>
+                                                        <p style={{color: '#3F3F3F', fontSize: 13.5, fontFamily: 'Syne', fontWeight: 400, lineHeight: 1.35, wordBreak: 'break-word'}}>
+                                                            {member.description || "N/A"}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 {isAdmin && member.firebaseUID !== userGroup.adminUID && (
                                                     <button
@@ -372,6 +378,12 @@ export default function MyGroupsPage() {
                                                     <div className="flex justify-between items-center text-[16px]">
                                                         <span className="text-[#141414] font-medium">CGPA</span>
                                                         <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{request?.student?.CGPA ?? "N/A"}</span>
+                                                    </div>
+                                                    <div className="text-[16px] pt-1">
+                                                        <span className="text-[#141414] font-medium block mb-0.5">Description</span>
+                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words">
+                                                            {request?.student?.description || "N/A"}
+                                                        </p>
                                                     </div>
                                                 </div>
 
