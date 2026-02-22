@@ -30,7 +30,7 @@ export default function SignInPage() {
 
 		setAuthError(error || "");
 		setLogoutNotice(loggedOut ? "You have been logged out." : "");
-		showToast("Login Successful", "Welcome to BunkBuddies!");
+		
 
 		const loadSession = async () => {
 			try {
@@ -43,7 +43,8 @@ export default function SignInPage() {
 				if (!isMounted) return;
 
 				if (payload?.authenticated) {
-					router.replace(payload?.nextRoute || "/find-buddies");
+					const nextRoute = (payload?.nextRoute || "/find-buddies").split("?")[0];
+					router.replace(nextRoute);
 					return;
 				}
 			} finally {

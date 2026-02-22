@@ -184,8 +184,7 @@ export default function ProfilePage() {
 				"bunkBuddies_userProfile",
 				JSON.stringify(localProfile),
 			);
-			alert("Profile updated successfully!");
-			router.push("/find-buddies");
+			router.push("/find-buddies?profileUpdated=1");
 		} catch (error) {
 			const message = error?.message || "Failed to update profile";
 			if (message.toLowerCase().includes("authorized")) {

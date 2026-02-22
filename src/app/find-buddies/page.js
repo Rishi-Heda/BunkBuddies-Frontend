@@ -25,16 +25,15 @@ export default function FindBuddiesPage() {
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
-		setIsAnimating(true);
-		const params = new URLSearchParams(window.location.search);
-		const loginSuccess = params.get("success") === "1";
-		console.log("URL params:", window.location.search);
-		console.log("loginSuccess:", loginSuccess);
-		if (loginSuccess) {
-			showToast("Login Successful", "Welcome to BunkBuddies!");
-			window.history.replaceState({}, "", window.location.pathname);
-		}
-
+		    setIsAnimating(true);
+			const params = new URLSearchParams(window.location.search);
+			const profileUpdated = params.get("profileUpdated") === "1";
+			if (profileUpdated) {
+				window.history.replaceState({}, "", window.location.pathname);
+				setTimeout(() => {
+					showToast("Profile updated successfully!", "success");
+				}, 500);
+			}
 		const loadUserData = async () => {
 			try {
 				const response = await backendFetch("student/getStudent");

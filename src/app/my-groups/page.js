@@ -1,6 +1,5 @@
 "use client";
-
-// ...existing code...
+import { showToast } from "../components/Toast";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -20,7 +19,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export default function MyGroupsPage() {
-        // Remove member from group (admin only)
         const handleRemoveMember = async (memberUID) => {
             if (!userGroup?.id || !memberUID) return;
             setActionLoading(`remove-${memberUID}`);
@@ -45,6 +43,7 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [actionLoading, setActionLoading] = useState("");
+    const [roomCode, setRoomCode] = useState(null);
 
     const loadGroupData = useCallback(async () => {
         setErrorMessage("");
@@ -111,7 +110,7 @@ export default function MyGroupsPage() {
         try {
             await backendFetch("group/deleteGroup", { method: "DELETE" });
             await loadGroupData();
-            alert("Group deleted successfully");
+            showToast("Group deleted successfully", "success");
         } catch (error) {
             const message = error?.message || "Unable to delete group";
             setErrorMessage(message);
@@ -124,7 +123,7 @@ export default function MyGroupsPage() {
         setActionLoading("code");
         try {
             const response = await backendFetch("group/generateCode");
-            alert(`Room code: ${response?.code || "N/A"}`);
+            setRoomCode(response?.code || "N/A");
         } catch (error) {
             const message = error?.message || "Unable to generate code";
             setErrorMessage(message);
@@ -138,7 +137,7 @@ export default function MyGroupsPage() {
         try {
             await backendFetch("group/leaveGroup", { method: "POST" });
             await loadGroupData();
-            alert("You left the group");
+            showToast("You left the group", "success");
         } catch (error) {
             const message = error?.message || "Unable to leave group";
             setErrorMessage(message);
@@ -161,17 +160,14 @@ export default function MyGroupsPage() {
             const message = error?.message || "Unable to update request";
             const lowerMessage = message.toLowerCase();
             
-            // Check if the user is already in another group or request doesn't exist
             const isAlreadyInGroup = lowerMessage.includes("already") && 
                 (lowerMessage.includes("group") || lowerMessage.includes("member"));
             const requestNotFound = lowerMessage.includes("request") && 
                 (lowerMessage.includes("doesn't exist") || lowerMessage.includes("does not exist") || lowerMessage.includes("not found"));
             
             if ((isAlreadyInGroup || requestNotFound) && action === "ACCEPTED") {
-                // User joined another group while this request was pending
-                // Remove the stale request from the list
                 setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
-                alert("This user is already in another group. The request has been removed.");
+                showToast("This user is already in another group. The request has been removed.", "error");
             } else {
                 setErrorMessage(message);
             }
@@ -281,7 +277,6 @@ export default function MyGroupsPage() {
                                 ) : null}
                             </div>
 
-                            {/* Your Squad Section */}
                             <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-black mt-15">Your Squad</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
                                 {Array.isArray(userGroup?.students) && userGroup.students.length > 0 ? (
@@ -301,7 +296,6 @@ export default function MyGroupsPage() {
                                                     </div>
                                                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
                                                         <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>Email</span>
-                                                        {/* Clickable text instead of email */}
                                                         {member.email && (
                                                             <span
                                                                 className="cursor-pointer hover:text-purple-900 transition-colors"
@@ -341,7 +335,6 @@ export default function MyGroupsPage() {
                                 )}
                             </div>
 
-                            {/* Join Requests Section */}
                             {isAdmin ? (
                                 <>
                                     <div className="mb-8 mt-10">
@@ -416,6 +409,24 @@ export default function MyGroupsPage() {
                         </div>
                     )}
                 </main>
+
+                {roomCode && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+                        <div className="bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center">
+                            <h2 className="text-xl font-bold mb-2">Room Code</h2>
+                            <p className="text-sm mb-4">Share this code with your roommate to join your room!</p>
+                            <div className="bg-[#F7CC66] border border-black rounded-[4px] px-6 py-3 text-2xl font-bold tracking-widest mb-6">
+                                {roomCode}
+                            </div>
+                            <button
+                                onClick={() => setRoomCode(null)}
+                                className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </BackgroundGrid>
     );
