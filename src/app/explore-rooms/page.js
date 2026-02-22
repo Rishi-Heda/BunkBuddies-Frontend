@@ -8,6 +8,7 @@ import { Syne } from "next/font/google";
 import { FiChevronDown, FiFilter, FiSearch, FiSliders } from "react-icons/fi";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
+import CustomButton from "../components/CustomButton";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
 
 const syne = Syne({
@@ -24,9 +25,7 @@ const normalizeText = (value) => String(value || "").trim();
 const normalizeBlock = (value) => normalizeText(value).toUpperCase();
 
 const roomBlocks = (room) =>
-	[room.block1, room.block2, room.block3]
-		.map(normalizeBlock)
-		.filter(Boolean);
+	[room.block1, room.block2, room.block3].map(normalizeBlock).filter(Boolean);
 
 export default function ExploreRoomsPage() {
 	const router = useRouter();
@@ -44,6 +43,7 @@ export default function ExploreRoomsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 	const [showSortDropdown, setShowSortDropdown] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
 	const [showRoomSizeOptions, setShowRoomSizeOptions] = useState(false);
 	const [showBlockOptions, setShowBlockOptions] = useState(false);
 	const [selectedRoomTypes, setSelectedRoomTypes] = useState({
@@ -71,7 +71,9 @@ export default function ExploreRoomsPage() {
 
 	const getAvailableBeds = (room) => {
 		const capacity = groupCapacity(room.groupSize);
-		const currentMembers = Array.isArray(room.students) ? room.students.length : 0;
+		const currentMembers = Array.isArray(room.students)
+			? room.students.length
+			: 0;
 		return Math.max(capacity - currentMembers, 0);
 	};
 
@@ -79,11 +81,11 @@ export default function ExploreRoomsPage() {
 		const params = new URLSearchParams(window.location.search);
 		const loginSuccess = params.get("success") === "1";
 		if (loginSuccess) {
-        window.history.replaceState({}, "", window.location.pathname);
-        setTimeout(() => {
-            showToast("Login Successful", "Welcome to BunkBuddies!");
-        }, 500);
-	}
+			window.history.replaceState({}, "", window.location.pathname);
+			setTimeout(() => {
+				showToast("Login Successful", "Welcome to BunkBuddies!");
+			}, 500);
+		}
 		let isMounted = true;
 
 		const loadStudent = async () => {
@@ -111,6 +113,22 @@ export default function ExploreRoomsPage() {
 			isMounted = false;
 		};
 	}, [router]);
+
+	useEffect(() => {
+		// track small screen to change dropdown behavior
+		const handleResize = () => setIsMobile(window.innerWidth < 768);
+		handleResize();
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
+
+	useEffect(() => {
+		// when switching to mobile, ensure nested option popovers are closed
+		if (isMobile) {
+			setShowRoomSizeOptions(false);
+			setShowBlockOptions(false);
+		}
+	}, [isMobile]);
 
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -146,13 +164,15 @@ export default function ExploreRoomsPage() {
 							.map((block) => normalizeText(block))
 							.filter(Boolean),
 					),
-			  )
+				)
 			: [];
 		if (optionsFromBackend.length > 0) {
 			return optionsFromBackend.sort((a, b) => a.localeCompare(b));
 		}
 
-		const dynamicBlocks = Array.from(new Set(rooms.flatMap((room) => roomBlocks(room))));
+		const dynamicBlocks = Array.from(
+			new Set(rooms.flatMap((room) => roomBlocks(room))),
+		);
 		if (dynamicBlocks.length === 0) {
 			return ["LH", "MH"];
 		}
@@ -167,7 +187,7 @@ export default function ExploreRoomsPage() {
 							.map((size) => Number.parseInt(String(size), 10))
 							.filter((size) => Number.isFinite(size)),
 					),
-			  )
+				)
 			: [];
 		if (optionsFromBackend.length > 0) {
 			return optionsFromBackend.sort((a, b) => a - b);
@@ -202,11 +222,15 @@ export default function ExploreRoomsPage() {
 	useEffect(() => {
 		const allowed = new Set(blockOptions.map((block) => normalizeBlock(block)));
 		setSelectedBlocks((previous) => {
-			const next = previous.filter((block) => allowed.has(normalizeBlock(block)));
+			const next = previous.filter((block) =>
+				allowed.has(normalizeBlock(block)),
+			);
 			return next.length === previous.length ? previous : next;
 		});
 		setAppliedBlocks((previous) => {
-			const next = previous.filter((block) => allowed.has(normalizeBlock(block)));
+			const next = previous.filter((block) =>
+				allowed.has(normalizeBlock(block)),
+			);
 			return next.length === previous.length ? previous : next;
 		});
 	}, [blockOptions]);
@@ -249,19 +273,27 @@ export default function ExploreRoomsPage() {
 					params.set("type", activeRoomTypes[0]);
 				}
 
-				const response = await backendFetch(`group/listGroups?${params.toString()}`);
+				const response = await backendFetch(
+					`group/listGroups?${params.toString()}`,
+				);
 				if (!isMounted) {
 					return;
 				}
 
-				const apiGroups = Array.isArray(response?.groups) ? response.groups : [];
-				const apiTotalCount = Number(response?.totalCount ?? response?.total ?? 0);
+				const apiGroups = Array.isArray(response?.groups)
+					? response.groups
+					: [];
+				const apiTotalCount = Number(
+					response?.totalCount ?? response?.total ?? 0,
+				);
 				const apiTotalPages = Number(response?.totalPages ?? 1);
 
 				setRooms(apiGroups);
 				setTotalCount(Number.isFinite(apiTotalCount) ? apiTotalCount : 0);
 				setTotalPages(
-					Number.isFinite(apiTotalPages) && apiTotalPages > 0 ? apiTotalPages : 1,
+					Number.isFinite(apiTotalPages) && apiTotalPages > 0
+						? apiTotalPages
+						: 1,
 				);
 
 				const options = response?.filterOptions || {};
@@ -278,7 +310,7 @@ export default function ExploreRoomsPage() {
 					return;
 				}
 				if (isMounted) {
-					showToast(message, "error");  //replaced error red bar with toast
+					showToast(message, "error"); //replaced error red bar with toast
 				}
 			} finally {
 				if (isMounted) {
@@ -336,11 +368,13 @@ export default function ExploreRoomsPage() {
 		}
 		setSelectedBlocks((previous) => {
 			const isSelected = previous.some(
-				(value) => normalizeBlock(value) === normalizeBlock(normalizedBlockValue),
+				(value) =>
+					normalizeBlock(value) === normalizeBlock(normalizedBlockValue),
 			);
 			if (isSelected) {
 				return previous.filter(
-					(value) => normalizeBlock(value) !== normalizeBlock(normalizedBlockValue),
+					(value) =>
+						normalizeBlock(value) !== normalizeBlock(normalizedBlockValue),
 				);
 			}
 			return [...previous, normalizedBlockValue];
@@ -379,14 +413,10 @@ export default function ExploreRoomsPage() {
 	}, [rooms, requestedRoomIds]);
 
 	const handleSendRequest = async (roomId) => {
-
 		// already in group
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
-			showToast(
-				"You are already in a group. Leave it first.",
-				"info"
-			);
+			showToast("You are already in a group. Leave it first.", "info");
 			return;
 		}
 
@@ -403,9 +433,7 @@ export default function ExploreRoomsPage() {
 
 			//  JOIN REQUEST SENT
 			showToast("Join request sent successfully", "success");
-
 		} catch (error) {
-
 			const message = error?.message || "Unable to send request";
 			const lower = message.toLowerCase();
 
@@ -425,12 +453,9 @@ export default function ExploreRoomsPage() {
 			// ✅ GROUP ALREADY EXISTS / FULL / BLOCKED CASE
 			else if (lower.includes("exist")) {
 				showToast("Cannot join this group", "error");
-			}
-
-			else {
+			} else {
 				showToast(message, "error");
 			}
-
 		} finally {
 			setSendingRoomId("");
 		}
@@ -474,7 +499,6 @@ export default function ExploreRoomsPage() {
 						</button>
 					</div>
 
-
 					<div className="mb-5 bg-[#FB5E4C] border border-black shadow-[4px_4px_0px_black] rounded-[5px] p-2 md:p-2.5 shrink-0">
 						<div className="flex flex-col md:flex-row md:items-center gap-2">
 							<div className="relative flex-1">
@@ -507,69 +531,69 @@ export default function ExploreRoomsPage() {
 										<FiFilter aria-hidden="true" className="text-sm" />
 									</button>
 
-									{showFilterDropdown ? (
-										<div className="absolute right-0 top-[calc(100%+8px)] w-[292px] bg-[#E8D0C2] border-2 border-black shadow-[4px_4px_0px_black] rounded-[4px] p-4 z-40">
-											<div className="mb-4">
-												<p className="text-black text-base mb-2">Room Type</p>
-												<div className="grid grid-cols-2 gap-3">
+									{showFilterDropdown && isMobile ? (
+										// Mobile full-screen filter panel
+										<div className="fixed inset-0 z-50 flex items-end md:items-center">
+											<div
+												className="absolute inset-0 bg-black/40"
+												onClick={() => setShowFilterDropdown(false)}
+											/>
+											<div className="relative w-full max-h-[90vh] overflow-y-auto bg-[#E8D0C2] border-2 border-black shadow-[4px_4px_0px_black] rounded-t-[10px] p-4">
+												<div className="flex items-center justify-between mb-3">
+													<p className="text-black text-lg font-semibold">
+														Filter Rooms
+													</p>
 													<button
 														type="button"
-														onClick={() => toggleRoomType("ac")}
-														className={`w-full text-center border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-4 py-1 text-sm ${
-															selectedRoomTypes.ac
-																? "bg-[#88E7C3]"
-																: "bg-[#F2E6DE]"
-														}`}
+														onClick={() => setShowFilterDropdown(false)}
+														className="px-3 py-1 bg-[#FB5E4C] border border-black rounded-[4px]"
 													>
-														AC
-													</button>
-													<button
-														type="button"
-														onClick={() => toggleRoomType("nac")}
-														className={`w-full text-center border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-4 py-1 text-sm ${
-															selectedRoomTypes.nac
-																? "bg-[#88E7C3]"
-																: "bg-[#F2E6DE]"
-														}`}
-													>
-														Non-AC
+														Close
 													</button>
 												</div>
-											</div>
-
-											<div className="mb-4">
-												<p className="text-black text-base mb-2">Room Size</p>
-												<div className="relative w-[124px]">
-													<button
-														type="button"
-														onClick={() => {
-															setShowRoomSizeOptions((previous) => !previous);
-															setShowBlockOptions(false);
-														}}
-														className="w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black text-left focus:outline-none relative"
-													>
-														{selectedRoomSizes.length === 0
-															? "All"
-															: selectedRoomSizes.length === 1
-																? selectedRoomSizes[0]
-																: `${selectedRoomSizes.length} selected`}
-														<FiChevronDown
-															aria-hidden="true"
-															className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm transition-transform ${
-																showRoomSizeOptions ? "rotate-180" : ""
-															}`}
-														/>
-													</button>
-													{showRoomSizeOptions ? (
-														<div className="mint-scrollbar absolute left-0 top-[calc(100%+6px)] z-50 w-[124px] max-h-[220px] overflow-y-auto bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] py-1">
+												<div className="mb-3">
+													<p className="text-black text-base mb-2">Room Type</p>
+													<div className="flex gap-3">
+														<CustomButton
+															type="button"
+															onClick={() => toggleRoomType("ac")}
+															color={
+																selectedRoomTypes.ac ? "#2E73D4" : "#F2E6DE"
+															}
+															textColor={
+																selectedRoomTypes.ac
+																	? "text-white"
+																	: "text-black"
+															}
+															className={`flex-1 border-black shadow-[2px_4px_0px_black] px-4 py-2 text-sm`}
+														>
+															AC
+														</CustomButton>
+														<CustomButton
+															type="button"
+															onClick={() => toggleRoomType("nac")}
+															color={
+																selectedRoomTypes.nac ? "#2E73D4" : "#F2E6DE"
+															}
+															textColor={
+																selectedRoomTypes.nac
+																	? "text-white"
+																	: "text-black"
+															}
+															className={`flex-1 border-black shadow-[2px_4px_0px_black] px-4 py-2 text-sm`}
+														>
+															Non-AC
+														</CustomButton>
+													</div>
+												</div>
+												<div className="mb-3">
+													<p className="text-black text-base mb-2">Room Size</p>
+													<div>
+														<div className="flex flex-wrap gap-2">
 															<button
 																type="button"
 																onClick={() => setSelectedRoomSizes([])}
-																className={`w-full text-left px-3 py-1.5 text-sm ${
-																	selectedRoomSizes.length > 0
-																		? "text-black hover:bg-[#7DDDBC]"
-																		: "bg-[#2E73D4] text-white"
-																}`}
+																className={`px-3 py-1 rounded-[4px] border border-black ${selectedRoomSizes.length > 0 ? "bg-[#F2E6DE]" : "bg-[#2E73D4] text-white"}`}
 															>
 																All
 															</button>
@@ -581,114 +605,231 @@ export default function ExploreRoomsPage() {
 																	<button
 																		key={roomSizeValue}
 																		type="button"
-																		onClick={() => toggleRoomSize(roomSizeValue)}
-																		className={`w-full text-left px-3 py-1.5 text-sm ${
-																			isSelected
-																				? "bg-[#2E73D4] text-white"
-																				: "text-black hover:bg-[#7DDDBC]"
-																		}`}
+																		onClick={() =>
+																			toggleRoomSize(roomSizeValue)
+																		}
+																		className={`px-3 py-1 rounded-[4px] border border-black ${isSelected ? "bg-[#2E73D4] text-white" : "bg-[#F2E6DE]"}`}
 																	>
 																		{roomSizeValue}
 																	</button>
 																);
 															})}
 														</div>
-													) : null}
+													</div>
 												</div>
-											</div>
-
-											<div className="mb-3">
-												<p className="text-black text-base mb-2">Preferred Block</p>
-												<div className="relative w-[124px]">
-													<button
+												<div className="mb-3">
+													<p className="text-black text-base mb-2">
+														Preferred Block
+													</p>
+													<div className="flex flex-wrap gap-2">
+														<button
+															type="button"
+															onClick={() => setSelectedBlocks([])}
+															className={`px-3 py-1 rounded-[4px] border border-black ${selectedBlocks.length > 0 ? "bg-[#F2E6DE]" : "bg-[#2E73D4] text-white"}`}
+														>
+															All
+														</button>
+														{blockOptions.map((block) => {
+															const isSelected = selectedBlocks.some(
+																(value) =>
+																	normalizeBlock(value) ===
+																	normalizeBlock(block),
+															);
+															return (
+																<button
+																	key={block}
+																	type="button"
+																	onClick={() => toggleBlock(block)}
+																	className={`px-3 py-1 rounded-[4px] border border-black ${isSelected ? "bg-[#2E73D4] text-white" : "bg-[#F2E6DE]"}`}
+																>
+																	{block}
+																</button>
+															);
+														})}
+													</div>
+												</div>
+												<div className="flex justify-between items-center gap-3 pt-1">
+													<CustomButton
 														type="button"
 														onClick={() => {
-															setShowBlockOptions((previous) => !previous);
+															setSelectedRoomTypes({ ac: false, nac: false });
+															setSelectedRoomSizes([]);
+															setSelectedBlocks([]);
 															setShowRoomSizeOptions(false);
+															setShowBlockOptions(false);
 														}}
-														className="w-full bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] pl-2 pr-7 py-1 text-sm text-black text-left focus:outline-none relative"
+														color="#F2E6DE"
+														textColor="text-black"
+														className="flex-1 rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs text-center"
 													>
-														{selectedBlocks.length === 0
-															? "All"
-															: selectedBlocks.length === 1
-																? selectedBlocks[0]
-																: `${selectedBlocks.length} selected`}
-														<FiChevronDown
-															aria-hidden="true"
-															className={`pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-black text-sm transition-transform ${
-																showBlockOptions ? "rotate-180" : ""
-															}`}
-														/>
-													</button>
-													{showBlockOptions ? (
-														<div className="mint-scrollbar absolute left-0 top-[calc(100%+6px)] z-50 w-[124px] max-h-[350px] overflow-y-auto bg-[#88E7C3] border border-black rounded-[3px] shadow-[2px_4px_0px_black] py-1">
-															<button
-																type="button"
-																onClick={() => setSelectedBlocks([])}
-																className={`w-full text-left px-3 py-1.5 text-sm ${
-																	selectedBlocks.length > 0
-																		? "text-black hover:bg-[#7DDDBC]"
-																		: "bg-[#2E73D4] text-white"
-																}`}
-															>
-																All
-															</button>
-															{blockOptions.map((block) => {
-																const isSelected =
-																	selectedBlocks.some(
-																		(value) =>
-																			normalizeBlock(value) ===
-																			normalizeBlock(block),
-																	);
-																return (
-																	<button
-																		key={block}
-																		type="button"
-																		onClick={() => toggleBlock(block)}
-																		className={`w-full text-left px-3 py-1.5 text-sm ${
-																			isSelected
-																				? "bg-[#2E73D4] text-white"
-																				: "text-black hover:bg-[#7DDDBC]"
-																		}`}
-																	>
-																		{block}
-																	</button>
-																);
-															})}
-														</div>
-													) : null}
+														Clear
+													</CustomButton>
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setAppliedRoomTypes({ ...selectedRoomTypes });
+															setAppliedRoomSizes([...selectedRoomSizes]);
+															setAppliedBlocks([...selectedBlocks]);
+															setCurrentPage(1);
+															setShowRoomSizeOptions(false);
+															setShowBlockOptions(false);
+															setShowFilterDropdown(false);
+														}}
+														color="#FB5E4C"
+														textColor="text-black"
+														className="flex-1 rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-3 py-1 text-xs text-center"
+													>
+														Apply Filters
+													</CustomButton>
 												</div>
 											</div>
+										</div>
+									) : showFilterDropdown ? (
+										<div className="fixed inset-0 z-50 flex items-center justify-center">
+											<div
+												className="absolute inset-0 bg-black/30"
+												onClick={() => setShowFilterDropdown(false)}
+											/>
+											<div className="relative w-[min(760px,calc(100vw-2rem))] bg-[#E8D0C2] border-2 border-black rounded-[8px] p-6 z-60 grid grid-cols-2 gap-6">
+												<div className="col-span-2 flex items-center justify-between">
+													<p className="text-black text-lg font-semibold">
+														Filter Rooms
+													</p>
+													<button
+														type="button"
+														onClick={() => setShowFilterDropdown(false)}
+														className="px-3 py-1 bg-[#FB5E4C] border border-black rounded-[4px]"
+													>
+														Close
+													</button>
+												</div>
 
-											<div className="flex justify-center items-center gap-3 pt-1">
-												<button
-													type="button"
-													onClick={() => {
-														setSelectedRoomTypes({ ac: false, nac: false });
-														setSelectedRoomSizes([]);
-														setSelectedBlocks([]);
-														setShowRoomSizeOptions(false);
-														setShowBlockOptions(false);
-													}}
-													className="w-[78px] bg-[#F2E6DE] border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-3 py-1 text-xs"
-												>
-													Clear
-												</button>
-												<button
-													type="button"
-													onClick={() => {
-														setAppliedRoomTypes({ ...selectedRoomTypes });
-														setAppliedRoomSizes([...selectedRoomSizes]);
-														setAppliedBlocks([...selectedBlocks]);
-														setCurrentPage(1);
-														setShowRoomSizeOptions(false);
-														setShowBlockOptions(false);
-														setShowFilterDropdown(false);
-													}}
-													className="w-[126px] bg-[#FB5E4C] border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-4 py-1 text-xs"
-												>
-													Filter Rooms
-												</button>
+												<div>
+													<p className="text-black text-base mb-2">Room Type</p>
+													<div className="flex gap-2">
+														<CustomButton
+															type="button"
+															onClick={() => toggleRoomType("ac")}
+															color={
+																selectedRoomTypes.ac ? "#2E73D4" : "#F2E6DE"
+															}
+															textColor={
+																selectedRoomTypes.ac
+																	? "text-white"
+																	: "text-black"
+															}
+															className={`border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
+														>
+															AC
+														</CustomButton>
+														<CustomButton
+															type="button"
+															onClick={() => toggleRoomType("nac")}
+															color={
+																selectedRoomTypes.nac ? "#2E73D4" : "#F2E6DE"
+															}
+															textColor={
+																selectedRoomTypes.nac
+																	? "text-white"
+																	: "text-black"
+															}
+															className={`border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
+														>
+															Non-AC
+														</CustomButton>
+													</div>
+												</div>
+
+												<div>
+													<p className="text-black text-base mb-2">Room Size</p>
+													<div className="flex flex-wrap gap-2">
+														<button
+															type="button"
+															onClick={() => setSelectedRoomSizes([])}
+															className={`px-3 py-1 rounded-[4px] border border-black ${selectedRoomSizes.length > 0 ? "bg-[#F2E6DE]" : "bg-[#2E73D4] text-white"}`}
+														>
+															All
+														</button>
+														{allowedRoomSizes.map((size) => {
+															const roomSizeValue = String(size);
+															const isSelected =
+																selectedRoomSizes.includes(roomSizeValue);
+															return (
+																<button
+																	key={roomSizeValue}
+																	type="button"
+																	onClick={() => toggleRoomSize(roomSizeValue)}
+																	className={`px-3 py-1 rounded-[4px] border border-black ${isSelected ? "bg-[#2E73D4] text-white" : "bg-[#F2E6DE]"}`}
+																>
+																	{roomSizeValue}
+																</button>
+															);
+														})}
+													</div>
+												</div>
+
+												<div className="col-span-2">
+													<p className="text-black text-base mb-2">
+														Preferred Block
+													</p>
+													<div className="flex flex-wrap gap-2">
+														<button
+															type="button"
+															onClick={() => setSelectedBlocks([])}
+															className={`px-3 py-1 rounded-[4px] border border-black ${selectedBlocks.length > 0 ? "bg-[#F2E6DE]" : "bg-[#2E73D4] text-white"}`}
+														>
+															All
+														</button>
+														{blockOptions.map((block) => {
+															const isSelected = selectedBlocks.some(
+																(value) =>
+																	normalizeBlock(value) ===
+																	normalizeBlock(block),
+															);
+															return (
+																<button
+																	key={block}
+																	type="button"
+																	onClick={() => toggleBlock(block)}
+																	className={`px-3 py-1 rounded-[4px] border border-black ${isSelected ? "bg-[#2E73D4] text-white" : "bg-[#F2E6DE]"}`}
+																>
+																	{block}
+																</button>
+															);
+														})}
+													</div>
+												</div>
+
+												<div className="col-span-2 flex justify-between items-center gap-3 pt-1">
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setSelectedRoomTypes({ ac: false, nac: false });
+															setSelectedRoomSizes([]);
+															setSelectedBlocks([]);
+														}}
+														color="#F2E6DE"
+														textColor="text-black"
+														className="rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs text-center"
+													>
+														Clear
+													</CustomButton>
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setAppliedRoomTypes({ ...selectedRoomTypes });
+															setAppliedRoomSizes([...selectedRoomSizes]);
+															setAppliedBlocks([...selectedBlocks]);
+															setCurrentPage(1);
+															setShowFilterDropdown(false);
+														}}
+														color="#FB5E4C"
+														textColor="text-black"
+														className="rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-3 py-1 text-xs text-center"
+													>
+														Apply
+													</CustomButton>
+												</div>
 											</div>
 										</div>
 									) : null}
@@ -709,42 +850,115 @@ export default function ExploreRoomsPage() {
 										<FiSliders aria-hidden="true" className="text-sm" />
 									</button>
 
-									{showSortDropdown ? (
+									{showSortDropdown && isMobile ? (
+										<div className="fixed inset-0 z-50 flex items-end md:items-center">
+											<div
+												className="absolute inset-0 bg-black/40"
+												onClick={() => setShowSortDropdown(false)}
+											/>
+											<div className="relative w-full bg-[#E8D0C2] border-2 border-black shadow-[4px_4px_0px_black] rounded-t-[10px] p-4">
+												<div className="flex items-center justify-between mb-3">
+													<p className="text-black text-lg font-semibold">
+														Sort Rooms
+													</p>
+													<button
+														type="button"
+														onClick={() => setShowSortDropdown(false)}
+														className="px-3 py-1 bg-[#FB5E4C] border border-black rounded-[4px]"
+													>
+														Close
+													</button>
+												</div>
+												<div className="grid grid-cols-1 gap-3">
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setSortBy("vacancy");
+															setShowSortDropdown(false);
+														}}
+														color={sortBy === "vacancy" ? "#2E73D4" : "#88E7C3"}
+														textColor={
+															sortBy === "vacancy" ? "text-white" : "text-black"
+														}
+														className={`w-full border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
+													>
+														Vacancy
+													</CustomButton>
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setSortBy("cgpa");
+															setShowSortDropdown(false);
+														}}
+														color={sortBy === "cgpa" ? "#2E73D4" : "#88E7C3"}
+														textColor={
+															sortBy === "cgpa" ? "text-white" : "text-black"
+														}
+														className={`w-full border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
+													>
+														CGPA
+													</CustomButton>
+													<CustomButton
+														type="button"
+														onClick={() => {
+															setSortBy("none");
+															setShowSortDropdown(false);
+														}}
+														color="#F2E6DE"
+														textColor="text-black"
+														className="w-full text-center rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-3 py-1 text-xs"
+													>
+														Clear
+													</CustomButton>
+												</div>
+											</div>
+										</div>
+									) : showSortDropdown ? (
 										<div className="absolute right-0 top-[calc(100%+8px)] w-[360px] max-w-[calc(100vw-2rem)] bg-[#E8D0C2] border-2 border-black shadow-[4px_4px_0px_black] rounded-[4px] p-5 z-40">
 											<p className="text-black text-[22px] mb-4">Sort By</p>
 											<div className="grid grid-cols-2 gap-3">
-												<button
+												<CustomButton
 													type="button"
 													onClick={() => {
 														setSortBy("vacancy");
 														setShowSortDropdown(false);
 													}}
-													className="text-center border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-3 py-1.5 text-sm bg-[#88E7C3]"
+													color={sortBy === "vacancy" ? "#2E73D4" : "#88E7C3"}
+													textColor={
+														sortBy === "vacancy" ? "text-white" : "text-black"
+													}
+													className={`w-full text-center border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
 												>
 													Vacancy
-												</button>
-												<button
+												</CustomButton>
+												<CustomButton
 													type="button"
 													onClick={() => {
 														setSortBy("cgpa");
 														setShowSortDropdown(false);
 													}}
-													className="text-center border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-3 py-1.5 text-sm bg-[#88E7C3]"
+													color={sortBy === "cgpa" ? "#2E73D4" : "#88E7C3"}
+													textColor={
+														sortBy === "cgpa" ? "text-white" : "text-black"
+													}
+													className={`w-full text-center border-black shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-2 py-1 text-xs`}
 												>
 													CGPA
-												</button>
+												</CustomButton>
 											</div>
 											<div className="flex justify-center mt-3">
-												<button
+												<CustomButton
 													type="button"
 													onClick={() => {
 														setSortBy("none");
 														setShowSortDropdown(false);
 													}}
-													className="text-center border border-black rounded-[4px] shadow-[2px_4px_0px_black] px-4 py-1 text-sm bg-[#F2E6DE]"
+													color="#F2E6DE"
+													textColor="text-black"
+													className="text-center rounded-[4px] shadow-[1px_1.5px_0px_rgba(0,0,0,0.35)] px-3 py-1 text-xs"
 												>
 													Clear
-												</button>
+												</CustomButton>
 											</div>
 										</div>
 									) : null}
@@ -781,7 +995,7 @@ export default function ExploreRoomsPage() {
 									const adminStudent = Array.isArray(room.students)
 										? room.students.find(
 												(member) => member?.firebaseUID === room.adminUID,
-										  )
+											)
 										: null;
 									const groupLeaderName =
 										room.adminName || adminStudent?.name || "N/A";
@@ -862,8 +1076,7 @@ export default function ExploreRoomsPage() {
 						{!isLoading && totalCount > 0 ? (
 							<div className="w-full px-2 pb-1 pt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 								<p className="text-sm text-[#2F2F2F]">
-									Showing {visibleStartIndex}-{visibleEndIndex} of{" "}
-									{totalCount}
+									Showing {visibleStartIndex}-{visibleEndIndex} of {totalCount}
 								</p>
 
 								{totalPages > 1 ? (
@@ -879,22 +1092,23 @@ export default function ExploreRoomsPage() {
 											Prev
 										</button>
 
-										{Array.from({ length: totalPages }, (_, index) => index + 1).map(
-											(pageNumber) => (
-												<button
-													key={pageNumber}
-													type="button"
-													onClick={() => setCurrentPage(pageNumber)}
-													className={`border border-black rounded-[4px] px-2.5 py-1 text-sm ${
-														currentPage === pageNumber
-															? "bg-[#FB5E4C]"
-															: "bg-[#F2E6DE]"
-													}`}
-												>
-													{pageNumber}
-												</button>
-											),
-										)}
+										{Array.from(
+											{ length: totalPages },
+											(_, index) => index + 1,
+										).map((pageNumber) => (
+											<button
+												key={pageNumber}
+												type="button"
+												onClick={() => setCurrentPage(pageNumber)}
+												className={`border border-black rounded-[4px] px-2.5 py-1 text-sm ${
+													currentPage === pageNumber
+														? "bg-[#FB5E4C]"
+														: "bg-[#F2E6DE]"
+												}`}
+											>
+												{pageNumber}
+											</button>
+										))}
 
 										<button
 											type="button"
