@@ -23,6 +23,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         <ToastProvider />
         {children}
+        
       </body>
     </html>
   );

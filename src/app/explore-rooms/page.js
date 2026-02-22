@@ -1,5 +1,4 @@
 "use client";
-
 import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -24,6 +23,14 @@ export default function ExploreRoomsPage() {
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const loginSuccess = params.get("success") === "1";
+		if (loginSuccess) {
+        window.history.replaceState({}, "", window.location.pathname);
+        setTimeout(() => {
+            showToast("Login Successful", "Welcome to BunkBuddies!");
+        }, 500);
+	}
 		let isMounted = true;
 
 		const loadData = async () => {

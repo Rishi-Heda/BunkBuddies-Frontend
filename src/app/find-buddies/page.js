@@ -25,8 +25,15 @@ export default function FindBuddiesPage() {
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
-		setIsAnimating(true);
-
+		    setIsAnimating(true);
+			const params = new URLSearchParams(window.location.search);
+			const profileUpdated = params.get("profileUpdated") === "1";
+			if (profileUpdated) {
+				window.history.replaceState({}, "", window.location.pathname);
+				setTimeout(() => {
+					showToast("Profile updated successfully!", "success");
+				}, 500);
+			}
 		const loadUserData = async () => {
 			try {
 				const response = await backendFetch("student/getStudent");

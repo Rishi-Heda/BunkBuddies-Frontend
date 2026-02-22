@@ -3,35 +3,24 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
-/*
-====================================
- GLOBAL TOAST CONTROLLER
-====================================
-*/
-
-let showToastExternal;
+let showToastExternal = null;
+let pendingToast = null;
 
 export const showToast = (message, variant = "success") => {
   let safeMessage = message;
 
-  //  normalize objects coming from backend (pls review this part)
   if (typeof message === "object") {
-    safeMessage =
-      message?.message ||
-      message?.error ||
-      JSON.stringify(message);
+    safeMessage = message?.message || message?.error || JSON.stringify(message);
   }
+
+  const toastData = { message: String(safeMessage), variant };
 
   if (showToastExternal) {
-    showToastExternal(String(safeMessage), variant);
+    showToastExternal(toastData.message, toastData.variant);
+  } else {
+    pendingToast = toastData;
   }
 };
-
-/*
-====================================
- TOAST COMPONENT
-====================================
-*/
 
 export default function ToastProvider() {
   const [toast, setToast] = useState(null);
@@ -40,60 +29,40 @@ export default function ToastProvider() {
     showToastExternal = (message, variant) => {
       setToast({ message, variant });
     };
+
+    // flush any pending toast
+    if (pendingToast) {
+      setToast(pendingToast);
+      pendingToast = null;
+    }
+
+    return () => {
+      showToastExternal = null;
+    };
   }, []);
 
   useEffect(() => {
     if (!toast) return;
-
-    const timer = setTimeout(() => {
-      setToast(null);
-    }, 3000);
-
+    const timer = setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(timer);
   }, [toast]);
 
   if (!toast) return null;
 
   const variants = {
-    success: {
-      bg: "bg-green-400",
-      icon: <CheckCircle2 size={20} />,
-    },
-    error: {
-      bg: "bg-red-500",
-      icon: <AlertCircle size={20} />,
-    },
-    info: {
-      bg: "bg-blue-400",
-      icon: <Info size={20} />,
-    },
+    success: { bg: "bg-green-400", icon: <CheckCircle2 size={20} /> },
+    error: { bg: "bg-red-500", icon: <AlertCircle size={20} /> },
+    info: { bg: "bg-blue-400", icon: <Info size={20} /> },
   };
 
   const current = variants[toast.variant] || variants.success;
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] animate-toastIn">
-      <div
-        className={`
-          ${current.bg}
-          text-black
-          min-w-[320px]
-          px-5 py-4
-          rounded-lg
-          border-2 border-black
-          shadow-[4px_4px_0px_black]
-          flex items-center gap-3
-          font-semibold
-        `}
-      >
+      <div className={`${current.bg} text-black min-w-[320px] px-5 py-4 rounded-lg border-2 border-black shadow-[4px_4px_0px_black] flex items-center gap-3 font-semibold`}>
         {current.icon}
-
         <p className="flex-1">{toast.message}</p>
-
-        <button
-          onClick={() => setToast(null)}
-          className="hover:scale-110 transition"
-        >
+        <button onClick={() => setToast(null)} className="hover:scale-110 transition">
           <X size={18} />
         </button>
       </div>

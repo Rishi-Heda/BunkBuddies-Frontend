@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import "./custom-scrollbar.css";
 import Image from "next/image";
@@ -26,8 +26,11 @@ export default function SignInPage() {
 		const params = new URLSearchParams(window.location.search);
 		const error = params.get("error");
 		const loggedOut = params.get("loggedOut") === "1";
+		const loginSuccess = params.get("success") === "1";
+
 		setAuthError(error || "");
 		setLogoutNotice(loggedOut ? "You have been logged out." : "");
+		
 
 		const loadSession = async () => {
 			try {
@@ -37,12 +40,11 @@ export default function SignInPage() {
 				});
 				const payload = await response.json().catch(() => ({}));
 
-				if (!isMounted) {
-					return;
-				}
+				if (!isMounted) return;
 
 				if (payload?.authenticated) {
-					router.replace(payload?.nextRoute || "/find-buddies");
+					const nextRoute = (payload?.nextRoute || "/find-buddies").split("?")[0];
+					router.replace(nextRoute);
 					return;
 				}
 			} finally {
@@ -173,7 +175,7 @@ export default function SignInPage() {
 							you can connect and plan accordingly.
 						</li>
 						<li>
-							<b>What if I don’t find a match?</b>
+							<b>What if I don't find a match?</b>
 							<br />
 							You can keep browsing and sending requests until you find someone
 							who fits your lifestyle and vibe.
@@ -199,7 +201,7 @@ export default function SignInPage() {
 						<li>
 							<b>Can I cancel a request after sending it?</b>
 							<br />
-							Yes, you can withdraw a request anytime before it’s accepted.
+							Yes, you can withdraw a request anytime before it's accepted.
 						</li>
 						<li>
 							<b>What if my roommate situation changes later?</b>

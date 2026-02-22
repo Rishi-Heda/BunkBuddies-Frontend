@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import "./custom-scrollbar.css";
 import { useRouter } from "next/navigation";
@@ -198,9 +198,14 @@ export default function CreateRoomPage() {
 				}),
 			);
 
-			alert(
-				isEditing ? "Room updated successfully!" : "Room created successfully!",
-			);
+			showToast({
+				type: "success",
+				message: isEditing
+				? "Room updated successfully"
+				: "Room created successfully",
+			});
+
+router.push("/my-groups");
 			router.push("/my-groups");
 		} catch (error) {
 			const message = error?.message || "Failed to save room";
