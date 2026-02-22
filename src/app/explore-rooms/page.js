@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -64,9 +65,14 @@ export default function ExploreRoomsPage() {
 	}, [router]);
 
 	const handleSendRequest = async (roomId) => {
-		// Check if user is already in a group
+
+		// already in group
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
+			showToast(
+				"You are already in a group. Leave it first.",
+				"info"
+			);
 			return;
 		}
 
@@ -77,14 +83,37 @@ export default function ExploreRoomsPage() {
 			await backendFetch(`groupRequest/joinRequest/${roomId}`, {
 				method: "POST",
 			});
-			alert("Join request sent successfully!");
+
+			//  JOIN REQUEST SENT
+			showToast("Join request sent successfully", "success");
+
 		} catch (error) {
+
 			const message = error?.message || "Unable to send request";
-			if (message.toLowerCase().includes("authorized")) {
-				router.push("/signin?error=Please login first");
-				return;
+			const lower = message.toLowerCase();
+
+			// JOIN REQUEST ALREADY SENT
+			if (lower.includes("already") && lower.includes("request")) {
+				showToast("Join request already sent", "info");
 			}
-			setErrorMessage(message);
+
+			//  USER ALREADY IN GROUP
+			else if (
+				lower.includes("already") &&
+				(lower.includes("group") || lower.includes("member"))
+			) {
+				showToast("You are already in another group", "error");
+			}
+
+			// ✅ GROUP ALREADY EXISTS / FULL / BLOCKED CASE
+			else if (lower.includes("exist")) {
+				showToast("Cannot join this group", "error");
+			}
+
+			else {
+				showToast(message, "error");
+			}
+
 		} finally {
 			setSendingRoomId("");
 		}
