@@ -1005,7 +1005,7 @@ export default function ExploreRoomsPage() {
 									return (
 										<div
 											key={room.id}
-											className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform min-h-[330px]"
+											className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[380px] overflow-hidden"
 										>
 											<div className="mb-4">
 												<p className="text-[#3E3E3E] text-base font-normal">
@@ -1044,8 +1044,8 @@ export default function ExploreRoomsPage() {
 											</div>
 
 											{room.preferences ? (
-												<div className="bg-[#E7D2FF] rounded-[5px] p-2.5 mb-4 min-h-[56px]">
-													<p className="text-[#606060] text-[11px] font-medium leading-tight">
+												<div className="bg-[#E7D2FF] rounded-[5px] p-2.5 mb-4 mint-scrollbar max-h-[88px] overflow-y-auto pr-2">
+													<p className="text-[#606060] text-[11px] font-medium leading-tight whitespace-pre-wrap">
 														{room.preferences}
 													</p>
 												</div>
