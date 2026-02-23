@@ -27,6 +27,18 @@ const normalizeBlock = (value) => normalizeText(value).toUpperCase();
 const roomBlocks = (room) =>
 	[room.block1, room.block2, room.block3].map(normalizeBlock).filter(Boolean);
 
+const shuffleRooms = (items) => {
+	const shuffled = [...items];
+	for (let index = shuffled.length - 1; index > 0; index -= 1) {
+		const randomIndex = Math.floor(Math.random() * (index + 1));
+		[shuffled[index], shuffled[randomIndex]] = [
+			shuffled[randomIndex],
+			shuffled[index],
+		];
+	}
+	return shuffled;
+};
+
 export default function ExploreRoomsPage() {
 	const router = useRouter();
 	const filterMenuRef = useRef(null);
@@ -288,7 +300,10 @@ export default function ExploreRoomsPage() {
 				);
 				const apiTotalPages = Number(response?.totalPages ?? 1);
 
-				setRooms(apiGroups);
+				const nextRooms =
+					sortBy === "none" ? shuffleRooms(apiGroups) : apiGroups;
+
+				setRooms(nextRooms);
 				setTotalCount(Number.isFinite(apiTotalCount) ? apiTotalCount : 0);
 				setTotalPages(
 					Number.isFinite(apiTotalPages) && apiTotalPages > 0
