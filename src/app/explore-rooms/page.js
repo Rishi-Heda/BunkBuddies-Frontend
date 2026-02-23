@@ -82,6 +82,10 @@ export default function ExploreRoomsPage() {
 	});
 
 	const getAvailableBeds = (room) => {
+		const apiBeds = Number(room?.availableBeds);
+		if (Number.isFinite(apiBeds) && apiBeds >= 0) {
+			return apiBeds;
+		}
 		const capacity = groupCapacity(room.groupSize);
 		const currentMembers = Array.isArray(room.students)
 			? room.students.length
@@ -102,7 +106,7 @@ export default function ExploreRoomsPage() {
 
 		const loadStudent = async () => {
 			try {
-				const studentResponse = await backendFetch("student/getStudent");
+				const studentResponse = await backendFetch("student/getStudentLite");
 				const student = studentResponse?.user || {};
 				if (isMounted) {
 					setUserGroup(student.group || null);
@@ -1007,15 +1011,8 @@ export default function ExploreRoomsPage() {
 								visibleRooms.map((room) => {
 									const isRequested = requestedRoomIds.includes(room.id);
 									const availableBeds = getAvailableBeds(room);
-									const adminStudent = Array.isArray(room.students)
-										? room.students.find(
-												(member) => member?.firebaseUID === room.adminUID,
-											)
-										: null;
-									const groupLeaderName =
-										room.adminName || adminStudent?.name || "N/A";
-									const groupLeaderRegNo =
-										room.adminRegNo || adminStudent?.regNo || "N/A";
+									const groupLeaderName = room.adminName || "N/A";
+									const groupLeaderRegNo = room.adminRegNo || "N/A";
 
 									return (
 										<div
