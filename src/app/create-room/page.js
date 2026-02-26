@@ -399,7 +399,8 @@ router.push("/my-groups");
 							name="otherPreferences"
 							value={formData.otherPreferences}
 							onChange={handleChange}
-							placeholder="Tell us about your preferences..."
+							placeholder={`We're looking for someone who would be a great fit for our daily routine! We are a bit of night owls, so we don’t mind lights staying on until 1 AM or so, but we do appreciate a quiet-ish environment when it’s time to focus. We’re both badminton freaks, so it would be awesome if you’re down to play too!
+We value a tidy space and love keeping the common areas clean. We’re totally cool with friends dropping by for a movie or a chat—the more the merrier, as long as everyone is respectful of each other's space. No CGPA criteria here; we just want someone who knows how to balance studying with having fun. If you vibe with this, hit join!`}
 							disabled={isLoading || isSubmitting}
 							className="w-full h-20 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40 custom-scrollbar"
 						/>
