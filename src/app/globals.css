@@ -83,3 +83,36 @@ body {
 .animate-toastIn {
   animation: toastIn 0.35s ease forwards;
 }
+
+@keyframes toastOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  /* anticipation pull */
+  15% {
+    transform: translateX(-8px) scaleX(1.05) scaleY(0.95);
+  }
+
+  /* squash before launch */
+  30% {
+    transform: translateX(4px) scaleX(0.92) scaleY(1.08);
+  }
+
+  /* launch */
+  60% {
+    opacity: 1;
+    transform: translateX(60%) rotate(3deg) scale(0.95);
+  }
+
+  /* fly away */
+  100% {
+    opacity: 0;
+    transform: translateX(140%) rotate(6deg) scale(0.85);
+  }
+}
+
+.animate-toastOut {
+  animation: toastOut 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}

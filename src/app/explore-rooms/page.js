@@ -37,7 +37,7 @@ export default function ExploreRoomsPage() {
 	const [requestedRoomIds, setRequestedRoomIds] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [sendingRoomId, setSendingRoomId] = useState("");
-	const [errorMessage, setErrorMessage] = useState("");
+	const [, setErrorMessage] = useState("");
 	const [userGroup, setUserGroup] = useState(null);
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
@@ -52,6 +52,12 @@ export default function ExploreRoomsPage() {
 	});
 	const [selectedRoomSizes, setSelectedRoomSizes] = useState([]);
 	const [selectedBlocks, setSelectedBlocks] = useState([]);
+	const [appliedRoomTypes, setAppliedRoomTypes] = useState({
+		ac: false,
+		nac: false,
+	});
+	const [appliedRoomSizes, setAppliedRoomSizes] = useState([]);
+	const [appliedBlocks, setAppliedBlocks] = useState([]);
 	const [sortBy, setSortBy] = useState("none");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalCount, setTotalCount] = useState(0);
@@ -183,15 +189,23 @@ export default function ExploreRoomsPage() {
 			const next = previous.filter((size) => allowed.has(String(size)));
 			return next.length === previous.length ? previous : next;
 		});
+		setAppliedRoomSizes((previous) => {
+			const next = previous.filter((size) => allowed.has(String(size)));
+			return next.length === previous.length ? previous : next;
+		});
 	}, [allowedRoomSizes]);
 
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [searchQuery, selectedRoomTypes, selectedRoomSizes, selectedBlocks, sortBy]);
+	}, [searchQuery, appliedRoomTypes, appliedRoomSizes, appliedBlocks, sortBy]);
 
 	useEffect(() => {
 		const allowed = new Set(blockOptions.map((block) => normalizeBlock(block)));
 		setSelectedBlocks((previous) => {
+			const next = previous.filter((block) => allowed.has(normalizeBlock(block)));
+			return next.length === previous.length ? previous : next;
+		});
+		setAppliedBlocks((previous) => {
 			const next = previous.filter((block) => allowed.has(normalizeBlock(block)));
 			return next.length === previous.length ? previous : next;
 		});
@@ -213,10 +227,10 @@ export default function ExploreRoomsPage() {
 				if (trimmedSearch) {
 					params.set("search", trimmedSearch);
 				}
-				selectedRoomSizes.forEach((roomSize) => {
+				appliedRoomSizes.forEach((roomSize) => {
 					params.append("groupSizes", `${roomSize}-Bedded`);
 				});
-				selectedBlocks.forEach((block) => {
+				appliedBlocks.forEach((block) => {
 					params.append("blocks", block);
 				});
 				if (sortBy !== "none") {
@@ -225,10 +239,10 @@ export default function ExploreRoomsPage() {
 				}
 
 				const activeRoomTypes = [];
-				if (selectedRoomTypes.ac) {
+				if (appliedRoomTypes.ac) {
 					activeRoomTypes.push("AC");
 				}
-				if (selectedRoomTypes.nac) {
+				if (appliedRoomTypes.nac) {
 					activeRoomTypes.push("NON-AC");
 				}
 				if (activeRoomTypes.length === 1) {
@@ -282,9 +296,9 @@ export default function ExploreRoomsPage() {
 		currentPage,
 		router,
 		searchQuery,
-		selectedBlocks,
-		selectedRoomSizes,
-		selectedRoomTypes,
+		appliedBlocks,
+		appliedRoomSizes,
+		appliedRoomTypes,
 		sortBy,
 	]);
 
@@ -663,6 +677,10 @@ export default function ExploreRoomsPage() {
 												<button
 													type="button"
 													onClick={() => {
+														setAppliedRoomTypes({ ...selectedRoomTypes });
+														setAppliedRoomSizes([...selectedRoomSizes]);
+														setAppliedBlocks([...selectedBlocks]);
+														setCurrentPage(1);
 														setShowRoomSizeOptions(false);
 														setShowBlockOptions(false);
 														setShowFilterDropdown(false);
