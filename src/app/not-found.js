@@ -96,31 +96,36 @@ function GridBackground() {
 function ErrorCard() {
   return (
     <div
-      className="
-      relative
-      w-full
-      max-w-[1160px]
-      bg-[#FFA1A0]
-      border-2 border-black
-      rounded-[5px]
-      shadow-[10px_10px_0px_#000]
-      text-center
-      px-6 sm:px-10 md:px-12
-      py-10 sm:py-12 md:py-16
-    "
-    >
+        className="
+            rise-card
+            relative
+            w-full
+            max-w-[1160px]
+            bg-[#FFA1A0]
+            border-2 border-black
+            rounded-[5px]
+            shadow-[10px_10px_0px_#000]
+            text-center
+            px-6 sm:px-10 md:px-12
+            py-10 sm:py-12 md:py-16
+        "
+     >
 
       {/* ICON */}
-      <div className="flex justify-center mb-6 md:mb-8">
-        <Image
-          src="/contributors/404-error.png"
-          alt="404"
-          width={150}
-          height={150}
-          className="w-[120px] sm:w-[150px] md:w-[170px] h-auto"
-          priority
-        />
+      <div className="wobble-icon">
+        <div className="flex justify-center mb-6 md:mb-8">
+            <Image
+            src="/contributors/404-error.png"
+            alt="404"
+            width={150}
+            height={150}
+            className="w-[120px] sm:w-[150px] md:w-[170px] h-auto"
+            priority
+            />
+        </div>
+
       </div>
+      
 
       {/* TITLE */}
       <h1
