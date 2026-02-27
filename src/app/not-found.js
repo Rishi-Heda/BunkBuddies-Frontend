@@ -56,11 +56,11 @@ function Navbar() {
         font-medium
       "
       >
-        <Link href="/find" className="hover:underline">
+        <Link href="/find-buddies" className="hover:underline">
           Find
         </Link>
 
-        <Link href="/groups" className="hover:underline">
+        <Link href="/my-groups" className="hover:underline">
           My Groups
         </Link>
 
