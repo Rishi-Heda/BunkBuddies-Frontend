@@ -10,7 +10,7 @@ import { Poppins, Syne } from "next/font/google";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700","800"],
+  weight: ["400", "500", "600", "700","800","900"],
 });
 
 const syne = Syne({
@@ -102,9 +102,9 @@ function ErrorCard() {
             w-full
             max-w-[1160px]
             bg-[#FFA1A0]
-            border-2 border-black
+            border-1 border-black
             rounded-[5px]
-            shadow-[10px_10px_0px_#000]
+            shadow-[7px_7px_0px_#000]
             text-center
             px-6 sm:px-10 md:px-12
             py-10 sm:py-12 md:py-16
@@ -112,20 +112,16 @@ function ErrorCard() {
      >
 
       {/* ICON */}
-      <div className="wobble-icon">
-        <div className="flex justify-center mb-6 md:mb-8">
-            <Image
-            src="/contributors/404-error.png"
-            alt="404"
-            width={150}
-            height={150}
-            className="w-[120px] sm:w-[150px] md:w-[170px] h-auto"
-            priority
-            />
-        </div>
-
+      <div className="flex justify-center mb-6 md:mb-8">
+        <Image
+          src="/contributors/404-error.png"
+          alt="404"
+          width={176}
+          height={176}
+          className="w-[120px] sm:w-[150px] md:w-[170px] h-auto"
+          priority
+        />
       </div>
-      
 
       {/* TITLE */}
       <h1
@@ -134,7 +130,7 @@ function ErrorCard() {
         sm:text-[90px]
         md:text-[130px]
         leading-none
-        font-bold
+        font-extrabold
         text-[#FEE3D3]
         drop-shadow-[4px_4px_0px_rgba(255,142,141,0.95)]
       "
@@ -168,7 +164,7 @@ function ErrorCard() {
             rounded-[5px]
             px-10 sm:px-16 md:px-28
             py-3 md:py-4
-            text-[12px] sm:text-[16px] md:text-[20px]
+            text-[12px] sm:text-[16px] md:text-[22px]
             font-bold
             shadow-[6px_6px_0px_#000]
             transition-all duration-200
