@@ -95,8 +95,8 @@ function GridBackground() {
 
 function ErrorCard() {
   return (
-    <div
-        className="
+    <div 
+        className=" 
             rise-card
             relative
             w-full
@@ -112,13 +112,13 @@ function ErrorCard() {
      >
 
       {/* ICON */}
-      <div className="flex justify-center mb-6 md:mb-8">
+      <div className="flex justify-center mb-0 md:mb-8" >
         <Image
           src="/contributors/404-error.png"
           alt="404"
           width={176}
           height={176}
-          className="w-[120px] sm:w-[150px] md:w-[170px] h-auto"
+          className="w-[120px] sm:w-[150px] md:w-[210px] h-auto"
           priority
         />
       </div>
@@ -130,12 +130,12 @@ function ErrorCard() {
         sm:text-[90px]
         md:text-[130px]
         leading-none
-        font-extrabold
+        font-bold
         text-[#FEE3D3]
         drop-shadow-[4px_4px_0px_rgba(255,142,141,0.95)]
       "
       >
-        Error 404.
+        Error 404
       </h1>
 
       {/* SUBTEXT */}
@@ -191,7 +191,7 @@ function ErrorCard() {
 export default function NotFound() {
   return (
     <div
-      className={`${poppins.className}
+      className={`${syne.className}
       relative
       min-h-screen
       bg-[#F3D8C3]
