@@ -17,8 +17,6 @@ const FRONTEND_LOGIN_ROUTE = "/api/login";
 export default function SignInPage() {
 	const router = useRouter();
 	const [isRedirecting, setIsRedirecting] = useState(false);
-	const [authError, setAuthError] = useState("");
-	const [logoutNotice, setLogoutNotice] = useState("");
 	const [checkingSession, setCheckingSession] = useState(true);
 
 	useEffect(() => {
@@ -28,8 +26,15 @@ export default function SignInPage() {
 		const loggedOut = params.get("loggedOut") === "1";
 		const loginSuccess = params.get("success") === "1";
 
-		setAuthError(error || "");
-		setLogoutNotice("");
+		if (error) {
+			setTimeout(() => {
+				showToast(error, "error");
+			});
+
+			// remove error from URL immediately
+			router.replace("/signin");
+		}
+		
 		if (loggedOut) {
 			setTimeout(() => {
 				showToast("You have been logged out.", "success");
@@ -126,26 +131,10 @@ export default function SignInPage() {
 					</button>
 				</div>
 
-				{/* 3. Toast section (authError/logoutNotice) */}
-				<div
-					className="w-full max-w-5xl flex flex-col items-center mt-2 mb-2"
-					style={{ height: "10vh", minHeight: 40 }}
-				>
-					{authError ? (
-						<p className="w-full bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
-							{authError}
-						</p>
-					) : null}
-					{logoutNotice ? (
-						<p className="w-full bg-[#47D19D] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
-							{logoutNotice}
-						</p>
-					) : null}
-				</div>
 
 				{/* 4. FAQ orange box */}
 				<div
-					className="w-full max-w-5xl min-h-[120px] sm:min-h-[150px] md:min-h-[200px] max-h-[50vh] bg-[#FD9E51] border border-black rounded-[5px] shadow-[4px_4px_0px_black] sm:shadow-[5px_5px_0px_black] md:shadow-[7px_7px_0px_black] overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar"
+					className="w-full max-w-5xl mt-10 md:mt-12 min-h-[120px] sm:min-h-[150px] md:min-h-[200px] max-h-[50vh] bg-[#FD9E51] border border-black rounded-[5px] shadow-[4px_4px_0px_black] sm:shadow-[5px_5px_0px_black] md:shadow-[7px_7px_0px_black] overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar"
 					style={{ maxHeight: "50vh", minHeight: 120 }}
 				>
 					<h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-black">
