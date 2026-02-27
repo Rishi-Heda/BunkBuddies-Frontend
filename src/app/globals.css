@@ -65,21 +65,21 @@ body {
 .animate-toastIn {
   animation: toastIn 0.35s ease forwards;
 }
-.animate-bounce-squash {
-  animation: bounce-squash 0.7s;
-}
 
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateX(120%) scale(0.9);
-  }
-  to {
-    opacity: 1;
+/* Contributors marquee: strip moves left; one full cycle = 33.333% so 3 copies loop */
+@keyframes contributor-marquee {
+  0% {
     transform: translateX(0);
   }
+  100% {
+    transform: translateX(-33.3333%);
+  }
 }
 
-.animate-toastIn {
-  animation: toastIn 0.35s ease forwards;
+.animate-contributor-marquee {
+  animation: contributor-marquee 45s linear infinite;
+}
+
+.animate-bounce-squash {
+  animation: bounce-squash 0.7s;
 }
