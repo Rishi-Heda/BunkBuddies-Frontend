@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { showToast } from "../components/Toast";
 import { useRouter } from "next/navigation";
@@ -38,9 +40,9 @@ const shuffleRooms = (items) => {
 	}
 	return shuffled;
 };
-
 export default function ExploreRoomsPage() {
 	const router = useRouter();
+	
 	const filterMenuRef = useRef(null);
 	const sortMenuRef = useRef(null);
 
@@ -114,6 +116,7 @@ export default function ExploreRoomsPage() {
 			} catch (error) {
 				const message = error?.message || "Unable to load student details";
 				if (message.toLowerCase().includes("authorized")) {
+				
 					router.push("/signin?error=Please login first");
 					return;
 				}
@@ -360,6 +363,8 @@ export default function ExploreRoomsPage() {
 	const visibleStartIndex =
 		totalCount === 0 ? 0 : (currentPage - 1) * ROOMS_PER_PAGE + 1;
 	const visibleEndIndex = Math.min(currentPage * ROOMS_PER_PAGE, totalCount);
+	const shouldShowCreateRoomTile =
+		!isLoading && totalCount > 0 && currentPage === totalPages;
 
 	const toggleRoomType = (typeKey) => {
 		setSelectedRoomTypes((previous) => ({
@@ -1083,7 +1088,33 @@ export default function ExploreRoomsPage() {
 										</div>
 									);
 								})}
+							{shouldShowCreateRoomTile ? (
+								<div className="w-full bg-[#CBA0FF] border border-black shadow-[3.5px_3.5px_0px_black] rounded-[2.5px] p-5 relative flex flex-col hover:scale-[1.01] transition-transform h-[380px] overflow-hidden">
+									<div className="mb-4">
+										<h2 className="text-black text-2xl font-normal leading-tight">
+											Did not find a room you like?
+										</h2>
+										<p className="mt-2 text-[#3E3E3E] text-base font-normal">
+											Create your own room and invite others to join.
+										</p>
+									</div>
+
+									<div className="mt-auto flex justify-center items-center">
+										<button
+											onClick={() =>
+												router.push(
+													"https://bunkbuddies.vinnovateit.com/create-room",
+												)
+											}
+											className="border border-black shadow-[1.6px_2.2px_0px_black] rounded-[2.7px] px-3 py-1.5 text-black text-[12.96px] font-normal bg-[#47D19D] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[1.6px] active:translate-y-[2.2px]"
+										>
+											Create Room
+										</button>
+									</div>
+								</div>
+							) : null}
 						</div>
+
 
 						{!isLoading && totalCount > 0 ? (
 							<div className="w-full px-2 pb-1 pt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-3">

@@ -24,10 +24,20 @@ export const showToast = (message, variant = "success") => {
 
 export default function ToastProvider() {
   const [toast, setToast] = useState(null);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const closeToast = () => {
+    setIsLeaving(true);
+
+    setTimeout(() => {
+        setToast(null);
+        setIsLeaving(false);
+    }, 450); // must match toastOut animation
+  };
 
   useEffect(() => {
     showToastExternal = (message, variant) => {
-      setToast({ message, variant });
+        setIsLeaving(false); // reset animation state
+        setToast({ message, variant });
     };
 
     // flush any pending toast
@@ -43,7 +53,7 @@ export default function ToastProvider() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3000);
+    const timer = setTimeout(closeToast, 3000);
     return () => clearTimeout(timer);
   }, [toast]);
 
@@ -58,11 +68,11 @@ export default function ToastProvider() {
   const current = variants[toast.variant] || variants.success;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] animate-toastIn">
+    <div className={`fixed bottom-6 right-6 z-[9999] ${isLeaving ? "animate-toastOut" : "animate-toastIn"}`}>
       <div className={`${current.bg} text-black min-w-[320px] px-5 py-4 rounded-lg border-2 border-black shadow-[4px_4px_0px_black] flex items-center gap-3 font-semibold`}>
         {current.icon}
         <p className="flex-1">{toast.message}</p>
-        <button onClick={() => setToast(null)} className="hover:scale-110 transition">
+        <button onClick={closeToast} className="hover:scale-110 transition">
           <X size={18} />
         </button>
       </div>
