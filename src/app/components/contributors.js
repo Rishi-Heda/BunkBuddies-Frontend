@@ -16,7 +16,9 @@ const syne = Syne({
 function ContributorCard({ person }) {
   return (
     <div
-      style={{ width: "var(--c-width, 440px)" }}
+      style={{
+        width: "max(var(--c-width, 440px), 360px)",
+      }}
       className="
         relative
         h-[160px]
@@ -27,7 +29,8 @@ function ContributorCard({ person }) {
         overflow-hidden
         group
         transition-all duration-300
-        hover:scale-[1.02]
+        hover:scale-[1.08]
+        hover:w-[calc(max(var(--c-width,440px),360px)+600px)]
       "
     >
       {/* INFO PANEL */}
@@ -44,7 +47,9 @@ function ContributorCard({ person }) {
         "
       >
         <div>
-          <h3 className="text-3xl font-semibold">{person.name}</h3>
+          <h3 className="text-3xl font-semibold">
+            {person.name}
+          </h3>
 
           <div className="flex gap-6 mt-4 text-2xl">
             <FaInstagram />
@@ -53,7 +58,9 @@ function ContributorCard({ person }) {
           </div>
         </div>
 
-        <p className="text-lg">{person.domain}</p>
+        <p className="text-lg">
+          {person.domain}
+        </p>
       </div>
 
       {/* IMAGE */}
