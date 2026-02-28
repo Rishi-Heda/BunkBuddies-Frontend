@@ -29,7 +29,7 @@ function ContributorCard({ person }) {
         overflow-hidden
         group
         transition-all duration-300
-        hover:scale-[1.08]
+        hover:scale-[1.06]
         hover:w-[calc(max(var(--c-width,440px),360px)+600px)]
       "
     >
@@ -253,11 +253,25 @@ function ContributorRow({
 
 export default function Contributors() {
   const people = [
-    { name: "Lakshya", domain: "Frontend", image: "/contributors/1.png" },
-    { name: "Atiksh", domain: "Backend", image: "/contributors/2.png" },
-    { name: "Varun", domain: "Design", image: "/contributors/3.png" },
-    { name: "Aditi", domain: "UI/UX", image: "/contributors/4.png" },
-    { name: "Rahul", domain: "Full Stack", image: "/contributors/5.png" },
+  // ===== BOARD (5) =====
+    { name: "Aarav Mehta", domain: "Board", image: "/contributors/1.png" },
+    { name: "Riya Kapoor", domain: "Board", image: "/contributors/2.png" },
+    { name: "Devansh Shah", domain: "Board", image: "/contributors/3.png" },
+    { name: "Ishita Nair", domain: "Board", image: "/contributors/4.png" },
+    { name: "Kunal Verma", domain: "Board", image: "/contributors/5.png" },
+
+    // ===== TECH JC (5) =====
+    { name: "Pranav Iyer", domain: "Tech JC", image: "/contributors/1.png" },
+    { name: "Sneha Reddy", domain: "Tech JC", image: "/contributors/2.png" },
+    { name: "Arjun Malhotra", domain: "Tech JC", image: "/contributors/3.png" },
+    { name: "Neel Patel", domain: "Tech JC", image: "/contributors/4.png" },
+    { name: "Tanmay Kulkarni", domain: "Tech JC", image: "/contributors/5.png" },
+
+    // ===== DESIGN JC (4) =====
+    { name: "Ananya Bose", domain: "Design JC", image: "/contributors/1.png" },
+    { name: "Kabir Arora", domain: "Design JC", image: "/contributors/2.png" },
+    { name: "Mehul Jain", domain: "Design JC", image: "/contributors/3.png" },
+    { name: "Diya Sen", domain: "Design JC", image: "/contributors/4.png" },
   ];
 
   return (
@@ -279,22 +293,22 @@ export default function Contributors() {
 
       <ContributorRow
         word="by"
-        left={[people[2], people[4]]}
-        right={[people[1], people[3]]}
+        left={[people[3], people[4]]}
+        right={[people[5], people[6]]}
         direction="rtl"
       />
 
       <ContributorRow
         word="the"
-        left={[people[3], people[2]]}
-        right={[people[0], people[4]]}
+        left={[people[7], people[8]]}
+        right={[people[9], people[10]]}
         direction="ltr"
       />
 
       <ContributorRow
         word="ambitious"
-        left={[people[1], people[4]]}
-        right={[people[0]]}
+        left={[people[11], people[12]]}
+        right={[people[13]]}
         direction="rtl"
       />
     </section>
