@@ -102,7 +102,14 @@ function ContributorRow({
   const rowRef = useRef(null);
   const [duration, setDuration] = useState(20);
 
-  const SHIFT = word === "the" ? 400 : 0; // ✅ declare here (outside JSX)
+  const WORD_SHIFT = {
+    Built: -60,
+    by: -40,
+    the: 400,
+    ambitious: 120,
+  };
+
+  const SHIFT = WORD_SHIFT[word] ?? 0;
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
