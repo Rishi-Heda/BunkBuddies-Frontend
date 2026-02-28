@@ -103,10 +103,10 @@ function ContributorRow({
   const [duration, setDuration] = useState(20);
 
   const WORD_SHIFT = {
-    Built: -60,
-    by: -40,
-    the: 400,
-    ambitious: 120,
+    Built: 70,
+    by: -100,
+    the: 500,
+    ambitious: 200,
   };
 
   const SHIFT = WORD_SHIFT[word] ?? 0;
