@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 import { Poppins, Syne } from "next/font/google";
 
 /* =====================================================
@@ -189,11 +190,24 @@ function ErrorCard() {
 ===================================================== */
 
 export default function NotFound() {
+  useEffect(() => {
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, []);
+
   return (
     <div
       className={`${syne.className}
       relative
-      min-h-screen
+      h-dvh
       bg-[#F3D8C3]
       overflow-hidden
       flex
