@@ -114,7 +114,7 @@ function ErrorCard() {
       {/* ICON */}
       <div className="flex justify-center mb-0 md:mb-8" >
         <Image
-          src="/contributors/404-error.png"
+          src="/404-error.png"
           alt="404"
           width={176}
           height={176}
