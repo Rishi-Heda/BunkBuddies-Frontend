@@ -30,10 +30,9 @@ function ContributorCard({ person }) {
         group
         transition-all duration-300
         hover:scale-[1.06]
-        hover:w-[calc(max(var(--c-width,440px),360px)+600px)]
+        hover:w-[calc(max(var(--c-width,440px),360px)+20px)]
       "
     >
-      {/* INFO PANEL */}
       <div
         className="
           absolute inset-0
@@ -63,7 +62,6 @@ function ContributorCard({ person }) {
         </p>
       </div>
 
-      {/* IMAGE */}
       <div
         className="
           absolute inset-0
@@ -104,6 +102,8 @@ function ContributorRow({
   const rowRef = useRef(null);
   const [duration, setDuration] = useState(20);
 
+  const SHIFT = word === "the" ? 400 : 0; // ✅ declare here (outside JSX)
+
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -123,7 +123,7 @@ function ContributorRow({
 
         if (cWidth > 0) {
           const setW = N * cWidth + N * GAP;
-          setDuration(setW / 100); // 100px/sec speed
+          setDuration(setW / 100);
         }
       }
     });
@@ -141,8 +141,8 @@ function ContributorRow({
         ref={rowRef}
         className="grid items-end justify-center relative transition-all duration-300"
         style={{
-          width: "calc(100% + 160px)",
-          left: "-80px",
+          width: `calc(100% + ${160 + SHIFT}px)`,
+          left: `-${80 + SHIFT}px`,
           gridTemplateColumns: `repeat(${L}, 1fr) auto repeat(${R}, 1fr)`,
           gap: `${GAP}px`,
         }}
@@ -171,7 +171,7 @@ function ContributorRow({
           }
         `}</style>
 
-        {/* LEFT */}
+        {/* LEFT TRACK */}
         {L > 0 && (
           <div
             className="left-track overflow-hidden py-4 -my-4"
@@ -184,35 +184,37 @@ function ContributorRow({
               className={`flex gap-[48px] w-max animate-${animationName}`}
               style={{
                 "--c-width": `calc((100cqw - ${(L - 1) * GAP}px) / ${L})`,
-                "--set-w": `calc(${N} * var(--c-width) + ${
-                  N * GAP
-                }px)`,
+                "--set-w": `calc(${N} * var(--c-width) + ${N * GAP}px)`,
               }}
             >
               {repeatedCards.map((p, i) => (
-                <ContributorCard
-                  key={`left-${i}`}
-                  person={p}
-                />
+                <ContributorCard key={`left-${i}`} person={p} />
               ))}
             </div>
           </div>
         )}
 
-        {/* TEXT */}
-        <h1
-          className={`${syne.className}
-            text-[148px]
-            leading-none
-            whitespace-nowrap
-            relative z-10
-          `}
-          style={{ gridColumn: `${L + 1}` }}
+        {/* CENTER COLUMN */}
+        <div
+          style={{
+            gridColumn: `${L + 1}`,
+            display: "flex",
+            justifyContent: "center",
+          }}
         >
-          {word}
-        </h1>
+          <h1
+            className={`${syne.className}
+              text-[148px]
+              leading-none
+              whitespace-nowrap
+              relative z-10
+            `}
+          >
+            {word}
+          </h1>
+        </div>
 
-        {/* RIGHT */}
+        {/* RIGHT TRACK */}
         {R > 0 && (
           <div
             className="right-track overflow-hidden py-4 -my-4"
@@ -225,19 +227,12 @@ function ContributorRow({
               className={`flex gap-[48px] w-max animate-${animationName}`}
               style={{
                 "--c-width": `calc((100cqw - ${(R - 1) * GAP}px) / ${R})`,
-                "--set-w": `calc(${N} * var(--c-width) + ${
-                  N * GAP
-                }px)`,
-                marginLeft: `calc(-1 * (${L} * var(--c-width) + ${
-                  L * GAP
-                }px))`,
+                "--set-w": `calc(${N} * var(--c-width) + ${N * GAP}px)`,
+                marginLeft: `calc(-1 * (${L} * var(--c-width) + ${L * GAP}px))`,
               }}
             >
               {repeatedCards.map((p, i) => (
-                <ContributorCard
-                  key={`right-${i}`}
-                  person={p}
-                />
+                <ContributorCard key={`right-${i}`} person={p} />
               ))}
             </div>
           </div>
@@ -253,21 +248,16 @@ function ContributorRow({
 
 export default function Contributors() {
   const people = [
-  // ===== BOARD (5) =====
     { name: "Aarav Mehta", domain: "Board", image: "/contributors/1.png" },
     { name: "Riya Kapoor", domain: "Board", image: "/contributors/2.png" },
     { name: "Devansh Shah", domain: "Board", image: "/contributors/3.png" },
     { name: "Ishita Nair", domain: "Board", image: "/contributors/4.png" },
     { name: "Kunal Verma", domain: "Board", image: "/contributors/5.png" },
-
-    // ===== TECH JC (5) =====
     { name: "Pranav Iyer", domain: "Tech JC", image: "/contributors/1.png" },
     { name: "Sneha Reddy", domain: "Tech JC", image: "/contributors/2.png" },
     { name: "Arjun Malhotra", domain: "Tech JC", image: "/contributors/3.png" },
     { name: "Neel Patel", domain: "Tech JC", image: "/contributors/4.png" },
     { name: "Tanmay Kulkarni", domain: "Tech JC", image: "/contributors/5.png" },
-
-    // ===== DESIGN JC (4) =====
     { name: "Ananya Bose", domain: "Design JC", image: "/contributors/1.png" },
     { name: "Kabir Arora", domain: "Design JC", image: "/contributors/2.png" },
     { name: "Mehul Jain", domain: "Design JC", image: "/contributors/3.png" },
@@ -275,42 +265,11 @@ export default function Contributors() {
   ];
 
   return (
-    <section
-      className="
-        relative
-        w-full
-        py-28
-        flex flex-col
-        overflow-hidden
-      "
-    >
-      <ContributorRow
-        word="Built"
-        left={[people[0]]}
-        right={[people[1], people[2]]}
-        direction="ltr"
-      />
-
-      <ContributorRow
-        word="by"
-        left={[people[3], people[4]]}
-        right={[people[5], people[6]]}
-        direction="rtl"
-      />
-
-      <ContributorRow
-        word="the"
-        left={[people[7], people[8]]}
-        right={[people[9], people[10]]}
-        direction="ltr"
-      />
-
-      <ContributorRow
-        word="ambitious"
-        left={[people[11], people[12]]}
-        right={[people[13]]}
-        direction="rtl"
-      />
+    <section className="relative w-full py-28 flex flex-col overflow-hidden">
+      <ContributorRow word="Built" left={[people[0]]} right={[people[1], people[2]]} direction="ltr" />
+      <ContributorRow word="by" left={[people[3], people[4]]} right={[people[5], people[6]]} direction="rtl" />
+      <ContributorRow word="the" left={[people[7], people[8]]} right={[people[9], people[10]]} direction="ltr" />
+      <ContributorRow word="ambitious" left={[people[11], people[12]]} right={[people[13]]} direction="rtl" />
     </section>
   );
 }
