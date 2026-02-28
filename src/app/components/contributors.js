@@ -16,37 +16,35 @@ const syne = Syne({
 function ContributorCard({ person }) {
   return (
     <div
-      style={{ width: 'var(--c-width, 440px)' }}
+      style={{ width: "var(--c-width, 440px)" }}
       className="
-      relative
-      h-[160px]
-      flex-shrink-0
-      bg-[#F7CC66]
-      border-[1.5px] border-black
-      rounded-[15px]
-      overflow-hidden
-      group
-      transition-all duration-300
-      hover:scale-[1.02]
+        relative
+        h-[160px]
+        flex-shrink-0
+        bg-[#F7CC66]
+        border-[1.5px] border-black
+        rounded-[15px]
+        overflow-hidden
+        group
+        transition-all duration-300
+        hover:scale-[1.02]
       "
     >
-      {/* ---------- INFO PANEL ---------- */}
+      {/* INFO PANEL */}
       <div
         className="
-        absolute inset-0
-        px-6 py-5
-        flex flex-col justify-between
-        opacity-0
-        translate-x-[-25px]
-        transition-all duration-500
-        group-hover:opacity-100
-        group-hover:translate-x-0
-      "
+          absolute inset-0
+          px-6 py-5
+          flex flex-col justify-between
+          opacity-0
+          -translate-x-[25px]
+          transition-all duration-500
+          group-hover:opacity-100
+          group-hover:translate-x-0
+        "
       >
         <div>
-          <h3 className="text-3xl font-semibold">
-            {person.name}
-          </h3>
+          <h3 className="text-3xl font-semibold">{person.name}</h3>
 
           <div className="flex gap-6 mt-4 text-2xl">
             <FaInstagram />
@@ -55,19 +53,17 @@ function ContributorCard({ person }) {
           </div>
         </div>
 
-        <p className="text-lg">
-          {person.domain}
-        </p>
+        <p className="text-lg">{person.domain}</p>
       </div>
 
-      {/* ---------- IMAGE ---------- */}
+      {/* IMAGE */}
       <div
         className="
-        absolute inset-0
-        flex justify-center items-end
-        transition-transform duration-500
-        group-hover:translate-x-[130px]
-      "
+          absolute inset-0
+          flex justify-center items-end
+          transition-transform duration-500
+          group-hover:translate-x-[130px]
+        "
       >
         <img
           src={person.image}
@@ -83,15 +79,20 @@ function ContributorCard({ person }) {
    ROW
 ===================================================== */
 
-function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
+function ContributorRow({
+  word,
+  left,
+  right,
+  direction = "ltr",
+}) {
   const allCards = [...left, ...right];
   const L = left.length;
   const R = right.length;
   const N = allCards.length;
-  const GAP = 48; // 48px gap (gap-12 in Tailwind)
+  const GAP = 48;
 
   const repeatedCards = [...allCards, ...allCards, ...allCards];
-  const animationName = `marquee-${word.replace(/\s+/g, '')}`;
+  const animationName = `marquee-${word.replace(/\s+/g, "")}`;
 
   const rowRef = useRef(null);
   const [duration, setDuration] = useState(20);
@@ -100,20 +101,22 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const rowEl = entry.target;
-        const leftEl = rowEl.querySelector('.left-track');
-        const rightEl = rowEl.querySelector('.right-track');
+        const leftEl = rowEl.querySelector(".left-track");
+        const rightEl = rowEl.querySelector(".right-track");
 
         let cWidth = 0;
+
         if (leftEl && L > 0) {
-          cWidth = (leftEl.offsetWidth - (L - 1) * GAP) / L;
+          cWidth =
+            (leftEl.offsetWidth - (L - 1) * GAP) / L;
         } else if (rightEl && R > 0) {
-          cWidth = (rightEl.offsetWidth - (R - 1) * GAP) / R;
+          cWidth =
+            (rightEl.offsetWidth - (R - 1) * GAP) / R;
         }
 
         if (cWidth > 0) {
           const setW = N * cWidth + N * GAP;
-          // Set consistent speed (e.g. 100px per second)
-          setDuration(setW / 100);
+          setDuration(setW / 100); // 100px/sec speed
         }
       }
     });
@@ -129,32 +132,35 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
     <div className={`w-full overflow-hidden py-6 row-${animationName}`}>
       <div
         ref={rowRef}
-        className="grid items-end justify-center relative px-[2vw] transition-all duration-300"
+        className="grid items-end justify-center relative transition-all duration-300"
         style={{
-          width: `calc(100% + ${Math.abs(offsetX) * 2}px)`,
-          left: offsetX < 0 ? `${offsetX * 2}px` : `0px`,
+          width: "calc(100% + 160px)",
+          left: "-80px",
           gridTemplateColumns: `repeat(${L}, 1fr) auto repeat(${R}, 1fr)`,
-          gap: `${GAP}px`
+          gap: `${GAP}px`,
         }}
       >
         <style>{`
           .animate-${animationName} {
             animation: ${animationName} ${duration}s linear infinite;
           }
+
           .row-${animationName}:hover .animate-${animationName} {
             animation-play-state: paused;
           }
+
           @keyframes ${animationName} {
-            ${direction === "ltr"
-            ? `
-                0% { transform: translateX(calc(-1 * var(--set-w))); }
-                100% { transform: translateX(0px); }
-              `
-            : `
-                0% { transform: translateX(0px); }
-                100% { transform: translateX(calc(-1 * var(--set-w))); }
-              `
-          }
+            ${
+              direction === "ltr"
+                ? `
+              0% { transform: translateX(calc(-1 * var(--set-w))); }
+              100% { transform: translateX(0px); }
+            `
+                : `
+              0% { transform: translateX(0px); }
+              100% { transform: translateX(calc(-1 * var(--set-w))); }
+            `
+            }
           }
         `}</style>
 
@@ -164,18 +170,23 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
             className="left-track overflow-hidden py-4 -my-4"
             style={{
               gridColumn: `1 / span ${L}`,
-              containerType: 'inline-size'
+              containerType: "inline-size",
             }}
           >
             <div
               className={`flex gap-[48px] w-max animate-${animationName}`}
               style={{
-                '--c-width': `calc((100cqw - ${(L - 1) * GAP}px) / ${L})`,
-                '--set-w': `calc(${N} * var(--c-width) + ${N * GAP}px)`
+                "--c-width": `calc((100cqw - ${(L - 1) * GAP}px) / ${L})`,
+                "--set-w": `calc(${N} * var(--c-width) + ${
+                  N * GAP
+                }px)`,
               }}
             >
               {repeatedCards.map((p, i) => (
-                <ContributorCard key={`left-${i}`} person={p} />
+                <ContributorCard
+                  key={`left-${i}`}
+                  person={p}
+                />
               ))}
             </div>
           </div>
@@ -184,10 +195,11 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
         {/* TEXT */}
         <h1
           className={`${syne.className}
-          text-[148px]
-          leading-none
-          whitespace-nowrap
-          relative z-10`}
+            text-[148px]
+            leading-none
+            whitespace-nowrap
+            relative z-10
+          `}
           style={{ gridColumn: `${L + 1}` }}
         >
           {word}
@@ -199,24 +211,30 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
             className="right-track overflow-hidden py-4 -my-4"
             style={{
               gridColumn: `${L + 2} / span ${R}`,
-              containerType: 'inline-size'
+              containerType: "inline-size",
             }}
           >
             <div
               className={`flex gap-[48px] w-max animate-${animationName}`}
               style={{
-                '--c-width': `calc((100cqw - ${(R - 1) * GAP}px) / ${R})`,
-                '--set-w': `calc(${N} * var(--c-width) + ${N * GAP}px)`,
-                marginLeft: `calc(-1 * (${L} * var(--c-width) + ${L * GAP}px))`
+                "--c-width": `calc((100cqw - ${(R - 1) * GAP}px) / ${R})`,
+                "--set-w": `calc(${N} * var(--c-width) + ${
+                  N * GAP
+                }px)`,
+                marginLeft: `calc(-1 * (${L} * var(--c-width) + ${
+                  L * GAP
+                }px))`,
               }}
             >
               {repeatedCards.map((p, i) => (
-                <ContributorCard key={`right-${i}`} person={p} />
+                <ContributorCard
+                  key={`right-${i}`}
+                  person={p}
+                />
               ))}
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
@@ -227,39 +245,24 @@ function ContributorRow({ word, left, right, direction = "ltr", offsetX = 0 }) {
 ===================================================== */
 
 export default function Contributors() {
-
   const people = [
-    {
-      name: "Lakshya",
-      domain: "Frontend",
-      image: "/contributors/1.png",
-    },
-    {
-      name: "Atiksh",
-      domain: "Backend",
-      image: "/contributors/2.png",
-    },
-    {
-      name: "Varun",
-      domain: "Design",
-      image: "/contributors/3.png",
-    },
-    {
-      name: "Aditi",
-      domain: "UI/UX",
-      image: "/contributors/4.png",
-    },
-    {
-      name: "Rahul",
-      domain: "Full Stack",
-      image: "/contributors/5.png",
-    },
+    { name: "Lakshya", domain: "Frontend", image: "/contributors/1.png" },
+    { name: "Atiksh", domain: "Backend", image: "/contributors/2.png" },
+    { name: "Varun", domain: "Design", image: "/contributors/3.png" },
+    { name: "Aditi", domain: "UI/UX", image: "/contributors/4.png" },
+    { name: "Rahul", domain: "Full Stack", image: "/contributors/5.png" },
   ];
 
   return (
-    <section className="py-28 flex flex-col overflow-hidden">
-
-      {/* ROW 1 */}
+    <section
+      className="
+        relative
+        w-full
+        py-28
+        flex flex-col
+        overflow-hidden
+      "
+    >
       <ContributorRow
         word="Built"
         left={[people[0]]}
@@ -267,7 +270,6 @@ export default function Contributors() {
         direction="ltr"
       />
 
-      {/* ROW 2 */}
       <ContributorRow
         word="by"
         left={[people[2], people[4]]}
@@ -275,7 +277,6 @@ export default function Contributors() {
         direction="rtl"
       />
 
-      {/* ROW 3 */}
       <ContributorRow
         word="the"
         left={[people[3], people[2]]}
@@ -283,14 +284,12 @@ export default function Contributors() {
         direction="ltr"
       />
 
-      {/* ROW 4 */}
       <ContributorRow
         word="ambitious"
         left={[people[1], people[4]]}
         right={[people[0]]}
         direction="rtl"
       />
-
     </section>
   );
 }
