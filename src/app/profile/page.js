@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -141,10 +141,15 @@ export default function ProfilePage() {
 			const payload = {};
 			const trimmedContact = formData.contact.trim();
 			const trimmedDescription = formData.description.trim();
-
 			if (trimmedContact) {
-				payload.phone = normalizeIndianMobileNumber(trimmedContact);
-			}
+				try {
+					payload.phone = normalizeIndianMobileNumber(trimmedContact);
+				} catch (e) {
+					showToast("Invalid Mobile Number", "error");
+					setIsSaving(false);
+					return;
+				}
+}
 			if (trimmedDescription) {
 				payload.description = trimmedDescription;
 			}
@@ -154,7 +159,9 @@ export default function ProfilePage() {
 			if (formData.cgpa !== "") {
 				const parsedCgpa = Number(formData.cgpa);
 				if (!Number.isFinite(parsedCgpa) || parsedCgpa < 0 || parsedCgpa > 10) {
-					throw new Error("CGPA must be a number between 0 and 10");
+					showToast("CGPA must be between 0 and 10", "error");
+					setIsSaving(false);
+					return;
 				}
 				payload.CGPA = parsedCgpa;
 			}
@@ -182,8 +189,7 @@ export default function ProfilePage() {
 				"bunkBuddies_userProfile",
 				JSON.stringify(localProfile),
 			);
-			alert("Profile updated successfully!");
-			router.push("/find-buddies");
+			router.push("/find-buddies?profileUpdated=1");
 		} catch (error) {
 			const message = error?.message || "Failed to update profile";
 			if (message.toLowerCase().includes("authorized")) {

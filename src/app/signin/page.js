@@ -1,5 +1,5 @@
 "use client";
-
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import "./custom-scrollbar.css";
 import Image from "next/image";
@@ -17,8 +17,6 @@ const FRONTEND_LOGIN_ROUTE = "/api/login";
 export default function SignInPage() {
 	const router = useRouter();
 	const [isRedirecting, setIsRedirecting] = useState(false);
-	const [authError, setAuthError] = useState("");
-	const [logoutNotice, setLogoutNotice] = useState("");
 	const [checkingSession, setCheckingSession] = useState(true);
 
 	useEffect(() => {
@@ -26,8 +24,22 @@ export default function SignInPage() {
 		const params = new URLSearchParams(window.location.search);
 		const error = params.get("error");
 		const loggedOut = params.get("loggedOut") === "1";
-		setAuthError(error || "");
-		setLogoutNotice(loggedOut ? "You have been logged out." : "");
+		const loginSuccess = params.get("success") === "1";
+
+		if (error) {
+			setTimeout(() => {
+				showToast(error, "error");
+			});
+
+			// remove error from URL immediately
+			router.replace("/signin");
+		}
+		
+		if (loggedOut) {
+			setTimeout(() => {
+				showToast("You have been logged out.", "success");
+			}, 500);
+		}
 
 		const loadSession = async () => {
 			try {
@@ -37,12 +49,11 @@ export default function SignInPage() {
 				});
 				const payload = await response.json().catch(() => ({}));
 
-				if (!isMounted) {
-					return;
-				}
+				if (!isMounted) return;
 
 				if (payload?.authenticated) {
-					router.replace(payload?.nextRoute || "/find-buddies");
+					const nextRoute = (payload?.nextRoute || "/find-buddies").split("?")[0];
+					router.replace(nextRoute);
 					return;
 				}
 			} finally {
@@ -120,26 +131,10 @@ export default function SignInPage() {
 					</button>
 				</div>
 
-				{/* 3. Toast section (authError/logoutNotice) */}
-				<div
-					className="w-full max-w-5xl flex flex-col items-center mt-2 mb-2"
-					style={{ height: "10vh", minHeight: 40 }}
-				>
-					{authError ? (
-						<p className="w-full bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
-							{authError}
-						</p>
-					) : null}
-					{logoutNotice ? (
-						<p className="w-full bg-[#47D19D] border border-black rounded-[5px] px-4 py-3 text-sm sm:text-base text-black font-medium">
-							{logoutNotice}
-						</p>
-					) : null}
-				</div>
 
 				{/* 4. FAQ orange box */}
 				<div
-					className="w-full max-w-5xl min-h-[120px] sm:min-h-[150px] md:min-h-[200px] max-h-[50vh] bg-[#FD9E51] border border-black rounded-[5px] shadow-[4px_4px_0px_black] sm:shadow-[5px_5px_0px_black] md:shadow-[7px_7px_0px_black] overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar"
+					className="w-full max-w-5xl mt-10 md:mt-12 min-h-[120px] sm:min-h-[150px] md:min-h-[200px] max-h-[50vh] bg-[#FD9E51] border border-black rounded-[5px] shadow-[4px_4px_0px_black] sm:shadow-[5px_5px_0px_black] md:shadow-[7px_7px_0px_black] overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar"
 					style={{ maxHeight: "50vh", minHeight: 120 }}
 				>
 					<h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-black">
@@ -173,7 +168,7 @@ export default function SignInPage() {
 							you can connect and plan accordingly.
 						</li>
 						<li>
-							<b>What if I don’t find a match?</b>
+							<b>What if I don't find a match?</b>
 							<br />
 							You can keep browsing and sending requests until you find someone
 							who fits your lifestyle and vibe.
@@ -199,7 +194,7 @@ export default function SignInPage() {
 						<li>
 							<b>Can I cancel a request after sending it?</b>
 							<br />
-							Yes, you can withdraw a request anytime before it’s accepted.
+							Yes, you can withdraw a request anytime before it's accepted.
 						</li>
 						<li>
 							<b>What if my roommate situation changes later?</b>

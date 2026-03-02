@@ -1,5 +1,5 @@
-"use client";
-
+"use client"; //comment 
+import { showToast } from "../components/Toast";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -25,8 +25,15 @@ export default function FindBuddiesPage() {
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
-		setIsAnimating(true);
-
+		    setIsAnimating(true);
+			const params = new URLSearchParams(window.location.search);
+			const profileUpdated = params.get("profileUpdated") === "1";
+			if (profileUpdated) {
+				window.history.replaceState({}, "", window.location.pathname);
+				setTimeout(() => {
+					showToast("Profile updated successfully!", "success");
+				}, 500);
+			}
 		const loadUserData = async () => {
 			try {
 				const response = await backendFetch("student/getStudent");
@@ -52,35 +59,56 @@ export default function FindBuddiesPage() {
 
 	const handleJoinRoom = async (event) => {
 		event.preventDefault();
+
 		const code = accessCode.trim();
 
 		if (!code) {
-			setErrorMessage("Please enter an access code");
+			showToast("Please enter an access code", "error");
 			return;
 		}
 
-		// Check if user is already in a group
+		// Already in group
 		if (userGroup) {
 			setShowLeaveGroupModal(true);
 			return;
 		}
 
 		setIsJoining(true);
-		setErrorMessage("");
 
 		try {
-			await backendFetch(`group/joinGroup/${encodeURIComponent(code)}`, {
-				method: "POST",
-			});
-			alert("Joined group successfully!");
+			await backendFetch(
+				`group/joinGroup/${encodeURIComponent(code)}`,
+				{ method: "POST" }
+			);
+
+			// ✅ TASK: Joined room with code
+			showToast("Joined room successfully", "success");
+
 			router.push("/my-groups");
+
 		} catch (error) {
 			const message = error?.message || "Unable to join group";
-			if (message.toLowerCase().includes("authorized")) {
+			const lowerMessage = message.toLowerCase();
+
+			if (lowerMessage.includes("authorized")) {
 				router.push("/signin?error=Please login first");
 				return;
 			}
-			setErrorMessage(message);
+
+			// ✅ TASK: Group doesn't exist (code)
+			if (lowerMessage.includes("expired")) {
+				showToast("Code has expired!", "error");
+			}
+			else if (
+				lowerMessage.includes("not found") ||
+				lowerMessage.includes("doesn't exist") ||
+				lowerMessage.includes("invalid")
+			) {
+				showToast("Group doesn't exist for this code", "error");
+			}
+			else {
+				showToast(message, "error");
+			}
 		} finally {
 			setIsJoining(false);
 		}
@@ -135,7 +163,7 @@ export default function FindBuddiesPage() {
 						</p>
 					) : null}
 
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-5 lg:gap-6 max-w-[280px] md:max-w-[900px] mx-auto">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-5 lg:gap-6 max-w-[280px] md:max-w-[900px] mx-auto">
 						<div
 							onClick={() => {
 								if (userGroup && !isAdmin) {
@@ -234,6 +262,33 @@ export default function FindBuddiesPage() {
 								</div>
 							</div>
 						</div>
+
+						{/* ── My Chats card ── */}
+						<div
+							onClick={() => router.push("/chat")}
+							className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
+						>
+							<svg
+								width="40"
+								height="40"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="black"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								className="w-9 h-9 md:w-10 md:h-10 mb-1.5 md:mb-2.5"
+							>
+								<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+							</svg>
+							<h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">
+								My Chats
+							</h2>
+							<p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
+								Chat with your soon-to-be roomies
+							</p>
+						</div>
+
 					</div>
 				</main>
 
