@@ -36,9 +36,14 @@ async function resolvePostLoginPath(accessToken) {
         const user = payload?.user || {};
         const hasGroup = Boolean(user?.group?.id || user?.groupId);
         const hasProfile = Boolean((user?.hostelType || "").trim());
+        const hasQuiz = Boolean(user?.quizCompleted);
 
         if (hasGroup) {
             return "/explore-rooms";
+        }
+
+        if (!hasQuiz) {
+            return "/personality-quiz";
         }
 
         if (hasProfile) {
@@ -89,7 +94,9 @@ export async function GET(request) {
         }
 
         const postLoginPath = await resolvePostLoginPath(payload.access_token);
-        const response = NextResponse.redirect(new URL(postLoginPath, request.url));
+        const redirectUrl = new URL(postLoginPath, request.url);
+        redirectUrl.searchParams.set("success", "1");
+        const response = NextResponse.redirect(redirectUrl);
 
         response.cookies.set("bb_access_token", payload.access_token, {
             httpOnly: true,
