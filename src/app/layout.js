@@ -8,7 +8,7 @@ const syne = Syne({
 });
 
 export const metadata = {
-  title: "BunkBuddies",
+  title: "BunkBuddies by VinnovateIT",
   description: "Find your perfect bunk buddy",
   icons: {
     icon: "/fav.png",

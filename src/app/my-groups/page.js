@@ -33,7 +33,10 @@ export default function MyGroupsPage() {
                 await loadGroupData();
                 showToast("Member removed from group", "success");
             } catch (error) {
-                setErrorMessage(error?.message || "Unable to remove member");
+                const message =
+                    error?.message || "Unable to remove member";
+
+                showToast(message, "error");  //replaced error mssg with toast
             } finally {
                 setActionLoading("");
             }
@@ -44,12 +47,10 @@ export default function MyGroupsPage() {
     const [joinRequests, setJoinRequests] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
 
     const loadGroupData = useCallback(async () => {
-        setErrorMessage("");
         setIsLoaded(false);
 
         try {
@@ -98,7 +99,7 @@ export default function MyGroupsPage() {
                 router.push("/signin?error=Please login first");
                 return;
             }
-            setErrorMessage(message);
+            showToast(message, "error"); //toast for error
         } finally {
             setIsLoaded(true);
         }
@@ -193,7 +194,7 @@ export default function MyGroupsPage() {
                 setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
                 showToast("This user is already in another group. The request has been removed.", "error");
             } else {
-                setErrorMessage(message);
+                showToast(message, "error");  //replaced with toast
             }
         } finally {
             setActionLoading("");
@@ -227,11 +228,6 @@ export default function MyGroupsPage() {
                 </div>
 
                 <main className="w-full max-w-[1045px] mt-[0vh] md:mt[0vh]">
-                    {errorMessage ? (
-                        <p className="mt-4 mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
-                            {errorMessage}
-                        </p>
-                    ) : null}
 
                     {isLoaded && userGroup ? (
                         <>
@@ -337,6 +333,12 @@ export default function MyGroupsPage() {
                                                         <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>CGPA</span>
                                                         <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.CGPA ?? "N/A"}</span>
                                                     </div>
+                                                    <div style={{marginTop: 12}}>
+                                                        <span style={{display: 'block', color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500, marginBottom: 4}}>Description</span>
+                                                        <p style={{color: '#3F3F3F', fontSize: 13.5, fontFamily: 'Syne', fontWeight: 400, lineHeight: 1.35, wordBreak: 'break-word'}}>
+                                                            {member.description || "N/A"}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 {isAdmin && member.firebaseUID !== userGroup.adminUID && (
                                                     <button
@@ -389,6 +391,12 @@ export default function MyGroupsPage() {
                                                     <div className="flex justify-between items-center text-[16px]">
                                                         <span className="text-[#141414] font-medium">CGPA</span>
                                                         <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{request?.student?.CGPA ?? "N/A"}</span>
+                                                    </div>
+                                                    <div className="text-[16px] pt-1">
+                                                        <span className="text-[#141414] font-medium block mb-0.5">Description</span>
+                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words">
+                                                            {request?.student?.description || "N/A"}
+                                                        </p>
                                                     </div>
                                                 </div>
 

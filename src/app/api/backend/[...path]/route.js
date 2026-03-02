@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+const NETWORK_ERROR_MESSAGE =
+    "Connect to internet and try again";
 
 export const runtime = 'edge';
 const BACKEND_BASE_URL = (
     process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_API_URL ||
-    "https://bunkbuddies-backend-ic43.onrender.com"
+    process.env.NEXT_PUBLIC_BACKEND_API_URL
 ).replace(/\/$/, "");
 
 function buildTargetUrl(pathSegments, requestUrl) {
@@ -66,7 +67,7 @@ async function proxyRequest(request, { params }) {
         });
     } catch {
         return NextResponse.json(
-            { detail: "Failed to reach backend service" },
+            { detail: NETWORK_ERROR_MESSAGE },
             { status: 502 },
         );
     }

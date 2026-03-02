@@ -20,10 +20,11 @@ const syne = Syne({
 	weight: ["400", "600", "700"],
 });
 
-const GROUP_SIZE_OPTIONS = ["1", "2", "3", "4", "6", "8"];
-const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q",	"R", "S", "T"];
+const GROUP_SIZE_OPTIONS = ["2", "3", "4", "6"];
+const LH_GROUP_SIZE_OPTIONS = ["2", "3", "4", "5", "6"];
+const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "G Annex", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "RGT", "LH1", "GH"];
 const MH_BLOCKS = [ "A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
-const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "H", "J"];
+const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J", "RGT", "LH1", "GH"];
 
 function getPrefOptions(allOptions, exclude) {
 	return allOptions.filter((opt) => !exclude.includes(opt));
@@ -35,6 +36,12 @@ function allowedBlocksForHostel(hostelType) {
 	if (t === "MH") return MH_BLOCKS;
 	if (t === "LH") return LH_BLOCKS;
 	return PREFERENCE_OPTIONS;
+}
+
+function groupSizeOptionsForHostel(hostelType) {
+	const t = String(hostelType || "").toUpperCase();
+	if (t === "LH") return LH_GROUP_SIZE_OPTIONS;
+	return GROUP_SIZE_OPTIONS;
 }
 
 const INITIAL_FORM_DATA = {
@@ -54,7 +61,6 @@ export default function CreateRoomPage() {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [errorMessage, setErrorMessage] = useState("");
 	const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 	const [showValidationModal, setShowValidationModal] = useState(false);
 	const [missingFields, setMissingFields] = useState([]);
@@ -113,14 +119,16 @@ export default function CreateRoomPage() {
 						otherPreferences: group.preferences || "",
 					});
 				}
-			} catch (error) {
-				const message = error?.message || "Unable to load room details";
+			} catch (error) {   //error message
+				const message =
+					error?.message || "Connect to internet and try again";
+
 				if (message.toLowerCase().includes("authorized")) {
 					router.push("/signin?error=Please login first");
 					return;
 				}
 				if (isMounted) {
-					setErrorMessage(message);
+					showToast(message, "error");  //toast for error
 				}
 			} finally {
 				if (isMounted) {
@@ -146,7 +154,6 @@ export default function CreateRoomPage() {
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		setErrorMessage("");
 
 		// Check mandatory fields and show popup if any are missing
 		const missing = [];
@@ -208,12 +215,15 @@ export default function CreateRoomPage() {
 router.push("/my-groups");
 			router.push("/my-groups");
 		} catch (error) {
-			const message = error?.message || "Failed to save room";
+			const message =
+				error?.message || "Connect to internet and try again";
+
 			if (message.toLowerCase().includes("authorized")) {
 				router.push("/signin?error=Please login first");
 				return;
 			}
-			setErrorMessage(message);
+
+			showToast(message, "error"); //toast for error
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -260,11 +270,6 @@ router.push("/my-groups");
 						</button>
 					</div>
 
-					{errorMessage ? (
-						<p className="mb-4 bg-[#FB5E4C] border border-black rounded-[5px] px-4 py-2 text-sm text-black">
-							{errorMessage}
-						</p>
-					) : null}
 
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 mb-3">
 						<div className="flex flex-col gap-1">
@@ -310,7 +315,7 @@ router.push("/my-groups");
 								className="w-full h-9 bg-[#F7CC66] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none appearance-none cursor-pointer custom-scrollbar"
 							>
 								<option value="">Select size</option>
-								{GROUP_SIZE_OPTIONS.map((size) => (
+								{groupSizeOptionsForHostel(userHostelType).map((size) => (
 									<option key={size} value={size}>
 										{size}
 									</option>
@@ -394,7 +399,8 @@ router.push("/my-groups");
 							name="otherPreferences"
 							value={formData.otherPreferences}
 							onChange={handleChange}
-							placeholder="Tell us about your preferences..."
+							placeholder={`We're looking for someone who would be a great fit for our daily routine! We are a bit of night owls, so we don’t mind lights staying on until 1 AM or so, but we do appreciate a quiet-ish environment when it’s time to focus. We’re both badminton freaks, so it would be awesome if you’re down to play too!
+We value a tidy space and love keeping the common areas clean. We’re totally cool with friends dropping by for a movie or a chat—the more the merrier, as long as everyone is respectful of each other's space. No CGPA criteria here; we just want someone who knows how to balance studying with having fun. If you vibe with this, hit join!`}
 							disabled={isLoading || isSubmitting}
 							className="w-full h-20 bg-[#F7CC66] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40 custom-scrollbar"
 						/>
