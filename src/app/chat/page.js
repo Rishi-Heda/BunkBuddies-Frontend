@@ -5,66 +5,191 @@ import Image from "next/image";
 import { Syne } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
+import { backendFetch } from "../utils/backendClient";
 
 const syne = Syne({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
 });
 
-// ── Mock data — replace with real API/WebSocket data when backend is ready ──
-const MOCK_GROUPS = [
-  { id: "room 1", name: "Room 1", type: "room", members: 4 },
-  { id: "room 2",   name: "Room 2",   type: "room", members: 3 },
-  { id: "room 3",         name: "Room 3",    type: "hostel", members: 120 },
-];
-
-const MOCK_MESSAGES = {
-  "room 1": [
-    { id: 1, sender: "Akshit", senderId: "u1", text: "Hello. Welcome to the room!", time: "9:00 AM" },
-    { id: 2, sender: "Akshit", senderId: "u1", text: "I am Akshit.",                time: "9:01 AM" },
-    { id: 3, sender: "You",    senderId: "me", text: "Hey There!",                  time: "9:05 AM" },
-  ],
-  "room 2": [
-    { id: 1, sender: "Riya", senderId: "u2", text: "Anyone from Mumbai?", time: "8:30 AM" },
-    { id: 2, sender: "You",  senderId: "me", text: "Yes! me",             time: "8:32 AM" },
-  ],
-  "room 3": [
-    { id: 1, sender: "Warden", senderId: "u3", text: "Mess timings updated: 7-9 AM", time: "7:00 AM" },
-  ],
-};
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL;
 
 export default function ChatPage() {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
-  const [groups]      = useState(MOCK_GROUPS);
+
+  // Current user
+  const [myRegNo, setMyRegNo] = useState(null);
+
+  // Chat data
+  const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState(null);
-  const [messages, setMessages]       = useState(MOCK_MESSAGES);
-  const [input, setInput]             = useState("");
+  const [messages, setMessages] = useState({});
+  const [input, setInput] = useState("");
+
+  // WebSocket refs: one for general chat, one for DM
+  const generalWsRef = useRef(null);
+  const dmWsRef = useRef(null);
+
   const bottomRef = useRef(null);
 
+  // ── Load current user ──
   useEffect(() => {
     setIsAnimating(true);
+    const loadUser = async () => {
+      try {
+        const res = await backendFetch("student/getStudent");
+        const student = res?.user || {};
+        setMyRegNo(student.regNo);
+      } catch {}
+    };
+    loadUser();
   }, []);
 
+  // ── Build groups list: general chat room + DM contacts ──
+  useEffect(() => {
+    if (!myRegNo) return;
+    const loadGroups = async () => {
+      try {
+        // DM contacts
+        const contacts = await backendFetch(`dm/contacts/${myRegNo}`);
+        const dmGroups = (contacts || []).map((c) => ({
+          id: `dm_${c.regNo}`,
+          name: c.name,
+          type: "dm",
+          regNo: c.regNo,
+          role: c.role,
+          unread: c.unread || 0,
+        }));
+
+        // General hostel chat as first item
+        const generalGroup = {
+          id: "general",
+          name: "Hostel Chat",
+          type: "hostel",
+          members: null,
+        };
+
+        setGroups([generalGroup, ...dmGroups]);
+      } catch {}
+    };
+    loadGroups();
+  }, [myRegNo]);
+
+  // ── Connect General Chat WebSocket ──
+  useEffect(() => {
+    if (!myRegNo) return;
+
+    const ws = new WebSocket(`${WS_BASE}/generalChat/ws/${myRegNo}`);
+    generalWsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "chat") {
+          const msg = {
+            id: Date.now() + Math.random(),
+            sender: data.sender_name,
+            senderId: data.sender_reg_no,
+            text: data.message,
+            time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          setMessages((prev) => ({
+            ...prev,
+            general: [...(prev["general"] || []), msg],
+          }));
+        } else if (data.type === "system") {
+          setMessages((prev) => ({
+            ...prev,
+            general: [...(prev["general"] || []), {
+              id: Date.now() + Math.random(),
+              text: data.message,
+              isSystem: true,
+              time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            }],
+          }));
+        }
+      } catch {}
+    };
+
+    return () => ws.close();
+  }, [myRegNo]);
+
+  // ── Connect DM WebSocket ──
+  useEffect(() => {
+    if (!myRegNo) return;
+
+    const ws = new WebSocket(`${WS_BASE}/dm/ws/${myRegNo}`);
+    dmWsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "chat") {
+          const contactRegNo = data.senderRegNo === myRegNo ? data.receiverRegNo : data.senderRegNo;
+          const groupId = `dm_${contactRegNo}`;
+          const msg = {
+            id: data.id || Date.now(),
+            sender: data.senderRegNo === myRegNo ? "You" : data.senderRegNo,
+            senderId: data.senderRegNo === myRegNo ? "me" : data.senderRegNo,
+            text: data.message,
+            time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          setMessages((prev) => ({
+            ...prev,
+            [groupId]: [...(prev[groupId] || []), msg],
+          }));
+        }
+      } catch {}
+    };
+
+    return () => ws.close();
+  }, [myRegNo]);
+
+  // ── Load DM history when a DM contact is selected ──
+  useEffect(() => {
+    if (!myRegNo || !activeGroup || activeGroup.type !== "dm") return;
+    const loadHistory = async () => {
+      try {
+        const history = await backendFetch(`dm/history/${myRegNo}/${activeGroup.regNo}`);
+        const mapped = (history || []).map((msg) => ({
+          id: msg.id,
+          sender: msg.senderRegNo === myRegNo ? "You" : msg.senderRegNo,
+          senderId: msg.senderRegNo === myRegNo ? "me" : msg.senderRegNo,
+          text: msg.message,
+          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }));
+        setMessages((prev) => ({ ...prev, [activeGroup.id]: mapped }));
+      } catch {}
+    };
+    loadHistory();
+  }, [myRegNo, activeGroup]);
+
+  // ── Auto scroll ──
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeGroup, messages]);
 
+  // ── Send message ──
   const sendMessage = () => {
     if (!input.trim() || !activeGroup) return;
-    const newMsg = {
-      id: Date.now(),
-      sender: "You",
-      senderId: "me",
-      text: input.trim(),
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-    setMessages((prev) => ({
-      ...prev,
-      [activeGroup.id]: [...(prev[activeGroup.id] || []), newMsg],
-    }));
+
+    if (activeGroup.type === "hostel") {
+      if (generalWsRef.current?.readyState === WebSocket.OPEN) {
+        generalWsRef.current.send(JSON.stringify({
+          action: "chat",
+          message: input.trim(),
+        }));
+      }
+    } else if (activeGroup.type === "dm") {
+      if (dmWsRef.current?.readyState === WebSocket.OPEN) {
+        dmWsRef.current.send(JSON.stringify({
+          targetRegNo: activeGroup.regNo,
+          message: input.trim(),
+        }));
+      }
+    }
     setInput("");
-    // TODO: socket.emit("send_message", { groupId: activeGroup.id, text: input })
   };
 
   const handleKey = (e) => {
@@ -134,13 +259,17 @@ export default function ChatPage() {
                         : "bg-[#FB5E4C] shadow-[3px_3px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_black]"
                       }`}
                   >
-                    <span className="text-xl">{g.type === "hostel" ? "" : ""}</span>
-                    <div>
-                      <div className="font-bold text-sm text-white">{g.name}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm text-white truncate">{g.name}</div>
                       <div className="text-[11px] text-white/80 mt-0.5">
-                        {g.type === "hostel" ? "Hostel Group" : "Room Group"} · {g.members} members
+                        {g.type === "hostel" ? "Hostel Group" : g.role || "Direct Message"}
                       </div>
                     </div>
+                    {g.unread > 0 && (
+                      <span className="bg-white text-[#FB5E4C] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {g.unread}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -154,21 +283,26 @@ export default function ChatPage() {
                 <>
                   {/* Chat header */}
                   <div className="bg-[#FB5E4C] border-b border-black px-4 py-3 flex items-center gap-3 flex-shrink-0">
-                    {/* Back to list — mobile only */}
                     <button
                       onClick={() => setActiveGroup(null)}
                       className="md:hidden text-white text-xl font-bold pr-1"
                     >
                       ←
                     </button>
-                    <span className="text-xl"></span>
                     <span className="font-bold text-white text-base">{activeGroup.name}</span>
                   </div>
 
                   {/* Messages */}
                   <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                     {currentMessages.map((msg) => {
-                      const isMe = msg.senderId === "me";
+                      if (msg.isSystem) {
+                        return (
+                          <div key={msg.id} className="text-center text-xs text-gray-500 italic py-1">
+                            {msg.text}
+                          </div>
+                        );
+                      }
+                      const isMe = msg.senderId === myRegNo || msg.senderId === "me";
                       return (
                         <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                           <div style={{ maxWidth: "70%" }}>
@@ -205,7 +339,6 @@ export default function ChatPage() {
                   </div>
                 </>
               ) : (
-                // Desktop empty state
                 <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-2">
                   <span className="text-5xl"></span>
                   <span className="text-sm font-semibold">Select a chat to start messaging</span>
