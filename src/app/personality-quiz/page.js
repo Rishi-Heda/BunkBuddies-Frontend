@@ -113,6 +113,11 @@ export default function PersonalityQuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => { setIsAnimating(true); }, []);
+  useEffect(() => {
+    backendFetch("student/getStudent")
+      .then(res => console.log("Student:", res))
+      .catch(err => console.error("Error:", err));
+  }, []);
 
   const q = QUESTIONS[current];
   const isLast = current === QUESTIONS.length - 1;
@@ -148,28 +153,35 @@ export default function PersonalityQuizPage() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
-    setIsSubmitting(true);
-    try {
-      // TODO: Replace with actual API call when backend is ready
-      // await backendFetch("student/updateStudent", {
-      //   method: "POST",
-      //   body: JSON.stringify({
-      //     sleepTime: answers[1],
-      //     wakeTime: answers[2],
-      //     cleanliness: answers[3],
-      //     socialScene: answers[4],
-      //     languages: answers[5],
-      //     interests: answers[6],
-      //     quizCompleted: true,
-      //   }),
-      // });
 
-      const response = await backendFetch("student/getStudent");
-      const user = response?.user || {};
-      const hasProfile = Boolean((user?.hostelType || "").trim());
-      router.push(hasProfile ? "/find-buddies" : "/profile");
-    } catch {
-      setError("Something went wrong. Please try again.");
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const payload = {
+        sleepTime: answers[1],
+        wakeTime: answers[2],
+        cleanliness: answers[3],
+        socialScene: answers[4],
+        languages: answers[5],
+        interests: answers[6],
+        quizCompleted: true,
+      };
+
+      console.log("Submitting payload:", payload);
+
+      const result = await backendFetch("student/updateStudent", {
+        method: "PUT",
+        body: payload,
+      });
+
+      console.log("Update success:", result);
+
+      router.push("/find-buddies");
+
+    } catch (err) {
+      console.error("Update failed:", err);
+      setError(err.message || "Something went wrong.");
     } finally {
       setIsSubmitting(false);
     }
