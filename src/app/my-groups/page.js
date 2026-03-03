@@ -49,6 +49,7 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
+    const [isModalAnimating, setIsModalAnimating] = useState(false);
 
     const loadGroupData = useCallback(async () => {
         setIsLoaded(false);
@@ -139,6 +140,8 @@ export default function MyGroupsPage() {
         try {
             const response = await backendFetch("group/generateCode");
             setRoomCode(response?.code || "N/A");
+            // Trigger in-animation
+            setTimeout(() => setIsModalAnimating(true), 10);
         } catch (error) {
             const message = error?.message || "Unable to generate code";
             showToast(message, "error");
@@ -199,6 +202,13 @@ export default function MyGroupsPage() {
         } finally {
             setActionLoading("");
         }
+    };
+
+    const closeRoomCodeModal = () => {
+        setIsModalAnimating(false);
+        setTimeout(() => {
+            setRoomCode(null);
+        }, 300); // Wait for out-animation to finish
     };
 
     const groupBeds = groupCapacity(userGroup?.groupSize);
@@ -491,8 +501,24 @@ export default function MyGroupsPage() {
                 </main>
 
                 {roomCode && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
-                        <div className="bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center">
+                    <div
+                        className={`fixed inset-0 bg-black/50 flex items-center justify-center z-[100] transition-opacity duration-300 ease-out ${isModalAnimating ? "opacity-100" : "opacity-0"
+                            }`}
+                    >
+                        <div
+                            className={`bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center relative transition-all duration-300 ease-out ${isModalAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
+                                }`}
+                        >
+                            <button
+                                onClick={closeRoomCodeModal}
+                                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-[#FB5E4C] border border-black rounded-[4px] shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                                aria-label="Close"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
                             <h2 className="text-xl font-bold mb-2">Room Code</h2>
                             <p className="text-sm mb-4">Share this code with your roommate to join your room!</p>
                             <div className="bg-[#F7CC66] border border-black rounded-[4px] px-6 py-3 text-2xl font-bold tracking-widest mb-4">
@@ -510,19 +536,20 @@ export default function MyGroupsPage() {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        const joinLink = `Click on this code to join the room: ${window.location.origin}/find-buddies?joinCode=${roomCode}`;
-                                        navigator.clipboard.writeText(joinLink);
+                                        const shareText = `Join ${userGroup?.groupName || "our room"} on BunkBuddies 👨‍❤️‍💋‍👨 now!\nBunkBuddies.vinnovateit.com/join/${roomCode}`;
+                                        navigator.clipboard.writeText(shareText);
                                         showToast("Link copied to clipboard!", "success");
                                     }}
-                                    className="bg-[#2E73D4] text-white border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                    className="bg-[#2E73D4] text-white border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-3 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer flex items-center gap-2"
+                                    title="Share Link"
                                 >
-                                    Share Link
-                                </button>
-                                <button
-                                    onClick={() => setRoomCode(null)}
-                                    className="bg-[#FB5E4C] text-black border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
-                                >
-                                    Close
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="18" cy="5" r="3" />
+                                        <circle cx="6" cy="12" r="3" />
+                                        <circle cx="18" cy="19" r="3" />
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>

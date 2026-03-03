@@ -150,8 +150,8 @@ export default function FindBuddiesPage() {
 
 				<main
 					className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating
-							? "translate-y-0 opacity-100 scale-100"
-							: "translate-y-8 opacity-0 scale-95"
+						? "translate-y-0 opacity-100 scale-100"
+						: "translate-y-8 opacity-0 scale-95"
 						}`}
 				>
 					<div className="flex flex-row justify-between items-center mb-5 md:mb-8 gap-3">
@@ -160,9 +160,12 @@ export default function FindBuddiesPage() {
 						</h1>
 						<button
 							onClick={() => router.back()}
-							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all whitespace-nowrap self-start mt-1 md:mt-0 md:self-auto"
+							aria-label="Go back"
+							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
 						>
-							← Go Back
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+								<polyline points="15 18 9 12 15 6" />
+							</svg>
 						</button>
 					</div>
 

@@ -42,7 +42,7 @@ const shuffleRooms = (items) => {
 };
 export default function ExploreRoomsPage() {
 	const router = useRouter();
-	
+
 	const filterMenuRef = useRef(null);
 	const sortMenuRef = useRef(null);
 
@@ -116,7 +116,7 @@ export default function ExploreRoomsPage() {
 			} catch (error) {
 				const message = error?.message || "Unable to load student details";
 				if (message.toLowerCase().includes("authorized")) {
-				
+
 					router.push("/signin?error=Please login first");
 					return;
 				}
@@ -178,12 +178,12 @@ export default function ExploreRoomsPage() {
 	const blockOptions = useMemo(() => {
 		const optionsFromBackend = Array.isArray(backendFilterOptions.blocks)
 			? Array.from(
-					new Set(
-						backendFilterOptions.blocks
-							.map((block) => normalizeText(block))
-							.filter(Boolean),
-					),
-				)
+				new Set(
+					backendFilterOptions.blocks
+						.map((block) => normalizeText(block))
+						.filter(Boolean),
+				),
+			)
 			: [];
 		if (optionsFromBackend.length > 0) {
 			return optionsFromBackend.sort((a, b) => a.localeCompare(b));
@@ -201,12 +201,12 @@ export default function ExploreRoomsPage() {
 	const allowedRoomSizes = useMemo(() => {
 		const optionsFromBackend = Array.isArray(backendFilterOptions.roomSizes)
 			? Array.from(
-					new Set(
-						backendFilterOptions.roomSizes
-							.map((size) => Number.parseInt(String(size), 10))
-							.filter((size) => Number.isFinite(size)),
-					),
-				)
+				new Set(
+					backendFilterOptions.roomSizes
+						.map((size) => Number.parseInt(String(size), 10))
+						.filter((size) => Number.isFinite(size)),
+				),
+			)
 			: [];
 		if (optionsFromBackend.length > 0) {
 			return optionsFromBackend.sort((a, b) => a - b);
@@ -517,9 +517,12 @@ export default function ExploreRoomsPage() {
 						<button
 							type="button"
 							onClick={() => router.back()}
-							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
+							aria-label="Go back"
+							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
 						>
-							&larr; Go Back
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+								<polyline points="15 18 9 12 15 6" />
+							</svg>
 						</button>
 					</div>
 
@@ -1072,11 +1075,10 @@ export default function ExploreRoomsPage() {
 												<button
 													onClick={() => handleSendRequest(room.id)}
 													disabled={sendingRoomId === room.id || isRequested}
-													className={`border border-black shadow-[1.6px_2.2px_0px_black] rounded-[2.7px] px-3 py-1.5 text-black text-[12.96px] font-normal transition-all disabled:opacity-70 disabled:cursor-not-allowed ${
-														isRequested
+													className={`border border-black shadow-[1.6px_2.2px_0px_black] rounded-[2.7px] px-3 py-1.5 text-black text-[12.96px] font-normal transition-all disabled:opacity-70 disabled:cursor-not-allowed ${isRequested
 															? "bg-[#F7A640]"
 															: "bg-[#47D19D] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[1.6px] active:translate-y-[2.2px]"
-													}`}
+														}`}
 												>
 													{sendingRoomId === room.id
 														? "Sending..."
@@ -1143,11 +1145,10 @@ export default function ExploreRoomsPage() {
 												key={pageNumber}
 												type="button"
 												onClick={() => setCurrentPage(pageNumber)}
-												className={`border border-black rounded-[4px] px-2.5 py-1 text-sm ${
-													currentPage === pageNumber
+												className={`border border-black rounded-[4px] px-2.5 py-1 text-sm ${currentPage === pageNumber
 														? "bg-[#FB5E4C]"
 														: "bg-[#F2E6DE]"
-												}`}
+													}`}
 											>
 												{pageNumber}
 											</button>

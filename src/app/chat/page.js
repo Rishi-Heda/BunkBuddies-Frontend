@@ -41,7 +41,7 @@ export default function ChatPage() {
         const res = await backendFetch("student/getStudent");
         const student = res?.user || {};
         setMyRegNo(student.regNo);
-      } catch {}
+      } catch { }
     };
     loadUser();
   }, []);
@@ -71,7 +71,7 @@ export default function ChatPage() {
         };
 
         setGroups([generalGroup, ...dmGroups]);
-      } catch {}
+      } catch { }
     };
     loadGroups();
   }, [myRegNo]);
@@ -109,7 +109,7 @@ export default function ChatPage() {
             }],
           }));
         }
-      } catch {}
+      } catch { }
     };
 
     return () => ws.close();
@@ -140,7 +140,7 @@ export default function ChatPage() {
             [groupId]: [...(prev[groupId] || []), msg],
           }));
         }
-      } catch {}
+      } catch { }
     };
 
     return () => ws.close();
@@ -160,7 +160,7 @@ export default function ChatPage() {
           time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         }));
         setMessages((prev) => ({ ...prev, [activeGroup.id]: mapped }));
-      } catch {}
+      } catch { }
     };
     loadHistory();
   }, [myRegNo, activeGroup]);
@@ -223,9 +223,8 @@ export default function ChatPage() {
         </div>
 
         {/* ── Main card ── */}
-        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${
-          isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
-        }`}>
+        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
+          }`}>
 
           {/* Header */}
           <div className="flex flex-row justify-between items-center mb-5 gap-3">
@@ -234,9 +233,12 @@ export default function ChatPage() {
             </h1>
             <button
               onClick={() => setActiveGroup(null)}
-              className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all whitespace-nowrap self-start mt-1 md:mt-0 md:self-auto"
+              aria-label="Go back"
+              className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
             >
-              ← Go Back
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
             </button>
           </div>
 
