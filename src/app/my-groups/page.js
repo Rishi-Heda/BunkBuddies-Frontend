@@ -315,12 +315,15 @@ export default function MyGroupsPage() {
                                                         <span
                                                             style={{ color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400 }}
                                                             className={member.phone ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}
-                                                            title={member.phone ? "Copy to clipboard" : ""}
+                                                            title={member.phone ? "Open in WhatsApp" : ""}
                                                             onClick={(e) => {
                                                                 if (member.phone) {
                                                                     e.stopPropagation();
-                                                                    navigator.clipboard.writeText(member.phone);
-                                                                    showToast("Phone number copied to clipboard!", "success");
+                                                                    let formattedPhone = member.phone.replace(/[^0-9]/g, '');
+                                                                    if (formattedPhone.length === 10) {
+                                                                        formattedPhone = '91' + formattedPhone;
+                                                                    }
+                                                                    window.open(`https://wa.me/${formattedPhone}`, "_blank");
                                                                 }
                                                             }}
                                                         >
@@ -402,12 +405,15 @@ export default function MyGroupsPage() {
                                                         <span className="text-[#141414] font-medium">Contact No.</span>
                                                         <span
                                                             className={`text-[#3F3F3F] text-[14px] font-normal text-right truncate overflow-hidden bg-transparent max-w-[130px] ${request?.student?.phone ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
-                                                            title={request?.student?.phone ? "Copy to clipboard" : ""}
+                                                            title={request?.student?.phone ? "Open in WhatsApp" : ""}
                                                             onClick={(e) => {
                                                                 if (request?.student?.phone) {
                                                                     e.stopPropagation();
-                                                                    navigator.clipboard.writeText(request?.student?.phone);
-                                                                    showToast("Phone number copied to clipboard!", "success");
+                                                                    let formattedPhone = request.student.phone.replace(/[^0-9]/g, '');
+                                                                    if (formattedPhone.length === 10) {
+                                                                        formattedPhone = '91' + formattedPhone;
+                                                                    }
+                                                                    window.open(`https://wa.me/${formattedPhone}`, "_blank");
                                                                 }
                                                             }}
                                                         >
