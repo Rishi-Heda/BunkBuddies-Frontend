@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Syne } from "next/font/google";
+import { showToast } from "../components/Toast";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
@@ -13,10 +14,55 @@ const syne = Syne({
 });
 
 const LANGUAGES = ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada"];
+const HOSTEL_TYPES = ["MH", "LH"];
+const HOSTEL_GROUPS = ["1", "2", "3"];
+const HOSTEL_GROUP_NOTE = `Group I (G1)
+1. III Year - B.Tech, B.Sc(Agri) & B.Des.
+2. III & IV Year - B.Arch, M.Tech(Int.) & M.Sc.(Int.)
+3. II Year - B.Sc, BCA, B.Com & BBA
+4. I Year - M.Des, MBA, M.Sc, MSW and MCA.
+
+Group II (G2)
+1. II Year - B.Tech, B.Arch, B.Sc(Agri), B.Des, M.Tech(Int.) & M.Sc(Int)
+2. I Year - B.Sc, BCA, B.Com & BBA
+
+Group III (G3)
+1. I Year - B.Tech, B.Des, B.Arch & B.Sc(Agri)
+2. I Year - M.Tech(Int.) & M.Sc. (Int.)`;
 
 const QUESTIONS = [
   {
     id: 1,
+    question: "Choose your hostel type",
+    type: "single-select",
+    options: HOSTEL_TYPES,
+    required: true,
+    helperText: "You cannot change this again in future.",
+  },
+  {
+    id: 2,
+    question: "Enter your phone number",
+    type: "phone",
+    placeholder: "10-digit mobile number",
+    required: true,
+  },
+  {
+    id: 3,
+    question: "Choose your Hostel Group",
+    type: "single-select",
+    options: HOSTEL_GROUPS,
+    required: true,
+    helperText: HOSTEL_GROUP_NOTE,
+  },
+  {
+    id: 4,
+    question: "Enter your Hostel Rank",
+    type: "number",
+    placeholder: "Example: 127",
+    required: true,
+  },
+  {
+    id: 5,
     question: "What time do you sleep at?",
     type: "slider",
     min: 21,
@@ -36,7 +82,7 @@ const QUESTIONS = [
     maxLabel: "8 AM",
   },
   {
-    id: 2,
+    id: 6,
     question: "What time do you wake up at?",
     type: "slider",
     min: 4,
@@ -55,7 +101,7 @@ const QUESTIONS = [
     maxLabel: "2 PM",
   },
   {
-    id: 3,
+    id: 7,
     question: "How particular are you about cleanliness?",
     type: "slider",
     min: 0,
@@ -69,7 +115,7 @@ const QUESTIONS = [
     showTicks: true,
   },
   {
-    id: 4,
+    id: 8,
     question: "Tell us about your social scene ",
     type: "slider",
     min: 0,
@@ -83,13 +129,13 @@ const QUESTIONS = [
     showTicks: true,
   },
   {
-    id: 5,
+    id: 9,
     question: "What all languages do you speak?",
     type: "multiselect",
     required: false,
   },
   {
-    id: 6,
+    id: 10,
     question: "What all things interest you?",
     type: "textarea",
     placeholder: "I love discovering new music and artists, building tech projects...",
@@ -97,43 +143,113 @@ const QUESTIONS = [
   },
 ];
 
+function getInitialAnswers() {
+  return QUESTIONS.reduce((acc, item) => {
+    if (item.type === "slider") {
+      acc[item.id] = item.defaultValue;
+    } else if (item.type === "multiselect") {
+      acc[item.id] = [];
+    } else {
+      acc[item.id] = "";
+    }
+    return acc;
+  }, {});
+}
+
+function normalizeIndianMobileNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  const withoutCountryCode =
+    digits.startsWith("91") && digits.length === 12 ? digits.slice(2) : digits;
+  return withoutCountryCode;
+}
+
+function sanitizePhoneInput(value) {
+  return String(value || "").replace(/\D/g, "").slice(0, 10);
+}
+
 export default function PersonalityQuizPage() {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState({
-    1: QUESTIONS[0].defaultValue,
-    2: QUESTIONS[1].defaultValue,
-    3: QUESTIONS[2].defaultValue,
-    4: QUESTIONS[3].defaultValue,
-    5: [],
-    6: "",
-  });
+  const [answers, setAnswers] = useState(getInitialAnswers);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => { setIsAnimating(true); }, []);
   useEffect(() => {
-    backendFetch("student/getStudent")
-      .then(res => console.log("Student:", res))
-      .catch(err => console.error("Error:", err));
-  }, []);
+    let isMounted = true;
+
+    const checkQuizAccess = async () => {
+      try {
+        const response = await backendFetch("student/getStudent");
+        const user = response?.user || {};
+
+        if (!isMounted) {
+          return;
+        }
+
+        const hasGroup = Boolean(user?.group?.id || user?.groupId);
+        const hasProfile = Boolean((user?.hostelType || "").trim());
+        const hasQuiz = Boolean(user?.quizCompleted);
+
+        if (hasGroup) {
+          router.replace("/explore-rooms");
+          return;
+        }
+
+        if (hasQuiz) {
+          router.replace(hasProfile ? "/find-buddies" : "/profile");
+          return;
+        }
+
+        setIsCheckingAccess(false);
+      } catch (err) {
+        if (!isMounted) {
+          return;
+        }
+
+        const message = err?.message || "Unable to verify quiz access";
+        if (message.toLowerCase().includes("authorized")) {
+          router.replace("/signin?error=Please login first");
+          return;
+        }
+
+        showToast(message, "error");
+        setIsCheckingAccess(false);
+      }
+    };
+
+    checkQuizAccess();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const q = QUESTIONS[current];
   const isLast = current === QUESTIONS.length - 1;
   const isFirst = current === 0;
+  const isHostelTypeQuestion = q.type === "single-select" && q.id === 1;
 
   const handleSlider = (val) => { setAnswers((p) => ({ ...p, [q.id]: Number(val) })); setError(""); };
   const handleText = (val) => { setAnswers((p) => ({ ...p, [q.id]: val })); setError(""); };
+  const handlePhoneText = (val) => { setAnswers((p) => ({ ...p, [q.id]: sanitizePhoneInput(val) })); setError(""); };
+  const handleSingleSelect = (option) => { setAnswers((p) => ({ ...p, [q.id]: option })); setError(""); };
   const handleMultiSelect = (option) => {
     setAnswers((p) => {
-      const curr = p[5] || [];
+      const curr = p[q.id] || [];
       const updated = curr.includes(option)
         ? curr.filter((x) => x !== option)
         : [...curr, option];
-      return { ...p, 5: updated };
+      return { ...p, [q.id]: updated };
     });
     setError("");
+  };
+
+  const setValidationError = (message) => {
+    showToast(message, "error");
+    return false;
   };
 
   const validate = () => {
@@ -143,8 +259,23 @@ export default function PersonalityQuizPage() {
       answers[q.id] === undefined ||
       (Array.isArray(answers[q.id]) && answers[q.id].length === 0)
     )) {
-      setError("This question is required!"); return false;
+      return setValidationError("This question is required!");
     }
+
+    if (q.type === "phone") {
+      const normalized = normalizeIndianMobileNumber(answers[q.id]);
+      if (!/^[6-9]\d{9}$/.test(normalized)) {
+        return setValidationError("Enter a valid 10-digit Indian mobile number.");
+      }
+    }
+
+    if (q.type === "number") {
+      const rank = Number(answers[q.id]);
+      if (!Number.isInteger(rank) || rank <= 0) {
+        return setValidationError("Enter a valid hostel rank (positive integer).");
+      }
+    }
+
     return true;
   };
 
@@ -159,12 +290,16 @@ export default function PersonalityQuizPage() {
 
     try {
       const payload = {
-        sleepTime: answers[1],
-        wakeTime: answers[2],
-        cleanliness: answers[3],
-        socialScene: answers[4],
-        languages: answers[5],
-        interests: answers[6],
+        hostelType: answers[1],
+        phone: normalizeIndianMobileNumber(answers[2]),
+        hostelGroup: Number(answers[3]),
+        rank: Number(answers[4]),
+        sleepTime: answers[5],
+        wakeTime: answers[6],
+        cleanliness: answers[7],
+        socialScene: answers[8],
+        languages: answers[9],
+        interests: answers[10],
         quizCompleted: true,
       };
 
@@ -177,11 +312,12 @@ export default function PersonalityQuizPage() {
 
       console.log("Update success:", result);
 
-      router.push("/find-buddies");
+      router.push("/find-buddies?quizUpdated=1");
 
     } catch (err) {
       console.error("Update failed:", err);
-      setError(err.message || "Something went wrong.");
+      const message = err.message || "Something went wrong.";
+      showToast(message, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -190,6 +326,16 @@ export default function PersonalityQuizPage() {
   const sliderPercent = q.type === "slider"
     ? ((answers[q.id] - q.min) / (q.max - q.min)) * 100
     : 0;
+
+  if (isCheckingAccess) {
+    return (
+      <BackgroundGrid>
+        <div className={`${syne.className} min-h-screen p-4 flex items-center justify-center`}>
+          <p className="text-lg font-semibold text-black">Loading quiz...</p>
+        </div>
+      </BackgroundGrid>
+    );
+  }
 
   return (
     <BackgroundGrid>
@@ -252,12 +398,73 @@ export default function PersonalityQuizPage() {
           <div className="bg-[#FF9898] border border-black shadow-[4px_4px_0px_black] rounded-[5px] px-5 py-6 mb-8" style={{ minHeight: 160 }}>
 
             {/* Question header */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="bg-[#947BA8] font-extrabold text-xl w-9 h-9 flex items-center justify-center rounded-md flex-shrink-0" style={{ boxShadow: "2px 2px 0px black", color: "#ffffff", fontFamily: "var(--font-syne)", fontWeight: 700, fontSize: "20px", lineHeight: "1" }}>
+            <div className="flex items-start gap-3 mb-6">
+              <span
+                className="bg-[#947BA8] w-9 h-9 grid place-items-center rounded-md flex-shrink-0 text-[20px] font-extrabold leading-none mt-[2px]"
+                style={{ boxShadow: "2px 2px 0px black", color: "#ffffff" }}
+              >
                 {q.id}
               </span>
-              <span className="font-bold text-[17px] md:text-[20px] flex-1">{q.question}</span>
+              <div className="flex-1">
+                <span className="font-bold text-[17px] md:text-[20px] block">{q.question}</span>
+                {q.helperText && (
+                  <span className="text-xs md:text-sm text-black/70 font-semibold whitespace-pre-line">{q.helperText}</span>
+                )}
+              </div>
             </div>
+
+            {/* Single-select chips */}
+            {q.type === "single-select" && (
+              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : "flex flex-wrap gap-3"}>
+                {q.options.map((option) => {
+                  const selected = answers[q.id] === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleSingleSelect(option)}
+                      className={isHostelTypeQuestion
+                        ? "h-14 md:h-16 rounded-[8px] border border-black text-lg md:text-2xl font-bold transition-all flex items-center justify-center"
+                        : "px-5 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"}
+                      style={{
+                        backgroundColor: selected ? "#947BA8" : "rgba(255,255,255,0.5)",
+                        color: selected ? "#ffffff" : "#1a1a1a",
+                        boxShadow: "2px 2px 0px black",
+                        transform: selected ? "translate(1px, 1px)" : "none",
+                      }}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Phone input */}
+            {q.type === "phone" && (
+              <input
+                type="tel"
+                value={answers[q.id]}
+                onChange={(e) => handlePhoneText(e.target.value)}
+                placeholder={q.placeholder}
+                inputMode="numeric"
+                maxLength={10}
+                className="w-full bg-[#ff9898]/40 border border-black/20 rounded-[4px] px-4 py-3 text-sm focus:outline-none placeholder:text-black/40 font-[inherit]"
+              />
+            )}
+
+            {/* Numeric input */}
+            {q.type === "number" && (
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={answers[q.id]}
+                onChange={(e) => handleText(e.target.value)}
+                placeholder={q.placeholder}
+                className="w-full bg-[#ff9898]/40 border border-black/20 rounded-[4px] px-4 py-3 text-sm focus:outline-none placeholder:text-black/40 font-[inherit]"
+              />
+            )}
 
             {/* Slider */}
             {q.type === "slider" && (
@@ -307,7 +514,7 @@ export default function PersonalityQuizPage() {
             {q.type === "multiselect" && (
               <div className="flex flex-wrap gap-3">
                 {LANGUAGES.map((lang) => {
-                  const selected = (answers[5] || []).includes(lang);
+                  const selected = (answers[q.id] || []).includes(lang);
                   return (
                     <button
                       key={lang}

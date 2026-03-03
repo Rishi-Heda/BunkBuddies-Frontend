@@ -12,7 +12,8 @@ const INITIAL_FORM_DATA = {
 	email: "",
 	registerNumber: "",
 	hostelType: "",
-	cgpa: "",
+	hostelGroup: "",
+	rank: "",
 	contact: "",
 	description: "",
 };
@@ -68,19 +69,24 @@ export default function ProfilePage() {
 					email: user.email || "",
 					registerNumber: user.regNo || "",
 					hostelType: user.hostelType || "",
-					cgpa:
-						user.CGPA !== undefined && user.CGPA !== null
-							? String(user.CGPA)
+					hostelGroup:
+						user.hostelGroup !== undefined && user.hostelGroup !== null
+							? String(user.hostelGroup)
+							: "",
+					rank:
+						user.rank !== undefined && user.rank !== null
+							? String(user.rank)
 							: "",
 					contact: sanitizeContactInput(user.phone || ""),
 					description: user.description || "",
 				};
 
-				// Check if user already has CGPA and contact filled (editing mode)
-				const hasCgpa = user.CGPA !== undefined && user.CGPA !== null;
 				const hasContact = user.phone && user.phone.trim() !== "";
 				const hasHostelType = user.hostelType && user.hostelType.trim() !== "";
-				if (hasCgpa && hasContact && hasHostelType) {
+				const hasHostelGroup =
+					user.hostelGroup !== undefined && user.hostelGroup !== null;
+				const hasRank = user.rank !== undefined && user.rank !== null;
+				if (hasContact && hasHostelType && hasHostelGroup && hasRank) {
 					setIsEditing(true);
 				}
 
@@ -112,7 +118,12 @@ export default function ProfilePage() {
 
 	const handleChange = (event) => {
 		const { name, value } = event.target;
-		const nextValue = name === "contact" ? sanitizeContactInput(value) : value;
+		let nextValue = value;
+		if (name === "contact") {
+			nextValue = sanitizeContactInput(value);
+		} else if (name === "rank") {
+			nextValue = String(value || "").replace(/\D/g, "").slice(0, 6);
+		}
 		setFormData((previous) => ({
 			...previous,
 			[name]: nextValue,
@@ -126,7 +137,8 @@ export default function ProfilePage() {
 		// Check mandatory fields and show popup if any are missing
 		const missing = [];
 		if (!formData.hostelType) missing.push("Hostel Type");
-		if (!formData.cgpa.trim()) missing.push("CGPA");
+		if (!formData.hostelGroup) missing.push("Hostel Group");
+		if (!formData.rank.trim()) missing.push("Hostel Rank");
 		if (!formData.contact.trim()) missing.push("Contact Details");
 
 		if (missing.length > 0) {
@@ -156,15 +168,21 @@ export default function ProfilePage() {
 			if (formData.hostelType) {
 				payload.hostelType = formData.hostelType;
 			}
-			if (formData.cgpa !== "") {
-				const parsedCgpa = Number(formData.cgpa);
-				if (!Number.isFinite(parsedCgpa) || parsedCgpa < 0 || parsedCgpa > 10) {
-					showToast("CGPA must be between 0 and 10", "error");
-					setIsSaving(false);
-					return;
-				}
-				payload.CGPA = parsedCgpa;
+			const parsedHostelGroup = Number(formData.hostelGroup);
+			if (![1, 2, 3].includes(parsedHostelGroup)) {
+				showToast("Hostel Group must be 1, 2, or 3", "error");
+				setIsSaving(false);
+				return;
 			}
+			payload.hostelGroup = parsedHostelGroup;
+
+			const parsedRank = Number(formData.rank);
+			if (!Number.isInteger(parsedRank) || parsedRank <= 0) {
+				showToast("Hostel Rank must be a positive integer", "error");
+				setIsSaving(false);
+				return;
+			}
+			payload.rank = parsedRank;
 
 			const response = await backendFetch("student/updateStudent", {
 				method: "PUT",
@@ -177,10 +195,14 @@ export default function ProfilePage() {
 				email: updatedUser.email || formData.email,
 				registerNumber: updatedUser.regNo || formData.registerNumber,
 				hostelType: updatedUser.hostelType || formData.hostelType,
-				cgpa:
-					updatedUser.CGPA !== undefined && updatedUser.CGPA !== null
-						? String(updatedUser.CGPA)
-						: formData.cgpa,
+				hostelGroup:
+					updatedUser.hostelGroup !== undefined && updatedUser.hostelGroup !== null
+						? String(updatedUser.hostelGroup)
+						: formData.hostelGroup,
+				rank:
+					updatedUser.rank !== undefined && updatedUser.rank !== null
+						? String(updatedUser.rank)
+						: formData.rank,
 				contact: sanitizeContactInput(updatedUser.phone || formData.contact),
 				description: updatedUser.description || formData.description,
 			};
@@ -302,32 +324,36 @@ export default function ProfilePage() {
 								<label className="text-sm md:text-base font-bold">
 									Hostel Type <span className="text-red-600">*</span>
 								</label>
-								<select
+								<input
+									type="text"
 									name="hostelType"
-									value={formData.hostelType}
-									onChange={handleChange}
+									value={formData.hostelType || ""}
+									readOnly
 									disabled={isLoading}
-									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none"
-								>
-									<option value="">Select hostel</option>
-									<option value="MH">MH</option>
-									<option value="LH">LH</option>
-								</select>
+									placeholder="Set in personality quiz"
+									className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
+								/>
+								<span className="text-[11px] md:text-xs text-black/70 font-semibold">
+									Hostel Type is locked and cannot be changed here.
+								</span>
 							</div>
 
 							<div className="flex flex-col gap-1">
 								<label className="text-sm md:text-base font-bold">
-									CGPA <span className="text-red-600">*</span>
+									Hostel Group <span className="text-red-600">*</span>
 								</label>
-								<input
-									type="text"
-									name="cgpa"
-									value={formData.cgpa}
+								<select
+									name="hostelGroup"
+									value={formData.hostelGroup}
 									onChange={handleChange}
-									placeholder="9.99"
 									disabled={isLoading}
-									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-								/>
+									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none"
+								>
+									<option value="">Select group</option>
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+								</select>
 							</div>
 
 							<div className="flex flex-col gap-1">
@@ -346,11 +372,27 @@ export default function ProfilePage() {
 									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
 								/>
 							</div>
+
+							<div className="flex flex-col gap-1">
+								<label className="text-sm md:text-base font-bold">
+									Hostel Rank <span className="text-red-600">*</span>
+								</label>
+								<input
+									type="text"
+									name="rank"
+									value={formData.rank}
+									onChange={handleChange}
+									placeholder="Enter rank"
+									disabled={isLoading}
+									inputMode="numeric"
+									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+								/>
+							</div>
 						</div>
 
 						<p className="mb-3 text-xs md:text-sm text-black/80">
 							Name, Email ID, and Register Number are auto-filled from your
-							Google login and cannot be edited.
+							Google login and cannot be edited. Hostel Type is also locked.
 						</p>
 
 						<div className="flex flex-col gap-1 mb-5">

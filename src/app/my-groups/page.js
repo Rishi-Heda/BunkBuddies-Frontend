@@ -2,7 +2,7 @@
 
 // ...existing code...
 import { showToast } from "../components/Toast";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Syne, Plus_Jakarta_Sans } from "next/font/google";
@@ -49,7 +49,16 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
-    const [isModalAnimating, setIsModalAnimating] = useState(false);
+    const getRankOrCgpaDisplay = useCallback((personLike) => {
+        const parsedRank = Number(personLike?.rank);
+        if (Number.isFinite(parsedRank) && parsedRank > 0) {
+            return { label: "Rank", value: parsedRank };
+        }
+        return {
+            label: "CGPA",
+            value: personLike?.CGPA ?? "N/A",
+        };
+    }, []);
 
     const loadGroupData = useCallback(async () => {
         setIsLoaded(false);
@@ -69,6 +78,7 @@ export default function MyGroupsPage() {
                 registerNumber: student.regNo || "",
                 hostelType: student.hostelType || "",
                 cgpa: student.CGPA !== undefined && student.CGPA !== null ? String(student.CGPA) : "",
+                rank: student.rank !== undefined && student.rank !== null ? String(student.rank) : "",
                 contact: student.phone || "",
                 description: student.description || "",
             }));
@@ -214,6 +224,13 @@ export default function MyGroupsPage() {
     const groupBeds = groupCapacity(userGroup?.groupSize);
     const filledBeds = Array.isArray(userGroup?.studentUids) ? userGroup.studentUids.length : 0;
     const availableBeds = Math.max(groupBeds - filledBeds, 0);
+    const adminStudent = useMemo(() => {
+        if (!userGroup?.adminUID || !Array.isArray(userGroup?.students)) {
+            return null;
+        }
+        return userGroup.students.find((member) => member.firebaseUID === userGroup.adminUID) || null;
+    }, [userGroup]);
+    const adminMetric = getRankOrCgpaDisplay(adminStudent || { CGPA: userProfile?.adminCGPA });
 
     return (
         <BackgroundGrid bgColor="#FEE3D2">
@@ -290,7 +307,7 @@ export default function MyGroupsPage() {
                                     {[
                                         `No. of beds available : ${availableBeds}`,
                                         `Block Preference : ${userGroup.block1 || "N/A"}${userGroup.block2 ? ` > ${userGroup.block2}` : ""}${userGroup.block3 ? ` > ${userGroup.block3}` : ""}`,
-                                        `Group admin CGPA : ${userProfile?.adminCGPA ?? "N/A"}`,
+                                        `Group admin ${adminMetric.label} : ${adminMetric.value}`,
                                     ].map((text, index) => (
                                         <div key={index} className="bg-[#F7CC66] border border-black rounded-[4.5px] px-4 py-2 flex items-center shadow-[1px_1px_0px_black]">
                                             <span className="text-[#1A1A1A] text-[14px] md:text-[16px] font-normal whitespace-nowrap">{text}</span>
@@ -313,7 +330,9 @@ export default function MyGroupsPage() {
                                     (() => {
                                         const leader = userGroup.students.find(m => m.firebaseUID === userGroup.adminUID);
                                         const others = userGroup.students.filter(m => m.firebaseUID !== userGroup.adminUID);
-                                        const renderMember = (member, idx) => (
+                                        const renderMember = (member, idx) => {
+                                            const memberMetric = getRankOrCgpaDisplay(member);
+                                            return (
                                             <div key={member.firebaseUID || idx} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-5 relative" style={{ outline: '0.48px black solid', outlineOffset: '-0.48px' }}>
                                                 <div>
                                                     <p style={{ color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4 }}>{member.regNo || "Unknown ID"}</p>
@@ -361,8 +380,8 @@ export default function MyGroupsPage() {
                                                         )}
                                                     </div>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                        <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>CGPA</span>
-                                                        <span style={{ color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400 }}>{member.CGPA ?? "N/A"}</span>
+                                                        <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>{memberMetric.label}</span>
+                                                        <span style={{ color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400 }}>{memberMetric.value}</span>
                                                     </div>
                                                     <div style={{ marginTop: 12 }}>
                                                         <span style={{ display: 'block', color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500, marginBottom: 4 }}>Description</span>
@@ -383,6 +402,7 @@ export default function MyGroupsPage() {
                                                 )}
                                             </div>
                                         );
+                                        };
                                         return [leader && renderMember(leader, 0), ...others.map(renderMember)];
                                     })()
                                 ) : (
@@ -403,7 +423,9 @@ export default function MyGroupsPage() {
                                             <div className="col-span-full py-10 text-center">
                                                 <p className="text-[#3E3E3E] text-lg">No join requests yet.</p>
                                             </div>
-                                        ) : joinRequests.map((request) => (
+                                        ) : joinRequests.map((request) => {
+                                            const requestMetric = getRankOrCgpaDisplay(request?.student || {});
+                                            return (
                                             <div key={request.id} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-4">
                                                 <div>
                                                     <p className="font-[family-name:var(--font-plus-jakarta)] text-[#3E3E3E] text-[16px] md:text-[18px] font-semibold leading-none">{request?.student?.regNo || "Unknown ID"}</p>
@@ -447,8 +469,8 @@ export default function MyGroupsPage() {
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between items-center text-[16px]">
-                                                        <span className="text-[#141414] font-medium">CGPA</span>
-                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{request?.student?.CGPA ?? "N/A"}</span>
+                                                        <span className="text-[#141414] font-medium">{requestMetric.label}</span>
+                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{requestMetric.value}</span>
                                                     </div>
                                                     <div className="text-[16px] pt-1">
                                                         <span className="text-[#141414] font-medium block mb-0.5">Description</span>
@@ -475,7 +497,8 @@ export default function MyGroupsPage() {
                                                     </button>
                                                 </div>
                                             </div>
-                                        ))}
+                                        );
+                                        })}
                                     </div>
                                 </>
                             ) : null}
