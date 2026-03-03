@@ -28,11 +28,19 @@ export default function FindBuddiesPage() {
 		setIsAnimating(true);
 		const params = new URLSearchParams(window.location.search);
 		const profileUpdated = params.get("profileUpdated") === "1";
+		const quizUpdated = params.get("quizUpdated") === "1";
 		if (profileUpdated) {
-			window.history.replaceState({}, "", window.location.pathname);
 			setTimeout(() => {
 				showToast("Profile updated successfully!", "success");
 			}, 500);
+		}
+		if (quizUpdated) {
+			setTimeout(() => {
+				showToast("Quiz submitted successfully!", "success");
+			}, 500);
+		}
+		if (profileUpdated || quizUpdated) {
+			window.history.replaceState({}, "", window.location.pathname);
 		}
 
 		const joinCode = params.get("joinCode");

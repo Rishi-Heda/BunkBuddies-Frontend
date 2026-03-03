@@ -40,6 +40,16 @@ const shuffleRooms = (items) => {
 	}
 	return shuffled;
 };
+
+const getRankOrCgpaDisplay = (personLike, fallbackCgpa) => {
+	const parsedRank = Number(personLike?.rank);
+	if (Number.isFinite(parsedRank) && parsedRank > 0) {
+		return { label: "Rank", value: parsedRank };
+	}
+	const cgpaValue = personLike?.CGPA ?? fallbackCgpa;
+	return { label: "CGPA", value: cgpaValue ?? "N/A" };
+};
+
 export default function ExploreRoomsPage() {
 	const router = useRouter();
 	
@@ -1018,6 +1028,10 @@ export default function ExploreRoomsPage() {
 									const availableBeds = getAvailableBeds(room);
 									const groupLeaderName = room.adminName || "N/A";
 									const groupLeaderRegNo = room.adminRegNo || "N/A";
+									const adminStudent = Array.isArray(room.students)
+										? room.students.find((student) => student.firebaseUID === room.adminUID)
+										: null;
+									const adminMetric = getRankOrCgpaDisplay(adminStudent, room.adminCGPA);
 
 									return (
 										<div
@@ -1055,8 +1069,8 @@ export default function ExploreRoomsPage() {
 													</span>
 												</div>
 												<div className="flex justify-between items-center text-[#141414] text-[15.84px]">
-													<span>Group Admin CGPA</span>
-													<span>{room.adminCGPA ?? "N/A"}</span>
+													<span>Group Admin {adminMetric.label}</span>
+													<span>{adminMetric.value}</span>
 												</div>
 											</div>
 
