@@ -416,7 +416,7 @@ export default function PersonalityQuizPage() {
 
             {/* Single-select chips */}
             {q.type === "single-select" && (
-              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : "flex flex-wrap gap-3"}>
+              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : q.id === 3 ? "grid grid-cols-3 gap-3 w-full max-w-[400px] mx-auto" : "flex flex-wrap gap-3 justify-center"}>
                 {q.options.map((option) => {
                   const selected = answers[q.id] === option;
                   return (
@@ -426,7 +426,7 @@ export default function PersonalityQuizPage() {
                       onClick={() => handleSingleSelect(option)}
                       className={isHostelTypeQuestion
                         ? "h-14 md:h-16 rounded-[8px] border border-black text-lg md:text-2xl font-bold transition-all flex items-center justify-center"
-                        : "px-5 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"}
+                        : q.id === 3 ? "w-full py-3 rounded-[6px] border border-black text-sm font-semibold transition-all text-center" : "px-10 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"}
                       style={{
                         backgroundColor: selected ? "#947BA8" : "rgba(255,255,255,0.5)",
                         color: selected ? "#ffffff" : "#1a1a1a",
