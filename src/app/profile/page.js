@@ -50,6 +50,7 @@ export default function ProfilePage() {
 	const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 	const [showValidationModal, setShowValidationModal] = useState(false);
 	const [missingFields, setMissingFields] = useState([]);
+	const [showInfoModal, setShowInfoModal] = useState(false);
 
 	useEffect(() => {
 		setIsAnimating(true);
@@ -255,9 +256,23 @@ export default function ProfilePage() {
 							}`}
 					>
 						<div className="flex justify-between items-center mb-4">
-							<h1 className="text-2xl md:text-3xl font-semibold">
-								{isEditing ? "Edit Profile" : "Create Profile"}
-							</h1>
+							<div className="flex items-center gap-2">
+								<h1 className="text-2xl md:text-3xl font-semibold">
+									{isEditing ? "Edit Profile" : "Create Profile"}
+								</h1>
+								<button
+									type="button"
+									onClick={() => setShowInfoModal(true)}
+									aria-label="Profile info"
+									className="text-black/50 hover:text-black/80 transition-colors"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+										<circle cx="12" cy="12" r="10"/>
+										<line x1="12" y1="8" x2="12" y2="8"/>
+										<line x1="12" y1="12" x2="12" y2="16"/>
+									</svg>
+								</button>
+							</div>
 							<button
 								type="button"
 								onClick={() => router.back()}
@@ -444,6 +459,34 @@ export default function ProfilePage() {
 										className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
 									>
 										OK, Got It
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
+					{showInfoModal && (
+						<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+							<div className="bg-[#BE8EF8] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4">
+								<h2 className="text-xl font-bold mb-3">Profile Information</h2>
+								<p className="text-sm mb-2 text-black/80">
+									<span className="font-semibold">Hostel Type</span> is auto-assigned from your personality quiz and cannot be changed here.
+								</p>
+								<p className="text-sm mb-4 text-black/80">
+									If you notice any discrepancies in your Hostel Type or any other profile details, please reach out to us at:
+								</p>
+								
+								<a	href="mailto:bunkbuddiesbyvinnovateit@gmail.com"
+									className="block bg-[#47D19D] border border-black rounded-[4px] px-3 py-2 text-sm font-semibold text-center break-all hover:opacity-90 transition-opacity"
+								>
+									bunkbuddiesbyvinnovateit@gmail.com
+								</a>
+								<div className="flex justify-center mt-5">
+									<button
+									type="button"
+									onClick={() => setShowInfoModal(false)}
+									className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+									>
+									Got It
 									</button>
 								</div>
 							</div>
