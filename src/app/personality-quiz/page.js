@@ -136,9 +136,9 @@ const QUESTIONS = [
   },
   {
     id: 10,
-    question: "What all things interest you?",
+    question: "Tell us about yourself so our recommendation system can find your best roommate match.",
     type: "textarea",
-    placeholder: "I love discovering new music and artists, building tech projects...",
+    placeholder: "Tell us about yourself, your habits, vibe, and what kind of roommates you match with...",
     required: false,
   },
 ];
@@ -289,6 +289,7 @@ export default function PersonalityQuizPage() {
     setError("");
 
     try {
+      const introText = String(answers[10] || "").trim();
       const payload = {
         hostelType: answers[1],
         phone: normalizeIndianMobileNumber(answers[2]),
@@ -299,7 +300,7 @@ export default function PersonalityQuizPage() {
         cleanliness: answers[7],
         socialScene: answers[8],
         languages: answers[9],
-        interests: answers[10],
+        ...(introText ? { interests: introText, description: introText } : {}),
         quizCompleted: true,
       };
 
