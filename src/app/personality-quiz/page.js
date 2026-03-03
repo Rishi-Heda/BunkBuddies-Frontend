@@ -237,13 +237,11 @@ export default function PersonalityQuizPage() {
           <button type="button" onClick={() => router.push("/")} className="focus:outline-none" aria-label="Go to homepage">
             <Image src="/logo.svg" alt="Logo" width={160} height={60} className="w-auto h-12 md:h-16" priority />
           </button>
-          <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
         </div>
 
         {/* Main card */}
-        <main className={`w-full max-w-[780px] bg-[#F6CD67] border border-black shadow-[6px_6px_0px_black] rounded-[5px] px-7 py-8 md:px-10 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${
-          isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
-        }`}>
+        <main className={`w-full max-w-[780px] bg-[#F6CD67] border border-black shadow-[6px_6px_0px_black] rounded-[5px] px-7 py-8 md:px-10 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
+          }`}>
 
           <h1 className="text-[28px] md:text-[38px] font-bold mb-1">Personality Quiz</h1>
           <p className="text-sm md:text-base font-bold text-black/60 mb-7">
@@ -255,7 +253,7 @@ export default function PersonalityQuizPage() {
 
             {/* Question header */}
             <div className="flex items-center gap-3 mb-6">
-              <span className="bg-[#947BA8] font-extrabold text-xl w-9 h-9 flex items-center justify-center rounded-md flex-shrink-0" style={{boxShadow: "2px 2px 0px black", color: "#ffffff", fontFamily: "var(--font-syne)", fontWeight: 700, fontSize: "20px", lineHeight: "1"}}>
+              <span className="bg-[#947BA8] font-extrabold text-xl w-9 h-9 flex items-center justify-center rounded-md flex-shrink-0" style={{ boxShadow: "2px 2px 0px black", color: "#ffffff", fontFamily: "var(--font-syne)", fontWeight: 700, fontSize: "20px", lineHeight: "1" }}>
                 {q.id}
               </span>
               <span className="font-bold text-[17px] md:text-[20px] flex-1">{q.question}</span>
@@ -286,7 +284,7 @@ export default function PersonalityQuizPage() {
                       style={{ "--val": `${sliderPercent}%` }}
                     />
                     {/* Tick marks overlaid on the bar — skip first and last */}
-                    <div className="absolute inset-0 flex items-center pointer-events-none" style={{zIndex: 1}}>
+                    <div className="absolute inset-0 flex items-center pointer-events-none" style={{ zIndex: 1 }}>
                       {Array.from({ length: q.max - q.min - 1 }).map((_, i) => (
                         <div
                           key={i}

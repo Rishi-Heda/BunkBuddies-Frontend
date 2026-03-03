@@ -25,15 +25,25 @@ export default function FindBuddiesPage() {
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
 
 	useEffect(() => {
-		    setIsAnimating(true);
-			const params = new URLSearchParams(window.location.search);
-			const profileUpdated = params.get("profileUpdated") === "1";
-			if (profileUpdated) {
-				window.history.replaceState({}, "", window.location.pathname);
-				setTimeout(() => {
-					showToast("Profile updated successfully!", "success");
-				}, 500);
-			}
+		setIsAnimating(true);
+		const params = new URLSearchParams(window.location.search);
+		const profileUpdated = params.get("profileUpdated") === "1";
+		if (profileUpdated) {
+			window.history.replaceState({}, "", window.location.pathname);
+			setTimeout(() => {
+				showToast("Profile updated successfully!", "success");
+			}, 500);
+		}
+
+		const joinCode = params.get("joinCode");
+		if (joinCode) {
+			setAccessCode(joinCode);
+			setJoinRoomOpen(true);
+			// Removing the joinCode from the URL to clean it up
+			const newUrl = window.location.pathname;
+			window.history.replaceState({}, "", newUrl);
+		}
+
 		const loadUserData = async () => {
 			try {
 				const response = await backendFetch("student/getStudent");
@@ -126,24 +136,23 @@ export default function FindBuddiesPage() {
 						className="focus:outline-none"
 						aria-label="Go to homepage"
 					>
-                    <Image
-                        src="/logo.svg"
-                        alt="Logo"
-                        width={160}
-                        height={60}
-                        className="w-auto h-12 md:h-16"
-                        priority
-                    />
+						<Image
+							src="/logo.svg"
+							alt="Logo"
+							width={160}
+							height={60}
+							className="w-auto h-12 md:h-16"
+							priority
+						/>
 					</button>
 					<Navbar wrapperClass="static flex items-center h-8 md:h-12" />
 				</div>
 
 				<main
-					className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${
-						isAnimating
+					className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-10 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating
 							? "translate-y-0 opacity-100 scale-100"
 							: "translate-y-8 opacity-0 scale-95"
-					}`}
+						}`}
 				>
 					<div className="flex flex-row justify-between items-center mb-5 md:mb-8 gap-3">
 						<h1 className="text-xl md:text-2xl lg:text-[30px] font-semibold leading-tight">
