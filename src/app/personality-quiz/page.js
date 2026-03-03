@@ -139,7 +139,7 @@ const QUESTIONS = [
     question: "Tell us about yourself so our recommendation system can find your best roommate match.",
     type: "textarea",
     placeholder: "Tell us about yourself, your habits, vibe, and what kind of roommates you match with...",
-    required: false,
+    required: true,
   },
 ];
 
