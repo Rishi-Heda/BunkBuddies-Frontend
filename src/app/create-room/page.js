@@ -23,7 +23,7 @@ const syne = Syne({
 const GROUP_SIZE_OPTIONS = ["2", "3", "4", "6"];
 const LH_GROUP_SIZE_OPTIONS = ["2", "3", "4", "5", "6"];
 const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "G Annex", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "RGT", "LH1", "GH"];
-const MH_BLOCKS = [ "A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
+const MH_BLOCKS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
 const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J", "RGT", "LH1", "GH"];
 
 function getPrefOptions(allOptions, exclude) {
@@ -208,11 +208,11 @@ export default function CreateRoomPage() {
 			showToast({
 				type: "success",
 				message: isEditing
-				? "Room updated successfully"
-				: "Room created successfully",
+					? "Room updated successfully"
+					: "Room created successfully",
 			});
 
-router.push("/my-groups");
+			router.push("/my-groups");
 			router.push("/my-groups");
 		} catch (error) {
 			const message =
@@ -264,9 +264,12 @@ router.push("/my-groups");
 						<button
 							type="button"
 							onClick={() => router.back()}
-							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1.5 text-[14px] sm:text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none transition-all whitespace-nowrap"
+							aria-label="Go back"
+							className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
 						>
-							← Go Back
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+								<polyline points="15 18 9 12 15 6" />
+							</svg>
 						</button>
 					</div>
 

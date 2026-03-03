@@ -161,7 +161,7 @@ export default function ProfilePage() {
 					setIsSaving(false);
 					return;
 				}
-}
+			}
 			if (trimmedDescription) {
 				payload.description = trimmedDescription;
 			}
@@ -234,14 +234,14 @@ export default function ProfilePage() {
 						className="focus:outline-none"
 						aria-label="Go to homepage"
 					>
-                    <Image
-                        src="/logo.svg"
-                        alt="Logo"
-                        width={160}
-                        height={60}
-                        className="w-auto h-12 md:h-16"
-                        priority
-                    />
+						<Image
+							src="/logo.svg"
+							alt="Logo"
+							width={160}
+							height={60}
+							className="w-auto h-12 md:h-16"
+							priority
+						/>
 					</button>
 					<Navbar wrapperClass="static flex items-center h-8 md:h-12" />
 				</div>
@@ -249,11 +249,10 @@ export default function ProfilePage() {
 				<div className="w-full max-w-[945px] lg:max-w-[1045px] transition-all duration-300 mt-[101px] md:mt-[69px] mb-8 md:mb-0">
 					<form
 						onSubmit={handleSubmit}
-						className={`w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-700 ease-out ${
-							isAnimating
+						className={`w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-700 ease-out ${isAnimating
 								? "translate-y-0 opacity-100"
 								: "translate-y-full opacity-0"
-						}`}
+							}`}
 					>
 						<div className="flex justify-between items-center mb-4">
 							<h1 className="text-2xl md:text-3xl font-semibold">
@@ -262,9 +261,12 @@ export default function ProfilePage() {
 							<button
 								type="button"
 								onClick={() => router.back()}
-								className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-3 md:px-5 py-1 md:py-1.5 text-[15px] md:text-[18px] hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
+								aria-label="Go back"
+								className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all"
 							>
-								← Go Back
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+									<polyline points="15 18 9 12 15 6" />
+								</svg>
 							</button>
 						</div>
 
