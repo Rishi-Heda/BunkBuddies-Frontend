@@ -229,7 +229,7 @@ export default function ChatPage() {
           {/* Header */}
           <div className="flex flex-row justify-between items-center mb-5 gap-3">
             <h1 className="text-xl md:text-2xl lg:text-[26px] font-bold leading-tight">
-              Chat with your soon-to-be roomates!
+              Chat with your soon-to-be roommates!
             </h1>
             <button
               onClick={() => setActiveGroup(null)}
