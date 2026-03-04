@@ -345,9 +345,15 @@ export default function PersonalityQuizPage() {
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
-        height: 3px;
-        border-radius: 0;
-        background: #543E62;
+        height: 4px;
+        border-radius: 50px;
+        background: linear-gradient(
+          to right,
+          #543E62 0%,
+          #543E62 var(--val),
+          #9473A8 var(--val),
+          #9473A8 100%    
+        );
         outline: none;
         cursor: pointer;
         position: relative;
@@ -359,7 +365,7 @@ export default function PersonalityQuizPage() {
         width: 18px;
         height: 18px;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 15 L2 3 Q2 2 3 2 L15 2 Q16 2 16 3 Z' fill='%23342E36'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 3 L16 15 Q16 16 15 16 L3 16 Q2 16 2 15 Z' fill='%23342E36' rx='2'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-color: transparent;
@@ -369,7 +375,7 @@ export default function PersonalityQuizPage() {
         width: 18px;
         height: 18px;
         cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 15 L2 3 Q2 2 3 2 L15 2 Q16 2 16 3 Z' fill='%23342E36'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 3 L16 15 Q16 16 15 16 L3 16 Q2 16 2 15 Z' fill='%23342E36' rx='2'/%3E%3C/svg%3E");
         background-size: contain;
         background-repeat: no-repeat;
         background-color: transparent;
@@ -401,13 +407,13 @@ export default function PersonalityQuizPage() {
             {/* Question header */}
             <div className="flex items-start gap-3 mb-6">
               <span
-                className="bg-[#947BA8] w-9 h-9 grid place-items-center rounded-md flex-shrink-0 text-[20px] font-extrabold leading-none mt-[2px]"
-                style={{ boxShadow: "2px 2px 0px black", color: "#ffffff" }}
+                className="bg-[#947BA8] w-9 h-9 grid place-items-center rounded-sm flex-shrink-0 text-[20px] font-extrabold leading-none mt-[2px]"
+                style={{ boxShadow: "2.2px 2.2px 0px black", color: "#ffffff" }}
               >
                 {q.id}
               </span>
               <div className="flex-1">
-                <span className="font-bold text-[17px] md:text-[20px] block">{q.question}</span>
+                <span className="font-bold text-[17px] md:text-[22.5px] block">{q.question}</span>
                 {q.helperText && (
                   <span className="text-xs md:text-sm text-black/70 font-semibold whitespace-pre-line">{q.helperText}</span>
                 )}
@@ -416,7 +422,7 @@ export default function PersonalityQuizPage() {
 
             {/* Single-select chips */}
             {q.type === "single-select" && (
-              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : "flex flex-wrap gap-3"}>
+              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : q.id === 3 ? "grid grid-cols-3 gap-3 w-full max-w-[400px] mx-auto" : "flex flex-wrap gap-3 justify-center"}>
                 {q.options.map((option) => {
                   const selected = answers[q.id] === option;
                   return (
@@ -425,8 +431,8 @@ export default function PersonalityQuizPage() {
                       type="button"
                       onClick={() => handleSingleSelect(option)}
                       className={isHostelTypeQuestion
-                        ? "h-14 md:h-16 rounded-[8px] border border-black text-lg md:text-2xl font-bold transition-all flex items-center justify-center"
-                        : "px-5 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"}
+                        ? "h-14 md:h-16 rounded-[4px] border border-black text-lg md:text-2xl font-bold transition-all flex items-center justify-center"
+                        : q.id === 3 ? "w-full py-3 rounded-[6px] border border-black text-sm font-semibold transition-all text-center" : "px-10 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"}
                       style={{
                         backgroundColor: selected ? "#947BA8" : "rgba(255,255,255,0.5)",
                         color: selected ? "#ffffff" : "#1a1a1a",
@@ -521,7 +527,7 @@ export default function PersonalityQuizPage() {
                       key={lang}
                       type="button"
                       onClick={() => handleMultiSelect(lang)}
-                      className="px-5 py-2 rounded-[6px] border border-black text-sm font-semibold transition-all"
+                      className="px-5 py-2 rounded-[4px] border border-black text-sm font-semibold transition-all"
                       style={{
                         backgroundColor: selected ? "#947BA8" : "rgba(255,255,255,0.5)",
                         color: selected ? "#ffffff" : "#1a1a1a",
