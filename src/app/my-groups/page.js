@@ -9,6 +9,7 @@ import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
+import { getSleepTag, getLanguageTags } from "../utils/studentTags";
 
 const syne = Syne({
     subsets: ["latin"],
@@ -467,6 +468,41 @@ export default function MyGroupsPage() {
                                                         </span>
                                                     ) : null}
                                                 </div>
+                                                {/* Tag pills — goes between name block and the info box */}
+                                                {(() => {
+                                                    const sleepTag = getSleepTag(request?.student);
+                                                    const langTags = getLanguageTags(request?.student);
+                                                    const allTags = [...(sleepTag ? [sleepTag] : []), ...langTags];
+                                                    return allTags.length > 0 ? (
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                                            {allTags.map((tag) => {
+                                                                const { Icon } = tag;
+                                                                return (
+                                                                    <span
+                                                                        key={tag.label}
+                                                                        style={{
+                                                                            display: 'inline-flex',
+                                                                            alignItems: 'center',
+                                                                            gap: 6,
+                                                                            background: '#DCBFFF',
+                                                                            border: '1px solid rgba(0,0,0,0.15)',
+                                                                            borderRadius: 999,
+                                                                            padding: '6px 14px',
+                                                                            fontSize: 14,
+                                                                            fontFamily: 'Syne',
+                                                                            fontWeight: 500,
+                                                                            color: '#1A1A1A',
+                                                                            whiteSpace: 'nowrap',
+                                                                        }}
+                                                                    >
+                                                                        {tag.icon}
+                                                                        {tag.label}
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    ) : null;
+                                                })()}
 
                                                 <div className="bg-[#DCBFFF] rounded-[5px] p-3 flex flex-col gap-1.5 border border-black/10">
                                                     <div className="flex justify-between items-center text-[16px]">
