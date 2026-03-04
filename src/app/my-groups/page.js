@@ -2,7 +2,7 @@
 
 // ...existing code...
 import { showToast } from "../components/Toast";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Syne, Plus_Jakarta_Sans } from "next/font/google";
@@ -21,26 +21,26 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export default function MyGroupsPage() {
-        const handleRemoveMember = async (memberUID) => {
-            if (!userGroup?.id || !memberUID) return;
-            setActionLoading(`remove-${memberUID}`);
-            try {
-                await backendFetch(`group/removeMember`, {
-                    method: "POST",
-                    body: JSON.stringify({ groupId: userGroup.id, memberUID }),
-                    headers: { "Content-Type": "application/json" },
-                });
-                await loadGroupData();
-                showToast("Member removed from group", "success");
-            } catch (error) {
-                const message =
-                    error?.message || "Unable to remove member";
+    const handleRemoveMember = async (memberUID) => {
+        if (!userGroup?.id || !memberUID) return;
+        setActionLoading(`remove-${memberUID}`);
+        try {
+            await backendFetch(`group/removeMember`, {
+                method: "POST",
+                body: JSON.stringify({ groupId: userGroup.id, memberUID }),
+                headers: { "Content-Type": "application/json" },
+            });
+            await loadGroupData();
+            showToast("Member removed from group", "success");
+        } catch (error) {
+            const message =
+                error?.message || "Unable to remove member";
 
-                showToast(message, "error");  //replaced error mssg with toast
-            } finally {
-                setActionLoading("");
-            }
-        };
+            showToast(message, "error");  //replaced error mssg with toast
+        } finally {
+            setActionLoading("");
+        }
+    };
     const router = useRouter();
     const [userGroup, setUserGroup] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
@@ -49,6 +49,16 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
+    const getRankOrCgpaDisplay = useCallback((personLike) => {
+        const parsedRank = Number(personLike?.rank);
+        if (Number.isFinite(parsedRank) && parsedRank > 0) {
+            return { label: "Rank", value: parsedRank };
+        }
+        return {
+            label: "CGPA",
+            value: personLike?.CGPA ?? "N/A",
+        };
+    }, []);
 
     const loadGroupData = useCallback(async () => {
         setIsLoaded(false);
@@ -68,6 +78,7 @@ export default function MyGroupsPage() {
                 registerNumber: student.regNo || "",
                 hostelType: student.hostelType || "",
                 cgpa: student.CGPA !== undefined && student.CGPA !== null ? String(student.CGPA) : "",
+                rank: student.rank !== undefined && student.rank !== null ? String(student.rank) : "",
                 contact: student.phone || "",
                 description: student.description || "",
             }));
@@ -139,6 +150,8 @@ export default function MyGroupsPage() {
         try {
             const response = await backendFetch("group/generateCode");
             setRoomCode(response?.code || "N/A");
+            // Trigger in-animation
+            setTimeout(() => setIsModalAnimating(true), 10);
         } catch (error) {
             const message = error?.message || "Unable to generate code";
             showToast(message, "error");
@@ -184,12 +197,12 @@ export default function MyGroupsPage() {
         } catch (error) {
             const message = error?.message || "Unable to update request";
             const lowerMessage = message.toLowerCase();
-            
-            const isAlreadyInGroup = lowerMessage.includes("already") && 
+
+            const isAlreadyInGroup = lowerMessage.includes("already") &&
                 (lowerMessage.includes("group") || lowerMessage.includes("member"));
-            const requestNotFound = lowerMessage.includes("request") && 
+            const requestNotFound = lowerMessage.includes("request") &&
                 (lowerMessage.includes("doesn't exist") || lowerMessage.includes("does not exist") || lowerMessage.includes("not found"));
-            
+
             if ((isAlreadyInGroup || requestNotFound) && action === "ACCEPTED") {
                 setJoinRequests((previous) => previous.filter((request) => request.id !== requestId));
                 showToast("This user is already in another group. The request has been removed.", "error");
@@ -201,9 +214,45 @@ export default function MyGroupsPage() {
         }
     };
 
+    const closeRoomCodeModal = () => {
+        setIsModalAnimating(false);
+        setTimeout(() => {
+            setRoomCode(null);
+        }, 300); // Wait for out-animation to finish
+    };
+
     const groupBeds = groupCapacity(userGroup?.groupSize);
     const filledBeds = Array.isArray(userGroup?.studentUids) ? userGroup.studentUids.length : 0;
     const availableBeds = Math.max(groupBeds - filledBeds, 0);
+    const adminStudent = useMemo(() => {
+        if (!userGroup?.adminUID || !Array.isArray(userGroup?.students)) {
+            return null;
+        }
+        return userGroup.students.find((member) => member.firebaseUID === userGroup.adminUID) || null;
+    }, [userGroup]);
+    const adminMetric = getRankOrCgpaDisplay(adminStudent || { CGPA: userProfile?.adminCGPA });
+    const getRequestMatchPercentage = useCallback((request) => {
+        const score = Number(request?.compatibility?.matchPercentage);
+        return Number.isFinite(score) ? score : -1;
+    }, []);
+    const sortedJoinRequests = useMemo(() => {
+        if (!Array.isArray(joinRequests) || joinRequests.length <= 1) {
+            return Array.isArray(joinRequests) ? joinRequests : [];
+        }
+
+        return [...joinRequests].sort((a, b) => {
+            const scoreDelta = getRequestMatchPercentage(b) - getRequestMatchPercentage(a);
+            if (scoreDelta !== 0) {
+                return scoreDelta;
+            }
+
+            const aCreatedAt = Date.parse(a?.createdAt || "");
+            const bCreatedAt = Date.parse(b?.createdAt || "");
+            const safeATimestamp = Number.isFinite(aCreatedAt) ? aCreatedAt : 0;
+            const safeBTimestamp = Number.isFinite(bCreatedAt) ? bCreatedAt : 0;
+            return safeBTimestamp - safeATimestamp;
+        });
+    }, [joinRequests, getRequestMatchPercentage]);
 
     return (
         <BackgroundGrid bgColor="#FEE3D2">
@@ -280,7 +329,7 @@ export default function MyGroupsPage() {
                                     {[
                                         `No. of beds available : ${availableBeds}`,
                                         `Block Preference : ${userGroup.block1 || "N/A"}${userGroup.block2 ? ` > ${userGroup.block2}` : ""}${userGroup.block3 ? ` > ${userGroup.block3}` : ""}`,
-                                        `Group admin CGPA : ${userProfile?.adminCGPA ?? "N/A"}`,
+                                        `Group admin ${adminMetric.label} : ${adminMetric.value}`,
                                     ].map((text, index) => (
                                         <div key={index} className="bg-[#F7CC66] border border-black rounded-[4.5px] px-4 py-2 flex items-center shadow-[1px_1px_0px_black]">
                                             <span className="text-[#1A1A1A] text-[14px] md:text-[16px] font-normal whitespace-nowrap">{text}</span>
@@ -303,39 +352,62 @@ export default function MyGroupsPage() {
                                     (() => {
                                         const leader = userGroup.students.find(m => m.firebaseUID === userGroup.adminUID);
                                         const others = userGroup.students.filter(m => m.firebaseUID !== userGroup.adminUID);
-                                        const renderMember = (member, idx) => (
-                                            <div key={member.firebaseUID || idx} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-5 relative" style={{outline: '0.48px black solid', outlineOffset: '-0.48px'}}>
+                                        const renderMember = (member, idx) => {
+                                            const memberMetric = getRankOrCgpaDisplay(member);
+                                            return (
+                                            <div key={member.firebaseUID || idx} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-5 relative" style={{ outline: '0.48px black solid', outlineOffset: '-0.48px' }}>
                                                 <div>
-                                                    <p style={{color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4}}>{member.regNo || "Unknown ID"}</p>
-                                                    <h3 style={{color: 'black', fontSize: 32, fontFamily: 'Syne', fontWeight: 500, marginBottom: 8}}>{member.name || "Anonymous User"}</h3>
+                                                    <p style={{ color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4 }}>{member.regNo || "Unknown ID"}</p>
+                                                    <h3 style={{ color: 'black', fontSize: 32, fontFamily: 'Syne', fontWeight: 500, marginBottom: 8 }}>{member.name || "Anonymous User"}</h3>
                                                 </div>
-                                                <div className="bg-[#DCBFFF] rounded-[5px]" style={{width: 266, minHeight: 120, margin: '0 auto', padding: '16px', position: 'relative'}}>
-                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>Contact No.</span>
-                                                        <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.phone || "N/A"}</span>
+                                                <div className="bg-[#DCBFFF] rounded-[5px]" style={{ width: 266, minHeight: 120, margin: '0 auto', padding: '16px', position: 'relative' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                                        <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>Contact No.</span>
+                                                        <span
+                                                            style={{ color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400 }}
+                                                            className={member.phone ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}
+                                                            title={member.phone ? "Open in WhatsApp" : ""}
+                                                            onClick={(e) => {
+                                                                if (member.phone) {
+                                                                    e.stopPropagation();
+                                                                    let formattedPhone = member.phone.replace(/[^0-9]/g, '');
+                                                                    if (formattedPhone.length === 10) {
+                                                                        formattedPhone = '91' + formattedPhone;
+                                                                    }
+                                                                    window.open(`https://wa.me/${formattedPhone}`, "_blank");
+                                                                }
+                                                            }}
+                                                        >
+                                                            {member.phone || "N/A"}
+                                                        </span>
                                                     </div>
-                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12}}>
-                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>Email</span>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                                        <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>Email</span>
                                                         {member.email && (
                                                             <span
-                                                                className="cursor-pointer hover:text-purple-900 transition-colors"
-                                                                title="Contact member"
-                                                                onClick={() => { window.location.href = `mailto:${member.email}`; }}
+                                                                className="cursor-pointer hover:opacity-70 transition-opacity"
+                                                                title="Copy email ID"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    navigator.clipboard.writeText(member.email);
+                                                                    showToast("Email ID copied to clipboard!", "success");
+                                                                }}
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                                                    <rect width="24" height="24" rx="12" fill="#A084E8"/>
-                                                                    <path d="M7 8h10v8H7V8zm5 3l5-3v8H7V8l5 3z" fill="#fff"/>
+                                                                    <rect width="24" height="24" rx="12" fill="#A084E8" />
+                                                                    <path d="M5.5 8C5.5 7.17157 6.17157 6.5 7 6.5H17C17.8284 6.5 18.5 7.17157 18.5 8V16C18.5 16.8284 17.8284 17.5 17 17.5H7C6.17157 17.5 5.5 16.8284 5.5 16V8Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    <path d="M5.5 8.5L11.1056 12.237C11.642 12.5946 12.358 12.5946 12.8944 12.237L18.5 8.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                                 </svg>
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                                        <span style={{color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500}}>CGPA</span>
-                                                        <span style={{color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400}}>{member.CGPA ?? "N/A"}</span>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>{memberMetric.label}</span>
+                                                        <span style={{ color: '#3F3F3F', fontSize: 15.84, fontFamily: 'Syne', fontWeight: 400 }}>{memberMetric.value}</span>
                                                     </div>
-                                                    <div style={{marginTop: 12}}>
-                                                        <span style={{display: 'block', color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500, marginBottom: 4}}>Description</span>
-                                                        <p style={{color: '#3F3F3F', fontSize: 13.5, fontFamily: 'Syne', fontWeight: 400, lineHeight: 1.35, wordBreak: 'break-word'}}>
+                                                    <div style={{ marginTop: 12 }}>
+                                                        <span style={{ display: 'block', color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500, marginBottom: 4 }}>Description</span>
+                                                        <p style={{ color: '#3F3F3F', fontSize: 13.5, fontFamily: 'Syne', fontWeight: 400, lineHeight: 1.35, wordBreak: 'break-word' }}>
                                                             {member.description || "N/A"}
                                                         </p>
                                                     </div>
@@ -352,6 +424,7 @@ export default function MyGroupsPage() {
                                                 )}
                                             </div>
                                         );
+                                        };
                                         return [leader && renderMember(leader, 0), ...others.map(renderMember)];
                                     })()
                                 ) : (
@@ -365,37 +438,80 @@ export default function MyGroupsPage() {
                                 <>
                                     <div className="mb-8 mt-10">
                                         <h2 className="text-3xl md:text-[40px] font-semibold">Join Requests</h2>
+                                        <p className="text-[#3E3E3E] text-sm md:text-base mt-1">
+                                            Requests are sorted by compatibility (highest first).
+                                        </p>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                        {joinRequests.length === 0 ? (
+                                        {sortedJoinRequests.length === 0 ? (
                                             <div className="col-span-full py-10 text-center">
                                                 <p className="text-[#3E3E3E] text-lg">No join requests yet.</p>
                                             </div>
-                                        ) : joinRequests.map((request) => (
+                                        ) : sortedJoinRequests.map((request, index) => {
+                                            const requestMetric = getRankOrCgpaDisplay(request?.student || {});
+                                            const isRecommended = sortedJoinRequests.length >= 2 && index === 0;
+                                            const interestsText = String(request?.student?.interests || "").trim();
+                                            const descriptionText = String(request?.student?.description || "").trim();
+                                            const displayDescription = interestsText
+                                                ? `${interestsText}${descriptionText ? `\n\n${descriptionText}` : ""}`
+                                                : (descriptionText || "N/A");
+                                            return (
                                             <div key={request.id} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-4">
                                                 <div>
                                                     <p className="font-[family-name:var(--font-plus-jakarta)] text-[#3E3E3E] text-[16px] md:text-[18px] font-semibold leading-none">{request?.student?.regNo || "Unknown ID"}</p>
                                                     <h3 className="text-black text-[24px] md:text-[28px] font-semibold mt-1 leading-tight">{request?.student?.name || "Anonymous User"}</h3>
+                                                    {isRecommended ? (
+                                                        <span className="mt-2 inline-block max-w-full bg-[#47D19D] border border-black rounded-[4px] px-2 py-1 text-[10px] md:text-[11px] font-semibold uppercase tracking-wide leading-tight text-black whitespace-normal break-words">
+                                                            Recommended Roommate
+                                                        </span>
+                                                    ) : null}
                                                 </div>
 
                                                 <div className="bg-[#DCBFFF] rounded-[5px] p-3 flex flex-col gap-1.5 border border-black/10">
                                                     <div className="flex justify-between items-center text-[16px]">
                                                         <span className="text-[#141414] font-medium">Contact No.</span>
-                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right truncate overflow-hidden bg-transparent max-w-[130px]">{request?.student?.phone || "N/A"}</span>
+                                                        <span
+                                                            className={`text-[#3F3F3F] text-[14px] font-normal text-right truncate overflow-hidden bg-transparent max-w-[130px] ${request?.student?.phone ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                                                            title={request?.student?.phone ? "Open in WhatsApp" : ""}
+                                                            onClick={(e) => {
+                                                                if (request?.student?.phone) {
+                                                                    e.stopPropagation();
+                                                                    let formattedPhone = request.student.phone.replace(/[^0-9]/g, '');
+                                                                    if (formattedPhone.length === 10) {
+                                                                        formattedPhone = '91' + formattedPhone;
+                                                                    }
+                                                                    window.open(`https://wa.me/${formattedPhone}`, "_blank");
+                                                                }
+                                                            }}
+                                                        >
+                                                            {request?.student?.phone || "N/A"}
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between items-center text-[16px]">
                                                         <span className="text-[#141414] font-medium">Email</span>
-                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right truncate overflow-hidden bg-transparent max-w-[130px]">{request?.student?.email || "N/A"}</span>
+                                                        <span
+                                                            className={`text-[#3F3F3F] text-[14px] font-normal text-right truncate overflow-hidden bg-transparent max-w-[130px] ${request?.student?.email ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                                                            title={request?.student?.email ? "Copy to clipboard" : ""}
+                                                            onClick={(e) => {
+                                                                if (request?.student?.email) {
+                                                                    e.stopPropagation();
+                                                                    navigator.clipboard.writeText(request?.student?.email);
+                                                                    showToast("Email ID copied to clipboard!", "success");
+                                                                }
+                                                            }}
+                                                        >
+                                                            {request?.student?.email || "N/A"}
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between items-center text-[16px]">
-                                                        <span className="text-[#141414] font-medium">CGPA</span>
-                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{request?.student?.CGPA ?? "N/A"}</span>
+                                                        <span className="text-[#141414] font-medium">{requestMetric.label}</span>
+                                                        <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{requestMetric.value}</span>
                                                     </div>
                                                     <div className="text-[16px] pt-1">
                                                         <span className="text-[#141414] font-medium block mb-0.5">Description</span>
-                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words">
-                                                            {request?.student?.description || "N/A"}
+                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words whitespace-pre-line">
+                                                            {displayDescription}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -417,7 +533,8 @@ export default function MyGroupsPage() {
                                                     </button>
                                                 </div>
                                             </div>
-                                        ))}
+                                        );
+                                        })}
                                     </div>
                                 </>
                             ) : null}
@@ -443,14 +560,30 @@ export default function MyGroupsPage() {
                 </main>
 
                 {roomCode && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
-                        <div className="bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center">
+                    <div
+                        className={`fixed inset-0 bg-black/50 flex items-center justify-center z-[100] transition-opacity duration-300 ease-out ${isModalAnimating ? "opacity-100" : "opacity-0"
+                            }`}
+                    >
+                        <div
+                            className={`bg-[#88E7C3] border-2 border-black shadow-[5px_5px_0px_black] rounded-[8px] p-6 max-w-md w-[90%] mx-4 text-center relative transition-all duration-300 ease-out ${isModalAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"
+                                }`}
+                        >
+                            <button
+                                onClick={closeRoomCodeModal}
+                                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-[#FB5E4C] border border-black rounded-[4px] shadow-[2px_2px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none transition-all cursor-pointer"
+                                aria-label="Close"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
                             <h2 className="text-xl font-bold mb-2">Room Code</h2>
                             <p className="text-sm mb-4">Share this code with your roommate to join your room!</p>
                             <div className="bg-[#F7CC66] border border-black rounded-[4px] px-6 py-3 text-2xl font-bold tracking-widest mb-4">
                                 {roomCode}
                             </div>
-                            <div className="flex justify-center gap-3">
+                            <div className="flex flex-wrap justify-center gap-3">
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText(roomCode);
@@ -461,10 +594,21 @@ export default function MyGroupsPage() {
                                     Copy Code
                                 </button>
                                 <button
-                                    onClick={() => setRoomCode(null)}
-                                    className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+                                    onClick={() => {
+                                        const shareText = `Join ${userGroup?.groupName || "our room"} on BunkBuddies 👨‍❤️‍💋‍👨 now!\nBunkBuddies.vinnovateit.com/join/${roomCode}`;
+                                        navigator.clipboard.writeText(shareText);
+                                        showToast("Link copied to clipboard!", "success");
+                                    }}
+                                    className="bg-[#2E73D4] text-white border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-3 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer flex items-center gap-2"
+                                    title="Share Link"
                                 >
-                                    Close
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="18" cy="5" r="3" />
+                                        <circle cx="6" cy="12" r="3" />
+                                        <circle cx="18" cy="19" r="3" />
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>

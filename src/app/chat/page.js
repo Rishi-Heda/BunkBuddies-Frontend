@@ -1,0 +1,355 @@
+"use client";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Syne } from "next/font/google";
+import BackgroundGrid from "../components/BackgroundLines";
+import Navbar from "../components/Navbar";
+import { backendFetch } from "../utils/backendClient";
+
+const syne = Syne({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL;
+
+export default function ChatPage() {
+  const router = useRouter();
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Current user
+  const [myRegNo, setMyRegNo] = useState(null);
+
+  // Chat data
+  const [groups, setGroups] = useState([]);
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [messages, setMessages] = useState({});
+  const [input, setInput] = useState("");
+
+  // WebSocket refs: one for general chat, one for DM
+  const generalWsRef = useRef(null);
+  const dmWsRef = useRef(null);
+
+  const bottomRef = useRef(null);
+
+  // ── Load current user ──
+  useEffect(() => {
+    setIsAnimating(true);
+    const loadUser = async () => {
+      try {
+        const res = await backendFetch("student/getStudent");
+        const student = res?.user || {};
+        setMyRegNo(student.regNo);
+      } catch { }
+    };
+    loadUser();
+  }, []);
+
+  // ── Build groups list: general chat room + DM contacts ──
+  useEffect(() => {
+    if (!myRegNo) return;
+    const loadGroups = async () => {
+      try {
+        // DM contacts
+        const contacts = await backendFetch(`dm/contacts/${myRegNo}`);
+        const dmGroups = (contacts || []).map((c) => ({
+          id: `dm_${c.regNo}`,
+          name: c.name,
+          type: "dm",
+          regNo: c.regNo,
+          role: c.role,
+          unread: c.unread || 0,
+        }));
+
+        // General hostel chat as first item
+        const generalGroup = {
+          id: "general",
+          name: "Hostel Chat",
+          type: "hostel",
+          members: null,
+        };
+
+        setGroups([generalGroup, ...dmGroups]);
+      } catch { }
+    };
+    loadGroups();
+  }, [myRegNo]);
+
+  // ── Connect General Chat WebSocket ──
+  useEffect(() => {
+    if (!myRegNo) return;
+
+    const ws = new WebSocket(`${WS_BASE}/generalChat/ws/${myRegNo}`);
+    generalWsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "chat") {
+          const msg = {
+            id: Date.now() + Math.random(),
+            sender: data.sender_name,
+            senderId: data.sender_reg_no,
+            text: data.message,
+            time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          setMessages((prev) => ({
+            ...prev,
+            general: [...(prev["general"] || []), msg],
+          }));
+        } else if (data.type === "system") {
+          setMessages((prev) => ({
+            ...prev,
+            general: [...(prev["general"] || []), {
+              id: Date.now() + Math.random(),
+              text: data.message,
+              isSystem: true,
+              time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            }],
+          }));
+        }
+      } catch { }
+    };
+
+    return () => ws.close();
+  }, [myRegNo]);
+
+  // ── Connect DM WebSocket ──
+  useEffect(() => {
+    if (!myRegNo) return;
+
+    const ws = new WebSocket(`${WS_BASE}/dm/ws/${myRegNo}`);
+    dmWsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "chat") {
+          const contactRegNo = data.senderRegNo === myRegNo ? data.receiverRegNo : data.senderRegNo;
+          const groupId = `dm_${contactRegNo}`;
+          const msg = {
+            id: data.id || Date.now(),
+            sender: data.senderRegNo === myRegNo ? "You" : data.senderRegNo,
+            senderId: data.senderRegNo === myRegNo ? "me" : data.senderRegNo,
+            text: data.message,
+            time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          setMessages((prev) => ({
+            ...prev,
+            [groupId]: [...(prev[groupId] || []), msg],
+          }));
+        }
+      } catch { }
+    };
+
+    return () => ws.close();
+  }, [myRegNo]);
+
+  // ── Load DM history when a DM contact is selected ──
+  useEffect(() => {
+    if (!myRegNo || !activeGroup || activeGroup.type !== "dm") return;
+    const loadHistory = async () => {
+      try {
+        const history = await backendFetch(`dm/history/${myRegNo}/${activeGroup.regNo}`);
+        const mapped = (history || []).map((msg) => ({
+          id: msg.id,
+          sender: msg.senderRegNo === myRegNo ? "You" : msg.senderRegNo,
+          senderId: msg.senderRegNo === myRegNo ? "me" : msg.senderRegNo,
+          text: msg.message,
+          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }));
+        setMessages((prev) => ({ ...prev, [activeGroup.id]: mapped }));
+      } catch { }
+    };
+    loadHistory();
+  }, [myRegNo, activeGroup]);
+
+  // ── Auto scroll ──
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [activeGroup, messages]);
+
+  // ── Send message ──
+  const sendMessage = () => {
+    if (!input.trim() || !activeGroup) return;
+
+    if (activeGroup.type === "hostel") {
+      if (generalWsRef.current?.readyState === WebSocket.OPEN) {
+        generalWsRef.current.send(JSON.stringify({
+          action: "chat",
+          message: input.trim(),
+        }));
+      }
+    } else if (activeGroup.type === "dm") {
+      if (dmWsRef.current?.readyState === WebSocket.OPEN) {
+        dmWsRef.current.send(JSON.stringify({
+          targetRegNo: activeGroup.regNo,
+          message: input.trim(),
+        }));
+      }
+    }
+    setInput("");
+  };
+
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  };
+
+  const currentMessages = activeGroup ? (messages[activeGroup.id] || []) : [];
+
+  return (
+    <BackgroundGrid>
+      <div className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}>
+
+        {/* ── Top bar: Logo + Navbar ── */}
+        <div className="absolute top-4 md:top-6 left-0 w-full px-4 md:px-8 flex justify-between items-center z-50">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="focus:outline-none"
+            aria-label="Go to homepage"
+          >
+            <Image
+              src="/logo.svg"
+              alt="Logo"
+              width={160}
+              height={60}
+              className="w-auto h-12 md:h-16"
+              priority
+            />
+          </button>
+          <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
+        </div>
+
+        {/* ── Main card ── */}
+        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
+          }`}>
+
+          {/* Header */}
+          <div className="flex flex-row justify-between items-center mb-5 gap-3">
+            <h1 className="text-xl md:text-2xl lg:text-[26px] font-bold leading-tight">
+              Chat with your soon-to-be roomates!
+            </h1>
+            <button
+              onClick={() => setActiveGroup(null)}
+              aria-label="Go back"
+              className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Chat layout */}
+          <div className="flex gap-4" style={{ height: "calc(100vh - 280px)", minHeight: 360 }}>
+
+            {/* Sidebar */}
+            <div className={`flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
+              ${activeGroup ? "hidden md:block" : "block"}
+              w-full md:w-[220px] lg:w-[260px]`}>
+              <h2 className="text-xl font-bold mb-4">Chats</h2>
+              <div className="flex flex-col gap-3">
+                {groups.map((g) => (
+                  <button
+                    key={g.id}
+                    onClick={() => setActiveGroup(g)}
+                    className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-[4px] border border-black transition-all
+                      ${activeGroup?.id === g.id
+                        ? "bg-[#c0392b] shadow-[1px_1px_0px_black] translate-x-[2px] translate-y-[2px]"
+                        : "bg-[#FB5E4C] shadow-[3px_3px_0px_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_black]"
+                      }`}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-sm text-white truncate">{g.name}</div>
+                      <div className="text-[11px] text-white/80 mt-0.5">
+                        {g.type === "hostel" ? "Hostel Group" : g.role || "Direct Message"}
+                      </div>
+                    </div>
+                    {g.unread > 0 && (
+                      <span className="bg-white text-[#FB5E4C] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {g.unread}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chat window */}
+            <div className={`flex-1 flex flex-col bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] overflow-hidden min-w-0
+              ${!activeGroup ? "hidden md:flex" : "flex"}`}>
+
+              {activeGroup ? (
+                <>
+                  {/* Chat header */}
+                  <div className="bg-[#FB5E4C] border-b border-black px-4 py-3 flex items-center gap-3 flex-shrink-0">
+                    <button
+                      onClick={() => setActiveGroup(null)}
+                      className="md:hidden text-white text-xl font-bold pr-1"
+                    >
+                      ←
+                    </button>
+                    <span className="font-bold text-white text-base">{activeGroup.name}</span>
+                  </div>
+
+                  {/* Messages */}
+                  <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                    {currentMessages.map((msg) => {
+                      if (msg.isSystem) {
+                        return (
+                          <div key={msg.id} className="text-center text-xs text-gray-500 italic py-1">
+                            {msg.text}
+                          </div>
+                        );
+                      }
+                      const isMe = msg.senderId === myRegNo || msg.senderId === "me";
+                      return (
+                        <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                          <div style={{ maxWidth: "70%" }}>
+                            {!isMe && (
+                              <div className="text-xs font-bold text-[#7a1a1a] mb-1 pl-1">{msg.sender}</div>
+                            )}
+                            <div className={`px-3 py-2 rounded-[10px] border border-black shadow-[2px_2px_0px_black] text-sm flex flex-col gap-1 break-words
+                              ${isMe ? "bg-[#FEE3D2] rounded-br-[3px]" : "bg-white rounded-bl-[3px]"}`}>
+                              {msg.text}
+                              <span className="text-[10px] text-gray-400 self-end">{msg.time}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div ref={bottomRef} />
+                  </div>
+
+                  {/* Input */}
+                  <div className="bg-[#FB5E4C] border-t border-black px-3 py-3 flex items-center gap-2 flex-shrink-0">
+                    <input
+                      className="flex-1 border border-black rounded-[24px] px-4 py-2 text-sm bg-white outline-none font-[inherit] min-w-0"
+                      placeholder="Type your Message..."
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKey}
+                    />
+                    <button
+                      onClick={sendMessage}
+                      className="bg-black text-white border border-black rounded-[6px] px-4 py-2 text-sm font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-2">
+                  <span className="text-5xl"></span>
+                  <span className="text-sm font-semibold">Select a chat to start messaging</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </BackgroundGrid>
+  );
+}

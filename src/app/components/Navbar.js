@@ -59,7 +59,14 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
                     className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4"
                     onClick={() => router.push("/my-groups")}
                 >
-                    My Groups
+                    My Room
+                </button>
+                <button
+                    type="button"
+                    className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4"
+                    onClick={() => router.push("/chat")}
+                >
+                    Chat
                 </button>
                 <button
                     type="button"
