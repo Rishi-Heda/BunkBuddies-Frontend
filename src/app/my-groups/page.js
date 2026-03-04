@@ -544,6 +544,14 @@ export default function MyGroupsPage() {
                                                         <span className="text-[#141414] font-medium">{requestMetric.label}</span>
                                                         <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{requestMetric.value}</span>
                                                     </div>
+                                                    {request?.student?.hostelGroup && (
+                                                        <div className="flex justify-between items-center text-[16px]">
+                                                            <span className="text-[#141414] font-medium">Group</span>
+                                                            <span className="text-[#3F3F3F] text-[14px] font-normal text-right">
+                                                                {request.student.hostelGroup}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                     <div className="text-[16px] pt-1">
                                                         <span className="text-[#141414] font-medium block mb-0.5">Description</span>
                                                         <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words whitespace-pre-line">
