@@ -9,6 +9,7 @@ import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
     subsets: ["latin"],
@@ -66,6 +67,10 @@ export default function MyGroupsPage() {
         try {
             const response = await backendFetch("student/getStudent");
             const student = response?.user || {};
+            if (!isQuizCompleted(student)) {
+                router.push("/personality-quiz");
+                return;
+            }
             const group = student.group || null;
 
             setUserProfile(student);

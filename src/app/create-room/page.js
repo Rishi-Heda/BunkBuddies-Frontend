@@ -14,6 +14,7 @@ import {
 	toGroupSize,
 	toGroupType,
 } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
 	subsets: ["latin"],
@@ -73,6 +74,10 @@ export default function CreateRoomPage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const student = response?.user || {};
+				if (!isQuizCompleted(student)) {
+					router.push("/personality-quiz");
+					return;
+				}
 				setUserHostelType(student.hostelType || "");
 				const group = student.group;
 

@@ -7,6 +7,7 @@ import { showToast } from "../components/Toast";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -191,15 +192,10 @@ export default function PersonalityQuizPage() {
 
         const hasGroup = Boolean(user?.group?.id || user?.groupId);
         const hasProfile = Boolean((user?.hostelType || "").trim());
-        const hasQuiz = Boolean(user?.quizCompleted);
-
-        if (hasGroup) {
-          router.replace("/explore-rooms");
-          return;
-        }
+        const hasQuiz = isQuizCompleted(user);
 
         if (hasQuiz) {
-          router.replace(hasProfile ? "/find-buddies" : "/profile");
+          router.replace(hasGroup ? "/explore-rooms" : (hasProfile ? "/find-buddies" : "/profile"));
           return;
         }
 

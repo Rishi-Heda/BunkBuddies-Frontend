@@ -6,6 +6,7 @@ import Image from "next/image";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const INITIAL_FORM_DATA = {
 	name: "",
@@ -60,6 +61,10 @@ export default function ProfilePage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const user = response?.user || {};
+				if (!isQuizCompleted(user)) {
+					router.push("/personality-quiz");
+					return;
+				}
 
 				if (!isMounted) {
 					return;

@@ -12,6 +12,7 @@ import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import CustomButton from "../components/CustomButton";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
 	subsets: ["latin"],
@@ -118,8 +119,12 @@ export default function ExploreRoomsPage() {
 
 		const loadStudent = async () => {
 			try {
-				const studentResponse = await backendFetch("student/getStudentLite");
+				const studentResponse = await backendFetch("student/getStudent");
 				const student = studentResponse?.user || {};
+				if (!isQuizCompleted(student)) {
+					router.push("/personality-quiz");
+					return;
+				}
 				if (isMounted) {
 					setUserGroup(student.group || null);
 				}
