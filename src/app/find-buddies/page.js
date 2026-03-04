@@ -23,6 +23,13 @@ export default function FindBuddiesPage() {
 	const [userGroup, setUserGroup] = useState(null);
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [showLeaveGroupModal, setShowLeaveGroupModal] = useState(false);
+	const actionCardClassName =
+		"bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-5 md:p-6 lg:p-7 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform w-full h-[250px] md:h-[260px] lg:h-[270px]";
+	const actionCardTitleClassName =
+		"text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight";
+	const actionCardTextClassName =
+		"text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80";
+	const actionCardIconClassName = "w-9 h-9 md:w-10 md:h-10 mb-2 md:mb-3";
 
 	useEffect(() => {
 		setIsAnimating(true);
@@ -192,45 +199,45 @@ export default function FindBuddiesPage() {
 									router.push("/create-room");
 								}
 							}}
-							className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
+							className={actionCardClassName}
 						>
 							<Image
 								src="/find.svg"
 								alt="Find"
 								width={48}
 								height={32}
-								className="w-10 h-6 md:w-12 md:h-8 mb-1.5 md:mb-2.5"
+								className="w-10 h-7 md:w-12 md:h-8 mb-2 md:mb-3"
 							/>
-							<h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">
+							<h2 className={actionCardTitleClassName}>
 								Create a Room
 							</h2>
-							<p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
+							<p className={actionCardTextClassName}>
 								Start a new room and find your future roomies
 							</p>
 						</div>
 
 						<div
 							onClick={() => router.push("/explore-rooms")}
-							className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
+							className={actionCardClassName}
 						>
 							<Image
 								src="/explore.svg"
 								alt="Explore"
 								width={40}
 								height={40}
-								className="w-9 h-9 md:w-10 md:h-10 mb-1.5 md:mb-2.5"
+								className={actionCardIconClassName}
 							/>
-							<h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">
+							<h2 className={actionCardTitleClassName}>
 								Explore Rooms
 							</h2>
-							<p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
+							<p className={actionCardTextClassName}>
 								Dont have a room yet? <br />
 								Find your new roommates here
 							</p>
 						</div>
 
 						<div
-							className="bg-[#FFB7B6] border border-black shadow-[4.23px_4.23px_0px_black] rounded-[3px] relative overflow-hidden aspect-square w-full cursor-pointer hover:scale-[1.01] transition-transform"
+							className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] relative overflow-hidden w-full h-[250px] md:h-[260px] lg:h-[270px] cursor-pointer hover:scale-[1.01] transition-transform"
 							onClick={() => setJoinRoomOpen((previous) => !previous)}
 						>
 							<div
@@ -241,24 +248,24 @@ export default function FindBuddiesPage() {
 										: "translateY(0)",
 								}}
 							>
-								<div className="flex flex-col items-center justify-center text-center p-4 md:p-5 lg:p-6 h-[50%]">
+								<div className="flex flex-col items-center justify-center text-center p-5 md:p-6 lg:p-7 h-[50%]">
 									<Image
 										src="/link.svg"
 										alt="Link"
 										width={48}
 										height={48}
-										className="w-10 h-10 md:w-12 md:h-12 mb-1 md:mb-2"
+										className={actionCardIconClassName}
 									/>
-									<h2 className="text-[22px] md:text-[27px] font-semibold mb-0.5 md:mb-1 leading-tight">
+									<h2 className={actionCardTitleClassName}>
 										Join a Room
 									</h2>
-									<p className="text-[13px] md:text-[15px] font-normal leading-tight text-black max-w-[85%]">
+									<p className={`${actionCardTextClassName} max-w-[85%]`}>
 										Already have a room code? Join your new roomies
 									</p>
 								</div>
 
-								<div className="flex flex-col items-center justify-center p-4 h-[50%]">
-									<label className="text-[16px] md:text-[18px] font-semibold mb-2">
+								<div className="flex flex-col items-center justify-center p-5 md:p-6 lg:p-7 h-[50%]">
+									<label className="text-[15px] md:text-[17px] font-semibold mb-2">
 										Input Access Code
 									</label>
 									<input
@@ -267,7 +274,7 @@ export default function FindBuddiesPage() {
 										onChange={(event) => setAccessCode(event.target.value)}
 										placeholder="Access Code"
 										onClick={(event) => event.stopPropagation()}
-										className="w-full max-w-[200px] md:max-w-[220px] bg-[#F7CC66] rounded-[3.89px] border border-black px-3 py-2 text-[15px] md:text-[18.66px] text-[#575757] font-normal focus:outline-none placeholder:text-[#575757] mb-4 text-center"
+										className="w-full max-w-[200px] md:max-w-[220px] bg-[#F7CC66] rounded-[3.89px] border border-black px-3 py-2 text-[14px] md:text-[16px] text-[#575757] font-normal focus:outline-none placeholder:text-[#575757] mb-3 text-center"
 									/>
 									<button
 										onClick={(event) => {
@@ -275,7 +282,7 @@ export default function FindBuddiesPage() {
 											handleJoinRoom(event);
 										}}
 										disabled={isJoining}
-										className="bg-[#FD9E51] border border-black shadow-[1.94px_2.59px_0px_black] rounded-[3.24px] px-6 py-2 md:py-[8px] text-[14px] md:text-[15.55px] font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[1.94px] active:translate-y-[2.59px] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+										className="bg-[#FD9E51] border border-black shadow-[2px_2px_0px_black] rounded-[3.24px] px-6 py-2 text-[14px] md:text-[15px] font-normal hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
 									>
 										{isJoining ? "Joining..." : "Submit"}
 									</button>
@@ -286,7 +293,7 @@ export default function FindBuddiesPage() {
 						{/* ── My Chats card ── */}
 						<div
 							onClick={() => router.push("/chat")}
-							className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[3px] p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:scale-[1.01] transition-transform aspect-square w-full"
+							className={actionCardClassName}
 						>
 							<svg
 								width="40"
@@ -297,14 +304,14 @@ export default function FindBuddiesPage() {
 								strokeWidth="2"
 								strokeLinecap="round"
 								strokeLinejoin="round"
-								className="w-9 h-9 md:w-10 md:h-10 mb-1.5 md:mb-2.5"
+								className={actionCardIconClassName}
 							>
 								<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 							</svg>
-							<h2 className="text-[18px] md:text-[20px] lg:text-[22px] font-semibold mb-1 leading-tight">
+							<h2 className={actionCardTitleClassName}>
 								My Chats
 							</h2>
-							<p className="text-[12px] md:text-[13px] lg:text-[14px] font-normal leading-tight text-black/80">
+							<p className={actionCardTextClassName}>
 								Chat with your soon-to-be roomies
 							</p>
 						</div>
