@@ -6,6 +6,7 @@ import Image from "next/image";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const INITIAL_FORM_DATA = {
 	name: "",
@@ -51,6 +52,9 @@ export default function ProfilePage() {
 	const [showValidationModal, setShowValidationModal] = useState(false);
 	const [missingFields, setMissingFields] = useState([]);
 	const [showInfoModal, setShowInfoModal] = useState(false);
+	const isLhHostel = String(formData.hostelType || "").trim().toUpperCase() === "LH";
+	const maxHostelGroup = isLhHostel ? 4 : 3;
+	const hostelGroupOptions = isLhHostel ? ["1", "2", "3", "4"] : ["1", "2", "3"];
 
 	useEffect(() => {
 		setIsAnimating(true);
@@ -60,6 +64,10 @@ export default function ProfilePage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const user = response?.user || {};
+				if (!isQuizCompleted(user)) {
+					router.push("/personality-quiz");
+					return;
+				}
 
 				if (!isMounted) {
 					return;
@@ -170,8 +178,8 @@ export default function ProfilePage() {
 				payload.hostelType = formData.hostelType;
 			}
 			const parsedHostelGroup = Number(formData.hostelGroup);
-			if (![1, 2, 3].includes(parsedHostelGroup)) {
-				showToast("Hostel Group must be 1, 2, or 3", "error");
+			if (!Number.isInteger(parsedHostelGroup) || parsedHostelGroup < 1 || parsedHostelGroup > maxHostelGroup) {
+				showToast(`Hostel Group must be between 1 and ${maxHostelGroup}`, "error");
 				setIsSaving(false);
 				return;
 			}
@@ -365,9 +373,11 @@ export default function ProfilePage() {
 									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none"
 								>
 									<option value="">Select group</option>
-									<option value="1">1</option>
-									<option value="2">2</option>
-									<option value="3">3</option>
+									{hostelGroupOptions.map((group) => (
+										<option key={group} value={group}>
+											{group}
+										</option>
+									))}
 								</select>
 							</div>
 

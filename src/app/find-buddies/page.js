@@ -7,6 +7,7 @@ import { Syne } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
 	subsets: ["latin"],
@@ -63,6 +64,11 @@ export default function FindBuddiesPage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const student = response?.user || {};
+				const hasQuiz = isQuizCompleted(student);
+				if (!hasQuiz) {
+					router.push("/personality-quiz");
+					return;
+				}
 				const group = student.group || null;
 				setUserGroup(group);
 				if (group) {

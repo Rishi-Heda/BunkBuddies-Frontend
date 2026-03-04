@@ -1,6 +1,7 @@
 export const runtime = "edge";
 
 import { NextResponse } from "next/server";
+import { isQuizCompleted } from "../../../../utils/quizStatus";
 
 const BACKEND_BASE_URL = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_BACKEND_API_URL;
 console.log('BACKEND_API_URL:', process.env.BACKEND_API_URL);
@@ -36,14 +37,14 @@ async function resolvePostLoginPath(accessToken) {
         const user = payload?.user || {};
         const hasGroup = Boolean(user?.group?.id || user?.groupId);
         const hasProfile = Boolean((user?.hostelType || "").trim());
-        const hasQuiz = Boolean(user?.quizCompleted);
-
-        if (hasGroup) {
-            return "/explore-rooms";
-        }
+        const hasQuiz = isQuizCompleted(user);
 
         if (!hasQuiz) {
             return "/personality-quiz";
+        }
+
+        if (hasGroup) {
+            return "/explore-rooms";
         }
 
         if (hasProfile) {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { isQuizCompleted } from "../../../utils/quizStatus";
 
 export const runtime = "edge";
 
@@ -9,7 +10,11 @@ const BACKEND_BASE_URL = (
     "https://bunkbuddies-backend-ic43.onrender.com"
 ).replace(/\/$/, "");
 
-function routeFromState({ hasProfile, hasGroup }) {
+function routeFromStateWithQuiz({ hasProfile, hasGroup, hasQuiz }) {
+    if (!hasQuiz) {
+        return "/personality-quiz";
+    }
+
     if (hasGroup) {
         return "/explore-rooms";
     }
@@ -70,12 +75,14 @@ export async function GET() {
         const user = payload?.user || {};
         const hasGroup = Boolean(user?.group?.id || user?.groupId);
         const hasProfile = Boolean((user?.hostelType || "").trim());
-        const nextRoute = routeFromState({ hasProfile, hasGroup });
+        const hasQuiz = isQuizCompleted(user);
+        const nextRoute = routeFromStateWithQuiz({ hasProfile, hasGroup, hasQuiz });
 
         return NextResponse.json({
             authenticated: true,
             hasProfile,
             hasGroup,
+            hasQuiz,
             nextRoute,
             shouldGoExplore: hasGroup,
             user: {

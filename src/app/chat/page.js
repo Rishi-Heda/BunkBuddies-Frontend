@@ -6,6 +6,7 @@ import { Syne } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -40,6 +41,10 @@ export default function ChatPage() {
       try {
         const res = await backendFetch("student/getStudent");
         const student = res?.user || {};
+        if (!isQuizCompleted(student)) {
+          router.push("/personality-quiz");
+          return;
+        }
         setMyRegNo(student.regNo);
       } catch { }
     };

@@ -14,6 +14,7 @@ import {
 	toGroupSize,
 	toGroupType,
 } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 
 const syne = Syne({
 	subsets: ["latin"],
@@ -22,9 +23,9 @@ const syne = Syne({
 
 const GROUP_SIZE_OPTIONS = ["2", "3", "4", "6"];
 const LH_GROUP_SIZE_OPTIONS = ["2", "3", "4", "5", "6"];
-const PREFERENCE_OPTIONS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "E Annex", "F", "G", "G Annex", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "RGT", "LH1", "GH"];
-const MH_BLOCKS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"];
-const LH_BLOCKS = ["A", "B", "C", "D", "E", "E Annex", "F", "G", "G Annex", "H", "J", "RGT", "LH1", "GH"];
+const MH_BLOCKS = ["A", "B", "B Annex", "C", "D", "D Annex", "E", "F", "G", "H", "J", "K", "L", "M", "R", "T"];
+const LH_BLOCKS = ["A", "B", "C", "D", "E", "F", "H", "J", "S"];
+const PREFERENCE_OPTIONS = [...new Set([...MH_BLOCKS, ...LH_BLOCKS])];
 
 function getPrefOptions(allOptions, exclude) {
 	return allOptions.filter((opt) => !exclude.includes(opt));
@@ -73,6 +74,10 @@ export default function CreateRoomPage() {
 			try {
 				const response = await backendFetch("student/getStudent");
 				const student = response?.user || {};
+				if (!isQuizCompleted(student)) {
+					router.push("/personality-quiz");
+					return;
+				}
 				setUserHostelType(student.hostelType || "");
 				const group = student.group;
 

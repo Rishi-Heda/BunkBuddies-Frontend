@@ -9,6 +9,7 @@ import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
+import { isQuizCompleted } from "../utils/quizStatus";
 import { getSleepTag, getLanguageTags } from "../utils/studentTags";
 
 const syne = Syne({
@@ -50,6 +51,7 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
+    const [isModalAnimating, setIsModalAnimating] = useState(false);
     const getRankOrCgpaDisplay = useCallback((personLike) => {
         const parsedRank = Number(personLike?.rank);
         if (Number.isFinite(parsedRank) && parsedRank > 0) {
@@ -67,6 +69,10 @@ export default function MyGroupsPage() {
         try {
             const response = await backendFetch("student/getStudent");
             const student = response?.user || {};
+            if (!isQuizCompleted(student)) {
+                router.push("/personality-quiz");
+                return;
+            }
             const group = student.group || null;
 
             setUserProfile(student);
