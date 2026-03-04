@@ -10,6 +10,7 @@ import BackgroundGrid from "../components/BackgroundLines";
 import Navbar from "../components/Navbar";
 import { backendFetch, groupCapacity } from "../utils/backendClient";
 import { isQuizCompleted } from "../utils/quizStatus";
+import { getSleepTag, getLanguageTags } from "../utils/studentTags";
 
 const syne = Syne({
     subsets: ["latin"],
@@ -366,6 +367,38 @@ export default function MyGroupsPage() {
                                                     <p style={{ color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4 }}>{member.regNo || "Unknown ID"}</p>
                                                     <h3 style={{ color: 'black', fontSize: 32, fontFamily: 'Syne', fontWeight: 500, marginBottom: 8 }}>{member.name || "Anonymous User"}</h3>
                                                 </div>
+                                                {(() => {
+                                                    const sleepTag = getSleepTag(member);
+                                                    const langTags = getLanguageTags(member);
+                                                    const allTags = [...(sleepTag ? [sleepTag] : []), ...langTags];
+                                                    return allTags.length > 0 ? (
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                                            {allTags.map((tag) => (
+                                                                <span
+                                                                    key={tag.label}
+                                                                    style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 6,
+                                                                        background: '#DCBFFF',
+                                                                        border: '1px solid rgba(0,0,0,0.15)',
+                                                                        borderRadius: 999,
+                                                                        padding: '6px 14px',
+                                                                        fontSize: 14,
+                                                                        fontFamily: 'Syne',
+                                                                        fontWeight: 500,
+                                                                        color: '#1A1A1A',
+                                                                        whiteSpace: 'nowrap',
+                                                                    }}
+                                                                >
+                                                                    {tag.icon}
+                                                                    {tag.label}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : null;
+                                                })()}
+
                                                 <div className="bg-[#DCBFFF] rounded-[5px]" style={{ width: 266, minHeight: 120, margin: '0 auto', padding: '16px', position: 'relative' }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                                                         <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>Contact No.</span>
@@ -473,6 +506,41 @@ export default function MyGroupsPage() {
                                                         </span>
                                                     ) : null}
                                                 </div>
+                                                {/* Tag pills — goes between name block and the info box */}
+                                                {(() => {
+                                                    const sleepTag = getSleepTag(request?.student);
+                                                    const langTags = getLanguageTags(request?.student);
+                                                    const allTags = [...(sleepTag ? [sleepTag] : []), ...langTags];
+                                                    return allTags.length > 0 ? (
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                                            {allTags.map((tag) => {
+                                                                const { Icon } = tag;
+                                                                return (
+                                                                    <span
+                                                                        key={tag.label}
+                                                                        style={{
+                                                                            display: 'inline-flex',
+                                                                            alignItems: 'center',
+                                                                            gap: 6,
+                                                                            background: '#DCBFFF',
+                                                                            border: '1px solid rgba(0,0,0,0.15)',
+                                                                            borderRadius: 999,
+                                                                            padding: '6px 14px',
+                                                                            fontSize: 14,
+                                                                            fontFamily: 'Syne',
+                                                                            fontWeight: 500,
+                                                                            color: '#1A1A1A',
+                                                                            whiteSpace: 'nowrap',
+                                                                        }}
+                                                                    >
+                                                                        {tag.icon}
+                                                                        {tag.label}
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    ) : null;
+                                                })()}
 
                                                 <div className="bg-[#DCBFFF] rounded-[5px] p-3 flex flex-col gap-1.5 border border-black/10">
                                                     <div className="flex justify-between items-center text-[16px]">
@@ -514,6 +582,14 @@ export default function MyGroupsPage() {
                                                         <span className="text-[#141414] font-medium">{requestMetric.label}</span>
                                                         <span className="text-[#3F3F3F] text-[14px] font-normal text-right">{requestMetric.value}</span>
                                                     </div>
+                                                    {request?.student?.hostelGroup && (
+                                                        <div className="flex justify-between items-center text-[16px]">
+                                                            <span className="text-[#141414] font-medium">Group</span>
+                                                            <span className="text-[#3F3F3F] text-[14px] font-normal text-right">
+                                                                {request.student.hostelGroup}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                     <div className="text-[16px] pt-1">
                                                         <span className="text-[#141414] font-medium block mb-0.5">Description</span>
                                                         <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words whitespace-pre-line">
