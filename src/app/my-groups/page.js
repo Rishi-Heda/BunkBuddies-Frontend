@@ -361,6 +361,38 @@ export default function MyGroupsPage() {
                                                     <p style={{ color: '#3E3E3E', fontSize: 20, fontFamily: 'Plus Jakarta Sans', fontWeight: 600, marginBottom: 4 }}>{member.regNo || "Unknown ID"}</p>
                                                     <h3 style={{ color: 'black', fontSize: 32, fontFamily: 'Syne', fontWeight: 500, marginBottom: 8 }}>{member.name || "Anonymous User"}</h3>
                                                 </div>
+                                                {(() => {
+                                                    const sleepTag = getSleepTag(member);
+                                                    const langTags = getLanguageTags(member);
+                                                    const allTags = [...(sleepTag ? [sleepTag] : []), ...langTags];
+                                                    return allTags.length > 0 ? (
+                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                                            {allTags.map((tag) => (
+                                                                <span
+                                                                    key={tag.label}
+                                                                    style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 6,
+                                                                        background: '#DCBFFF',
+                                                                        border: '1px solid rgba(0,0,0,0.15)',
+                                                                        borderRadius: 999,
+                                                                        padding: '6px 14px',
+                                                                        fontSize: 14,
+                                                                        fontFamily: 'Syne',
+                                                                        fontWeight: 500,
+                                                                        color: '#1A1A1A',
+                                                                        whiteSpace: 'nowrap',
+                                                                    }}
+                                                                >
+                                                                    {tag.icon}
+                                                                    {tag.label}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : null;
+                                                })()}
+
                                                 <div className="bg-[#DCBFFF] rounded-[5px]" style={{ width: 266, minHeight: 120, margin: '0 auto', padding: '16px', position: 'relative' }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                                                         <span style={{ color: '#141414', fontSize: 20, fontFamily: 'Syne', fontWeight: 500 }}>Contact No.</span>
