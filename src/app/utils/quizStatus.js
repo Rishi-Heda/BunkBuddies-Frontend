@@ -15,6 +15,7 @@ export function parseQuizCompleted(value) {
 export function hasRequiredQuizAnswers(user) {
     const hostelType = String(user?.hostelType || "").trim();
     const hostelGroup = Number(user?.hostelGroup);
+    const maxHostelGroup = hostelType.toUpperCase() === "LH" ? 4 : 3;
     const rank = Number(user?.rank);
     const sleepTime = Number(user?.sleepTime);
     const wakeTime = Number(user?.wakeTime);
@@ -24,7 +25,7 @@ export function hasRequiredQuizAnswers(user) {
     return Boolean(hostelType) &&
         Number.isFinite(hostelGroup) &&
         hostelGroup >= 1 &&
-        hostelGroup <= 3 &&
+        hostelGroup <= maxHostelGroup &&
         Boolean(phone) &&
         Number.isFinite(rank) &&
         rank > 0 &&

@@ -16,8 +16,9 @@ const syne = Syne({
 
 const LANGUAGES = ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada"];
 const HOSTEL_TYPES = ["MH", "LH"];
-const HOSTEL_GROUPS = ["1", "2", "3"];
-const HOSTEL_GROUP_NOTE = `Group I (G1)
+const MH_HOSTEL_GROUPS = ["1", "2", "3"];
+const LH_HOSTEL_GROUPS = ["1", "2", "3", "4"];
+const MH_HOSTEL_GROUP_NOTE = `Group I (G1)
 1. III Year - B.Tech, B.Sc(Agri) & B.Des.
 2. III & IV Year - B.Arch, M.Tech(Int.) & M.Sc.(Int.)
 3. II Year - B.Sc, BCA, B.Com & BBA
@@ -30,6 +31,21 @@ Group II (G2)
 Group III (G3)
 1. I Year - B.Tech, B.Des, B.Arch & B.Sc(Agri)
 2. I Year - M.Tech(Int.) & M.Sc. (Int.)`;
+const LH_HOSTEL_GROUP_NOTE = `Group I (G1)
+1. III Year - B. Des, B. Tech, M. Tech (Int.) & M.Sc. (Int.)
+2. II Year - BBA, BCA, B. Com & B.Sc.
+3. III Year - B. Arch
+
+Group II (G2)
+1. II Year - B.Tech, B.Arch, B.Sc (Agri), B.Des, M. Tech (Int.) & M.Sc. (Int.)
+
+Group III (G3)
+1. I Year - BBA, BCA, B.Com, B.Sc, B. Arch, B.Des, B.Tech & B.Sc (Agri)
+2. I Year - M.Tech (Int.) & M.Sc. (Int.)
+
+Group IV (G4)
+1. I Year - M.Arch, MBA, M.Des, MSc, MSW
+2. IV Year - M. Tech (Int.) & M.Sc. (Int.)`;
 
 const QUESTIONS = [
   {
@@ -51,9 +67,9 @@ const QUESTIONS = [
     id: 3,
     question: "Choose your Hostel Group",
     type: "single-select",
-    options: HOSTEL_GROUPS,
+    options: MH_HOSTEL_GROUPS,
     required: true,
-    helperText: HOSTEL_GROUP_NOTE,
+    helperText: MH_HOSTEL_GROUP_NOTE,
   },
   {
     id: 4,
@@ -227,11 +243,27 @@ export default function PersonalityQuizPage() {
   const isLast = current === QUESTIONS.length - 1;
   const isFirst = current === 0;
   const isHostelTypeQuestion = q.type === "single-select" && q.id === 1;
+  const selectedHostelType = String(answers[1] || "").trim();
+  const groupOptionsForSelectedHostel = selectedHostelType === "LH" ? LH_HOSTEL_GROUPS : MH_HOSTEL_GROUPS;
+  const hostelGroupHelperText = selectedHostelType === "LH" ? LH_HOSTEL_GROUP_NOTE : MH_HOSTEL_GROUP_NOTE;
+  const shownOptions = q.id === 3 ? groupOptionsForSelectedHostel : (q.options || []);
 
   const handleSlider = (val) => { setAnswers((p) => ({ ...p, [q.id]: Number(val) })); setError(""); };
   const handleText = (val) => { setAnswers((p) => ({ ...p, [q.id]: val })); setError(""); };
   const handlePhoneText = (val) => { setAnswers((p) => ({ ...p, [q.id]: sanitizePhoneInput(val) })); setError(""); };
-  const handleSingleSelect = (option) => { setAnswers((p) => ({ ...p, [q.id]: option })); setError(""); };
+  const handleSingleSelect = (option) => {
+    setAnswers((p) => {
+      const next = { ...p, [q.id]: option };
+      if (q.id === 1) {
+        const validGroupOptions = option === "LH" ? LH_HOSTEL_GROUPS : MH_HOSTEL_GROUPS;
+        if (!validGroupOptions.includes(String(next[3] || ""))) {
+          next[3] = "";
+        }
+      }
+      return next;
+    });
+    setError("");
+  };
   const handleMultiSelect = (option) => {
     setAnswers((p) => {
       const curr = p[q.id] || [];
@@ -269,6 +301,14 @@ export default function PersonalityQuizPage() {
       const rank = Number(answers[q.id]);
       if (!Number.isInteger(rank) || rank <= 0) {
         return setValidationError("Enter a valid hostel rank (positive integer).");
+      }
+    }
+
+    if (q.id === 3) {
+      const selectedGroup = String(answers[q.id] || "").trim();
+      if (!groupOptionsForSelectedHostel.includes(selectedGroup)) {
+        const maxGroup = selectedHostelType === "LH" ? 4 : 3;
+        return setValidationError(`For ${selectedHostelType || "this hostel type"}, choose a hostel group between 1 and ${maxGroup}.`);
       }
     }
 
@@ -410,16 +450,16 @@ export default function PersonalityQuizPage() {
               </span>
               <div className="flex-1">
                 <span className="font-bold text-[17px] md:text-[22.5px] block">{q.question}</span>
-                {q.helperText && (
-                  <span className="text-xs md:text-sm text-black/70 font-semibold whitespace-pre-line">{q.helperText}</span>
+                {(q.id === 3 ? hostelGroupHelperText : q.helperText) && (
+                  <span className="text-xs md:text-sm text-black/70 font-semibold whitespace-pre-line">{q.id === 3 ? hostelGroupHelperText : q.helperText}</span>
                 )}
               </div>
             </div>
 
             {/* Single-select chips */}
             {q.type === "single-select" && (
-              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : q.id === 3 ? "grid grid-cols-3 gap-3 w-full max-w-[400px] mx-auto" : "flex flex-wrap gap-3 justify-center"}>
-                {q.options.map((option) => {
+              <div className={isHostelTypeQuestion ? "grid grid-cols-2 gap-4 w-full max-w-[520px] mx-auto" : q.id === 3 ? (shownOptions.length === 4 ? "grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-[520px] mx-auto" : "grid grid-cols-3 gap-3 w-full max-w-[400px] mx-auto") : "flex flex-wrap gap-3 justify-center"}>
+                {shownOptions.map((option) => {
                   const selected = answers[q.id] === option;
                   return (
                     <button
