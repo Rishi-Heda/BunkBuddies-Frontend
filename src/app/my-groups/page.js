@@ -231,6 +231,28 @@ export default function MyGroupsPage() {
         return userGroup.students.find((member) => member.firebaseUID === userGroup.adminUID) || null;
     }, [userGroup]);
     const adminMetric = getRankOrCgpaDisplay(adminStudent || { CGPA: userProfile?.adminCGPA });
+    const getRequestMatchPercentage = useCallback((request) => {
+        const score = Number(request?.compatibility?.matchPercentage);
+        return Number.isFinite(score) ? score : -1;
+    }, []);
+    const sortedJoinRequests = useMemo(() => {
+        if (!Array.isArray(joinRequests) || joinRequests.length <= 1) {
+            return Array.isArray(joinRequests) ? joinRequests : [];
+        }
+
+        return [...joinRequests].sort((a, b) => {
+            const scoreDelta = getRequestMatchPercentage(b) - getRequestMatchPercentage(a);
+            if (scoreDelta !== 0) {
+                return scoreDelta;
+            }
+
+            const aCreatedAt = Date.parse(a?.createdAt || "");
+            const bCreatedAt = Date.parse(b?.createdAt || "");
+            const safeATimestamp = Number.isFinite(aCreatedAt) ? aCreatedAt : 0;
+            const safeBTimestamp = Number.isFinite(bCreatedAt) ? bCreatedAt : 0;
+            return safeBTimestamp - safeATimestamp;
+        });
+    }, [joinRequests, getRequestMatchPercentage]);
 
     return (
         <BackgroundGrid bgColor="#FEE3D2">
@@ -373,8 +395,8 @@ export default function MyGroupsPage() {
                                                             >
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                                     <rect width="24" height="24" rx="12" fill="#A084E8" />
-                                                                    <path d="M5.5 8C5.5 7.17157 6.17157 6.5 7 6.5H17C17.8284 6.5 18.5 7.17157 18.5 8V16C18.5 16.8284 17.8284 17.5 17 17.5H7C6.17157 17.5 5.5 16.8284 5.5 16V8Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                                    <path d="M5.5 8.5L11.1056 12.237C11.642 12.5946 12.358 12.5946 12.8944 12.237L18.5 8.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                                    <path d="M5.5 8C5.5 7.17157 6.17157 6.5 7 6.5H17C17.8284 6.5 18.5 7.17157 18.5 8V16C18.5 16.8284 17.8284 17.5 17 17.5H7C6.17157 17.5 5.5 16.8284 5.5 16V8Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    <path d="M5.5 8.5L11.1056 12.237C11.642 12.5946 12.358 12.5946 12.8944 12.237L18.5 8.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                                                 </svg>
                                                             </span>
                                                         )}
@@ -416,20 +438,34 @@ export default function MyGroupsPage() {
                                 <>
                                     <div className="mb-8 mt-10">
                                         <h2 className="text-3xl md:text-[40px] font-semibold">Join Requests</h2>
+                                        <p className="text-[#3E3E3E] text-sm md:text-base mt-1">
+                                            Requests are sorted by compatibility (highest first).
+                                        </p>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                                        {joinRequests.length === 0 ? (
+                                        {sortedJoinRequests.length === 0 ? (
                                             <div className="col-span-full py-10 text-center">
                                                 <p className="text-[#3E3E3E] text-lg">No join requests yet.</p>
                                             </div>
-                                        ) : joinRequests.map((request) => {
+                                        ) : sortedJoinRequests.map((request, index) => {
                                             const requestMetric = getRankOrCgpaDisplay(request?.student || {});
+                                            const isRecommended = sortedJoinRequests.length >= 2 && index === 0;
+                                            const interestsText = String(request?.student?.interests || "").trim();
+                                            const descriptionText = String(request?.student?.description || "").trim();
+                                            const displayDescription = interestsText
+                                                ? `${interestsText}${descriptionText ? `\n\n${descriptionText}` : ""}`
+                                                : (descriptionText || "N/A");
                                             return (
                                             <div key={request.id} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-4">
                                                 <div>
                                                     <p className="font-[family-name:var(--font-plus-jakarta)] text-[#3E3E3E] text-[16px] md:text-[18px] font-semibold leading-none">{request?.student?.regNo || "Unknown ID"}</p>
                                                     <h3 className="text-black text-[24px] md:text-[28px] font-semibold mt-1 leading-tight">{request?.student?.name || "Anonymous User"}</h3>
+                                                    {isRecommended ? (
+                                                        <span className="mt-2 inline-block max-w-full bg-[#47D19D] border border-black rounded-[4px] px-2 py-1 text-[10px] md:text-[11px] font-semibold uppercase tracking-wide leading-tight text-black whitespace-normal break-words">
+                                                            Recommended Roommate
+                                                        </span>
+                                                    ) : null}
                                                 </div>
 
                                                 <div className="bg-[#DCBFFF] rounded-[5px] p-3 flex flex-col gap-1.5 border border-black/10">
@@ -474,8 +510,8 @@ export default function MyGroupsPage() {
                                                     </div>
                                                     <div className="text-[16px] pt-1">
                                                         <span className="text-[#141414] font-medium block mb-0.5">Description</span>
-                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words">
-                                                            {request?.student?.description || "N/A"}
+                                                        <p className="text-[#3F3F3F] text-[13px] font-normal leading-tight break-words whitespace-pre-line">
+                                                            {displayDescription}
                                                         </p>
                                                     </div>
                                                 </div>
