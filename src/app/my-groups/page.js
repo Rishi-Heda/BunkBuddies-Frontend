@@ -50,6 +50,7 @@ export default function MyGroupsPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [actionLoading, setActionLoading] = useState("");
     const [roomCode, setRoomCode] = useState(null);
+    const [isModalAnimating, setIsModalAnimating] = useState(false);
     const getRankOrCgpaDisplay = useCallback((personLike) => {
         const parsedRank = Number(personLike?.rank);
         if (Number.isFinite(parsedRank) && parsedRank > 0) {
