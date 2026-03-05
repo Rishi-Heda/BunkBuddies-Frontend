@@ -22,6 +22,27 @@ const plusJakartaSans = Plus_Jakarta_Sans({
     variable: "--font-plus-jakarta",
 });
 
+function CompatibilityBadge({ score }) {
+    const [show, setShow] = React.useState(false);
+    return (
+        <div className="absolute top-4 right-4 group">
+            <div
+                className="w-7 h-7 flex items-center justify-center cursor-pointer text-[13px] font-medium text-black/40 select-none"
+                onClick={(e) => { e.stopPropagation(); setShow(v => !v); }}
+            >
+                %
+            </div>
+            {/* Desktop: hover | Mobile: click toggle */}
+            <div className={`absolute right-0 top-9 bg-[#F7CC66] border border-black shadow-[2px_2px_0px_black] rounded-[4.5px] text-[12px] font-medium px-3 py-1.5 whitespace-nowrap z-10 text-[#1A1A1A] pointer-events-none transition-opacity duration-150
+                opacity-0 group-hover:opacity-100
+                ${show ? 'opacity-100' : ''}
+            `}>
+                {score}% compatibility
+            </div>
+        </div>
+    );
+}
+
 export default function MyGroupsPage() {
     const handleRemoveMember = async (memberUID) => {
         if (!userGroup?.id || !memberUID) return;
@@ -496,7 +517,10 @@ export default function MyGroupsPage() {
                                                 ? `${interestsText}${descriptionText ? `\n\n${descriptionText}` : ""}`
                                                 : (descriptionText || "N/A");
                                             return (
-                                            <div key={request.id} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-4">
+                                            <div key={request.id} className="w-full max-w-[316px] mx-auto bg-[#CBA0FF] border border-black shadow-[3.4px_3.4px_0px_black] rounded-[2.4px] p-5 flex flex-col gap-4 relative">
+                                                {getRequestMatchPercentage(request) >= 0 && (
+                                                    <CompatibilityBadge score={getRequestMatchPercentage(request)} />
+                                                )}
                                                 <div>
                                                     <p className="font-[family-name:var(--font-plus-jakarta)] text-[#3E3E3E] text-[16px] md:text-[18px] font-semibold leading-none">{request?.student?.regNo || "Unknown ID"}</p>
                                                     <h3 className="text-black text-[24px] md:text-[28px] font-semibold mt-1 leading-tight">{request?.student?.name || "Anonymous User"}</h3>

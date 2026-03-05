@@ -14,11 +14,11 @@ const LanguagesIcon = () => (
 );
 
 function formatSleepTime(sleepTime) {
-    const hour24 = sleepTime % 24;
+    const totalHour24 = sleepTime % 24;
+    const hour24 = Math.floor(totalHour24);
     const hour = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
     const period = hour24 < 12 ? "AM" : "PM";
-    // Handle half hours e.g. 23.5 → 11:30 PM
-    const mins = Math.round((sleepTime % 1) * 60);
+    const mins = Math.round((totalHour24 % 1) * 60);
     const minsStr = mins > 0 ? `:${String(mins).padStart(2, "0")}` : "";
     return `${hour}${minsStr} ${period}`;
 }
