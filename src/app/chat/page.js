@@ -13,7 +13,16 @@ const syne = Syne({
   weight: ["400", "600", "700"],
 });
 
-const WS_BASE = process.env.NEXT_PUBLIC_WS_URL;
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL?.replace(/\/$/, "") || "";
+
+function resolveWsBase() {
+  if (WS_BASE) return WS_BASE;
+  if (typeof window !== "undefined") {
+    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    return `${wsProtocol}://${window.location.host}`;
+  }
+  return "";
+}
 
 export default function ChatPage() {
   const router = useRouter();
@@ -21,6 +30,7 @@ export default function ChatPage() {
 
   // Current user
   const [myRegNo, setMyRegNo] = useState(null);
+  const [generalRoomId, setGeneralRoomId] = useState(null);
 
   // Chat data
   const [groups, setGroups] = useState([]);
@@ -46,6 +56,7 @@ export default function ChatPage() {
           return;
         }
         setMyRegNo(student.regNo);
+        setGeneralRoomId(student.hostelType || null);
       } catch { }
     };
     loadUser();
@@ -85,15 +96,41 @@ export default function ChatPage() {
   useEffect(() => {
     if (!myRegNo) return;
 
-    const ws = new WebSocket(`${WS_BASE}/generalChat/ws/${myRegNo}`);
+    const wsBase = resolveWsBase();
+    if (!wsBase) {
+      console.error("[chat] Unable to resolve WebSocket base URL for general chat.");
+      return;
+    }
+
+    const wsUrl = `${wsBase}/generalChat/ws/${myRegNo}`;
+    console.info("[chat] Connecting general chat socket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     generalWsRef.current = ws;
+
+    ws.onopen = () => {
+      console.info("[chat] General chat socket connected.");
+    };
+
+    ws.onerror = (event) => {
+      console.error("[chat] General chat socket error:", event);
+    };
+
+    ws.onclose = (event) => {
+      console.warn("[chat] General chat socket closed:", {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+      });
+    };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.type === "chat") {
+        if (data.type === "welcome") {
+          setGeneralRoomId(data.room_id || null);
+        } else if (data.type === "chat") {
           const msg = {
-            id: Date.now() + Math.random(),
+            id: data.id || Date.now() + Math.random(),
             sender: data.sender_name,
             senderId: data.sender_reg_no,
             text: data.message,
@@ -113,6 +150,8 @@ export default function ChatPage() {
               time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             }],
           }));
+        } else if (data.type === "error") {
+          console.error("[chat] General chat server error:", data.message || "Unknown error");
         }
       } catch { }
     };
@@ -120,12 +159,60 @@ export default function ChatPage() {
     return () => ws.close();
   }, [myRegNo]);
 
+  // ── Load hostel chat history ──
+  useEffect(() => {
+    if (!myRegNo || !generalRoomId) return;
+    const loadGeneralHistory = async () => {
+      try {
+        const history = await backendFetch(`generalChat/history/${generalRoomId}`);
+        const mapped = (history || []).map((msg) => ({
+          id: msg.id || Date.now() + Math.random(),
+          sender: msg.sender_name,
+          senderId: msg.sender_reg_no,
+          text: msg.message,
+          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }));
+        setMessages((prev) => {
+          const existingGeneral = prev.general || [];
+          const historyIds = new Set(mapped.map((msg) => String(msg.id)));
+          const liveOnly = existingGeneral.filter((msg) => !historyIds.has(String(msg.id)));
+          return { ...prev, general: [...mapped, ...liveOnly] };
+        });
+      } catch { }
+    };
+    loadGeneralHistory();
+  }, [myRegNo, generalRoomId]);
+
   // ── Connect DM WebSocket ──
   useEffect(() => {
     if (!myRegNo) return;
 
-    const ws = new WebSocket(`${WS_BASE}/dm/ws/${myRegNo}`);
+    const wsBase = resolveWsBase();
+    if (!wsBase) {
+      console.error("[chat] Unable to resolve WebSocket base URL for DM.");
+      return;
+    }
+
+    const wsUrl = `${wsBase}/dm/ws/${myRegNo}`;
+    console.info("[chat] Connecting DM socket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     dmWsRef.current = ws;
+
+    ws.onopen = () => {
+      console.info("[chat] DM socket connected.");
+    };
+
+    ws.onerror = (event) => {
+      console.error("[chat] DM socket error:", event);
+    };
+
+    ws.onclose = (event) => {
+      console.warn("[chat] DM socket closed:", {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+      });
+    };
 
     ws.onmessage = (event) => {
       try {
@@ -144,6 +231,8 @@ export default function ChatPage() {
             ...prev,
             [groupId]: [...(prev[groupId] || []), msg],
           }));
+        } else if (data.type === "error") {
+          console.error("[chat] DM server error:", data.message || "Unknown error");
         }
       } catch { }
     };
