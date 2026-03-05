@@ -28,7 +28,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");
   //ADDITIONS FOR ALERT
-  const [showGuidelines, setShowGuidelines] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(true);
+  
 
   // WebSocket refs: one for general chat, one for DM
   const generalWsRef = useRef(null);
@@ -221,32 +222,29 @@ export default function ChatPage() {
     <BackgroundGrid>
       {/*ADDITIONS FOR ALERT*/ }
       {/* Chat Guidelines Popup */}
-      {showGuidelines && (
+      {/* Chat Guidelines Popup */}
+{showGuidelines && (
   <div className="fixed inset-0 flex items-center justify-center z-[999]">
-    
-    <div className="w-full max-w-[1045px] 
-      min-h-[600px]
-      bg-[#9AD7FD] 
-      border border-black 
-      shadow-[5px_5px_0px_black] 
-      rounded-[5px] 
-      px-5 py-6 md:px-7 md:py-8 
-      flex items-center justify-center">
 
-      <div className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-6 flex flex-col items-center gap-4">
+    <div className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-6 max-w-[500px] flex flex-col items-center gap-4">
 
-        <p className="font-semibold text-center">
-          Kindly do not misuse the chat
-        </p>
+      <p className="font-semibold text-center">
+        Guidelines to use the chat feature
+      </p>
 
-        <button
-          onClick={acceptGuidelines}
-          className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-4 py-2 font-semibold hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px]"
-        >
-          I Agree
-        </button>
+      <ul className="text-sm text-center list-disc list-inside space-y-1">
+        <li>Be respectful and maintain friendly conversation.</li>
+        <li>Do not use abusive, offensive or discriminatory language.</li>
+        <li>Avoid sharing personal or sensitive information.</li>
+        <li>No spam, promotions, or repeated messages.</li>
+      </ul>
 
-      </div>
+      <button
+        onClick={acceptGuidelines}
+        className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-4 py-2 font-semibold hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px]"
+      >
+        I Agree
+      </button>
 
     </div>
 
@@ -274,9 +272,10 @@ export default function ChatPage() {
           <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
         </div>
 
-         {/* ADDITIONS FOR ALERT*/}
+         
         {/* ── Main card ── */}
-        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out
+        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black]
+         rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out
             ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"}
               `}>
 
