@@ -250,6 +250,8 @@ export default function ChatPage() {
 
   </div>
 )}
+
+     {!showGuidelines && (
       <div className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}>
 
         {/* ── Top bar: Logo + Navbar ── */}
@@ -403,6 +405,9 @@ export default function ChatPage() {
           </div>
         </main>
       </div>
-    </BackgroundGrid>
+    
+            )}
+
+            </BackgroundGrid>
   );
 }
