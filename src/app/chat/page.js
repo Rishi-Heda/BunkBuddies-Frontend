@@ -298,7 +298,7 @@ export default function ChatPage() {
           </div>
 
           {/* Chat layout */}
-          <div className="flex gap-4" style={{ height: "calc(100vh - 280px)", minHeight: 360 }}>
+          <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 360 }}>
 
             {/* Sidebar */}
             <div className={`flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
