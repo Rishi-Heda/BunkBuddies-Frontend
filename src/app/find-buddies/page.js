@@ -18,6 +18,7 @@ export default function FindBuddiesPage() {
 	const router = useRouter();
 	const [accessCode, setAccessCode] = useState("");
 	const [joinRoomOpen, setJoinRoomOpen] = useState(false);
+	const [totalUnread, setTotalUnread] = useState(0);
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [isJoining, setIsJoining] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
@@ -69,7 +70,11 @@ export default function FindBuddiesPage() {
 					router.push("/personality-quiz");
 					return;
 				}
+				const contacts = await backendFetch(`dm/contacts/${student.regNo}`);
+				const unread = (contacts || []).reduce((sum, c) => sum + (c.unread || 0), 0);
+				setTotalUnread(unread);
 				const group = student.group || null;
+				
 				setUserGroup(group);
 				if (group) {
 					setIsAdmin(
@@ -314,12 +319,19 @@ export default function FindBuddiesPage() {
 							>
 								<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 							</svg>
-							<h2 className={actionCardTitleClassName}>
-								My Chats
-							</h2>
+							<h2 className={actionCardTitleClassName}>My Chats</h2>
 							<p className={actionCardTextClassName}>
 								Chat with your soon-to-be roomies
 							</p>
+							{totalUnread > 0 && (
+								<p className="mt-2 text-[13px] font-bold text-black">
+								You have{" "}
+								<span className="inline-flex items-center justify-center bg-[#FB5E4C] border border-black rounded-full w-5 h-5 text-[11px] text-white font-bold">
+									{totalUnread}
+								</span>{" "}
+								new notification{totalUnread !== 1 ? "s" : ""}!
+								</p>
+							)}
 						</div>
 
 					</div>
