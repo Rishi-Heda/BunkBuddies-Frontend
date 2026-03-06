@@ -340,7 +340,7 @@ export default function ChatPage() {
           <div className="flex gap-4" style={{ height: "calc(100vh - 280px)", minHeight: 360 }}>
 
             {/* Sidebar */}
-            <div className={`flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
+            <div className={`chat-scrollbar flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
               ${activeGroup ? "hidden md:block" : "block"}
               w-full md:w-[220px] lg:w-[260px]`}>
               <h2 className="text-xl font-bold mb-4">Chats</h2>
@@ -389,7 +389,7 @@ export default function ChatPage() {
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                  <div className="chat-scrollbar flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                     {currentMessages.map((msg) => {
                       if (msg.isSystem) {
                         return (
@@ -443,6 +443,32 @@ export default function ChatPage() {
             </div>
           </div>
         </main>
+        <style jsx global>{`
+          .chat-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #8e8e95 #f3b1b0;
+            scrollbar-gutter: stable;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar {
+            width: 10px;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-track {
+            background: #f3b1b0;
+            border-left: 1px solid #000;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-thumb {
+            background: #8e8e95;
+            border-radius: 999px;
+            border: 2px solid #f3b1b0;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #74747b;
+          }
+        `}</style>
       </div>
     </BackgroundGrid>
   );
