@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+
+import { backendFetch } from "../utils/backendClient";
 
 const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[-20px] z-[60]" }) => {
     const router = useRouter();
@@ -43,6 +45,21 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
             setIsLoggingOut(false);
         }
     };
+    const [totalUnread, setTotalUnread] = useState(0);
+
+    useEffect(() => {
+    const fetchUnread = async () => {
+        try {
+        const res = await backendFetch("student/getStudent");
+        const regNo = res?.user?.regNo;
+        if (!regNo) return;
+        const contacts = await backendFetch(`dm/contacts/${regNo}`);
+        const count = (contacts || []).reduce((sum, c) => sum + (c.unread || 0), 0);
+        setTotalUnread(count);
+        } catch {}
+    };
+    fetchUnread();
+    }, []);
 
     return (
         <div className={wrapperClass}>
@@ -63,10 +80,15 @@ const Navbar = ({ wrapperClass = "absolute -top-12 right-0 md:-top-14 md:right-[
                 </button>
                 <button
                     type="button"
-                    className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4"
+                    className="text-[13px] md:text-[16px] font-normal hover:underline decoration-1 underline-offset-4 flex items-center gap-1"
                     onClick={() => router.push("/chat")}
                 >
                     Chat
+                    {totalUnread > 0 && (
+                        <span className="inline-flex items-center justify-center bg-[#FB5E4C] border border-black rounded-full w-4 h-4 md:w-5 md:h-5 text-[9px] md:text-[10px] text-white font-bold leading-none">
+                        {totalUnread > 99 ? "99+" : totalUnread}
+                        </span>
+                    )}
                 </button>
                 <button
                     type="button"
