@@ -18,6 +18,7 @@ const WS_BASE = process.env.NEXT_PUBLIC_WS_URL;
 export default function ChatPage() {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
+  const activeGroupRef = useRef(null);
 
   // Current user
   const [myRegNo, setMyRegNo] = useState(null);
@@ -25,6 +26,10 @@ export default function ChatPage() {
   // Chat data
   const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState(null);
+  const handleSetActiveGroup = (group) => {
+    activeGroupRef.current = group;
+    setActiveGroup(group);
+  };
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");
   //ADDITIONS FOR ALERT
@@ -155,6 +160,13 @@ export default function ChatPage() {
             ...prev,
             [groupId]: [...(prev[groupId] || []), msg],
           }));
+          setGroups((prev) =>
+            prev.map((g) =>
+              g.id === groupId && activeGroupRef.current?.id !== groupId
+                ? { ...g, unread: (g.unread || 0) + 1 }
+                : g
+            )
+          );
         }
       } catch { }
     };
@@ -176,6 +188,9 @@ export default function ChatPage() {
           time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         }));
         setMessages((prev) => ({ ...prev, [activeGroup.id]: mapped }));
+        setGroups((prev) =>
+          prev.map((g) => g.id === activeGroup.id ? { ...g, unread: 0 } : g)
+        );
       } catch { }
     };
     loadHistory();
@@ -287,7 +302,7 @@ export default function ChatPage() {
               Chat with your soon-to-be roommates!
             </h1>
             <button
-              onClick={() => setActiveGroup(null)}
+              onClick={() => handleSetActiveGroup(null)}
               aria-label="Go back"
               className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
             >
@@ -309,7 +324,7 @@ export default function ChatPage() {
                 {groups.map((g) => (
                   <button
                     key={g.id}
-                    onClick={() => setActiveGroup(g)}
+                    onClick={() => handleSetActiveGroup(g)}
                     className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-[4px] border border-black transition-all
                       ${activeGroup?.id === g.id
                         ? "bg-[#c0392b] shadow-[1px_1px_0px_black] translate-x-[2px] translate-y-[2px]"
@@ -341,7 +356,7 @@ export default function ChatPage() {
                   {/* Chat header */}
                   <div className="bg-[#FB5E4C] border-b border-black px-4 py-3 flex items-center gap-3 flex-shrink-0">
                     <button
-                      onClick={() => setActiveGroup(null)}
+                      onClick={() => handleSetActiveGroup(null)}
                       className="md:hidden text-white text-xl font-bold pr-1"
                     >
                       ←
