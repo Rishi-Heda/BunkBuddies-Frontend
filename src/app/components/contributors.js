@@ -17,16 +17,16 @@ function ContributorCard({ person, isMobile }) {
   const [isTapped, setIsTapped] = useState(false);
   const baseClasses = `
     relative
-    h-[160px]
+    h-[132px] md:h-[144px]
     flex-shrink-0
     bg-[#F7CC66]
     border-[1.5px] border-black
-    rounded-[15px]
+    rounded-[12px]
     overflow-hidden
     transition-all duration-300
   `;
-  const mobileWidthClass = isTapped ? "w-[300px]" : "w-[280px]";
-  const desktopWidthClass = "hover:w-[calc(max(var(--c-width,440px),360px)+20px)]";
+  const mobileWidthClass = isTapped ? "w-[260px]" : "w-[228px]";
+  const desktopWidthClass = "hover:w-[calc(max(var(--c-width,360px),280px)+16px)]";
 
   const widthClass = isMobile ? mobileWidthClass : desktopWidthClass;
 
@@ -42,30 +42,30 @@ function ContributorCard({ person, isMobile }) {
     <div
       onClick={() => isMobile && setIsTapped(!isTapped)}
       className={`${baseClasses} ${widthClass} ${isMobile ? "" : "hover:scale-[1.06] group"}`}
-      style={isMobile ? undefined : { width: "max(var(--c-width, 440px), 360px)" }}
+      style={isMobile ? undefined : { width: "max(var(--c-width, 360px), 280px)" }}
     >
       <div
         className={`
           absolute inset-0
-          px-6 py-5
+          px-4 py-4
           flex flex-col justify-between
           transition-all duration-500
           ${opacityClass}
         `}
       >
         <div>
-          <h3 className="text-3xl font-semibold">
+          <h3 className="text-xl md:text-2xl font-semibold leading-tight">
             {person.name}
           </h3>
 
-          <div className="flex gap-6 mt-4 text-2xl">
+          <div className="flex gap-4 mt-3 text-lg md:text-xl">
             <FaInstagram />
             <FaLinkedin />
             <FaGithub />
           </div>
         </div>
 
-        <p className="text-lg">
+        <p className="text-sm md:text-base">
           {person.domain}
         </p>
       </div>
@@ -102,7 +102,7 @@ function ContributorRow({
   const L = left.length;
   const R = right.length;
   const N = allCards.length;
-  const GAP = 48;
+  const GAP = 32;
 
   const repeatedCards = [...allCards, ...allCards, ...allCards];
   const animationName = `marquee-${word.replace(/\s+/g, "")}`;
@@ -111,10 +111,10 @@ function ContributorRow({
   const [duration, setDuration] = useState(20);
 
   const WORD_SHIFT = {
-    Built: 70,
-    by: -100,
-    the: 500,
-    ambitious: 200,
+    Built: 48,
+    by: -72,
+    the: 340,
+    ambitious: 120,
   };
 
   const SHIFT = WORD_SHIFT[word] ?? 0;
@@ -151,7 +151,7 @@ function ContributorRow({
   }, [L, R, N]);
 
   return (
-    <div className={`w-full overflow-hidden py-6 row-${animationName}`}>
+    <div className={`w-full overflow-hidden py-4 row-${animationName}`}>
       <div
         ref={rowRef}
         className="grid items-end justify-center relative transition-all duration-300"
@@ -188,14 +188,14 @@ function ContributorRow({
         {/* LEFT TRACK */}
         {L > 0 && (
           <div
-            className="left-track overflow-hidden py-4 -my-4"
+            className="left-track overflow-hidden py-3 -my-3"
             style={{
               gridColumn: `1 / span ${L}`,
               containerType: "inline-size",
             }}
           >
             <div
-              className={`flex gap-[48px] w-max animate-${animationName}`}
+              className={`flex gap-[32px] w-max animate-${animationName}`}
               style={{
                 "--c-width": `calc((100cqw - ${(L - 1) * GAP}px) / ${L})`,
                 "--set-w": `calc(${N} * var(--c-width) + ${N * GAP}px)`,
@@ -217,7 +217,7 @@ function ContributorRow({
         >
           <h1
             className={`${syne.className}
-              text-[148px]
+              text-[104px] xl:text-[118px]
               leading-none
               whitespace-nowrap
               relative z-10
@@ -230,14 +230,14 @@ function ContributorRow({
         {/* RIGHT TRACK */}
         {R > 0 && (
           <div
-            className="right-track overflow-hidden py-4 -my-4"
+            className="right-track overflow-hidden py-3 -my-3"
             style={{
               gridColumn: `${L + 2} / span ${R}`,
               containerType: "inline-size",
             }}
           >
             <div
-              className={`flex gap-[48px] w-max animate-${animationName}`}
+              className={`flex gap-[32px] w-max animate-${animationName}`}
               style={{
                 "--c-width": `calc((100cqw - ${(R - 1) * GAP}px) / ${R})`,
                 "--set-w": `calc(${N} * var(--c-width) + ${N * GAP}px)`,
@@ -264,7 +264,7 @@ function MobileContributorRow({ cards, direction = "ltr", rowIndex }) {
   const animationName = `mobile-marquee-${rowIndex}`;
 
   return (
-    <div className={`w-full overflow-hidden py-3 mobile-row-${animationName}`}>
+    <div className={`w-full overflow-hidden py-2 mobile-row-${animationName}`}>
       <style>{`
         .animate-${animationName} {
           animation: ${animationName} 20s linear infinite;
@@ -290,7 +290,7 @@ function MobileContributorRow({ cards, direction = "ltr", rowIndex }) {
       `}</style>
       <div className={`flex w-max animate-${animationName}`}>
         {repeatedCards.map((p, i) => (
-          <div key={`mobile-${rowIndex}-${i}`} className="px-2">
+          <div key={`mobile-${rowIndex}-${i}`} className="px-1.5">
             <ContributorCard person={p} isMobile={true} />
           </div>
         ))}
@@ -322,9 +322,9 @@ export default function Contributors() {
   ];
 
   return (
-    <section className="relative w-full py-28 flex flex-col overflow-hidden">
-      <div className="md:hidden flex justify-center mb-12 z-10 relative">
-        <h1 className={`${syne.className} text-6xl leading-tight text-center`}>
+    <section className="relative w-full py-16 md:py-20 flex flex-col overflow-hidden">
+      <div className="md:hidden flex justify-center mb-8 z-10 relative">
+        <h1 className={`${syne.className} text-4xl sm:text-5xl leading-tight text-center`}>
           Built<br />by<br />the<br />ambitious
         </h1>
       </div>
@@ -338,7 +338,7 @@ export default function Contributors() {
       </div>
 
       {/* MOBILE VIEW */}
-      <div className="md:hidden flex flex-col w-full gap-2">
+      <div className="md:hidden flex flex-col w-full gap-1.5">
         <MobileContributorRow cards={[people[0], people[1], people[2]]} direction="ltr" rowIndex={1} />
         <MobileContributorRow cards={[people[3], people[4], people[5], people[6]]} direction="rtl" rowIndex={2} />
         <MobileContributorRow cards={[people[7], people[8], people[9], people[10]]} direction="ltr" rowIndex={3} />
