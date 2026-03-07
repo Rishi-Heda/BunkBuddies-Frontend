@@ -13,37 +13,45 @@ const syne = Syne({
    CONTRIBUTOR CARD
 ===================================================== */
 
-function ContributorCard({ person }) {
+function ContributorCard({ person, isMobile }) {
+  const [isTapped, setIsTapped] = useState(false);
+  const baseClasses = `
+    relative
+    h-[160px]
+    flex-shrink-0
+    bg-[#F7CC66]
+    border-[1.5px] border-black
+    rounded-[15px]
+    overflow-hidden
+    transition-all duration-300
+  `;
+  const mobileWidthClass = isTapped ? "w-[300px]" : "w-[280px]";
+  const desktopWidthClass = "hover:w-[calc(max(var(--c-width,440px),360px)+20px)]";
+
+  const widthClass = isMobile ? mobileWidthClass : desktopWidthClass;
+
+  const mobileTranslateClass = isTapped ? "translate-x-[100px]" : "";
+  const desktopTranslateClass = "group-hover:translate-x-[130px]";
+  const translateClass = isMobile ? mobileTranslateClass : desktopTranslateClass;
+
+  const mobileOpacityClass = isTapped ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-[25px]";
+  const desktopOpacityClass = "opacity-0 -translate-x-[25px] group-hover:opacity-100 group-hover:translate-x-0";
+  const opacityClass = isMobile ? mobileOpacityClass : desktopOpacityClass;
+
   return (
     <div
-      style={{
-        width: "max(var(--c-width, 440px), 360px)",
-      }}
-      className="
-        relative
-        h-[160px]
-        flex-shrink-0
-        bg-[#F7CC66]
-        border-[1.5px] border-black
-        rounded-[15px]
-        overflow-hidden
-        group
-        transition-all duration-300
-        hover:scale-[1.06]
-        hover:w-[calc(max(var(--c-width,440px),360px)+20px)]
-      "
+      onClick={() => isMobile && setIsTapped(!isTapped)}
+      className={`${baseClasses} ${widthClass} ${isMobile ? "" : "hover:scale-[1.06] group"}`}
+      style={isMobile ? undefined : { width: "max(var(--c-width, 440px), 360px)" }}
     >
       <div
-        className="
+        className={`
           absolute inset-0
           px-6 py-5
           flex flex-col justify-between
-          opacity-0
-          -translate-x-[25px]
           transition-all duration-500
-          group-hover:opacity-100
-          group-hover:translate-x-0
-        "
+          ${opacityClass}
+        `}
       >
         <div>
           <h3 className="text-3xl font-semibold">
@@ -63,12 +71,12 @@ function ContributorCard({ person }) {
       </div>
 
       <div
-        className="
+        className={`
           absolute inset-0
           flex justify-center items-end
           transition-transform duration-500
-          group-hover:translate-x-[130px]
-        "
+          ${translateClass}
+        `}
       >
         <img
           src={person.image}
@@ -164,17 +172,16 @@ function ContributorRow({
           }
 
           @keyframes ${animationName} {
-            ${
-              direction === "ltr"
-                ? `
+            ${direction === "ltr"
+            ? `
               0% { transform: translateX(calc(-1 * var(--set-w))); }
               100% { transform: translateX(0px); }
             `
-                : `
+            : `
               0% { transform: translateX(0px); }
               100% { transform: translateX(calc(-1 * var(--set-w))); }
             `
-            }
+          }
           }
         `}</style>
 
@@ -203,10 +210,9 @@ function ContributorRow({
 
         {/* CENTER COLUMN */}
         <div
+          className="hidden md:flex justify-center"
           style={{
             gridColumn: `${L + 1}`,
-            display: "flex",
-            justifyContent: "center",
           }}
         >
           <h1
@@ -250,6 +256,50 @@ function ContributorRow({
 }
 
 /* =====================================================
+   MOBILE ROW
+===================================================== */
+
+function MobileContributorRow({ cards, direction = "ltr", rowIndex }) {
+  const repeatedCards = [...cards, ...cards, ...cards, ...cards];
+  const animationName = `mobile-marquee-${rowIndex}`;
+
+  return (
+    <div className={`w-full overflow-hidden py-3 mobile-row-${animationName}`}>
+      <style>{`
+        .animate-${animationName} {
+          animation: ${animationName} 20s linear infinite;
+        }
+        .mobile-row-${animationName}:hover .animate-${animationName},
+        .mobile-row-${animationName}:active .animate-${animationName},
+        .animate-${animationName}:hover,
+        .animate-${animationName}:active {
+          animation-play-state: paused !important;
+        }
+        @keyframes ${animationName} {
+          ${direction === "ltr"
+          ? `
+              0% { transform: translateX(-50%); }
+              100% { transform: translateX(0%); }
+            `
+          : `
+              0% { transform: translateX(0%); }
+              100% { transform: translateX(-50%); }
+            `
+        }
+        }
+      `}</style>
+      <div className={`flex w-max animate-${animationName}`}>
+        {repeatedCards.map((p, i) => (
+          <div key={`mobile-${rowIndex}-${i}`} className="px-2">
+            <ContributorCard person={p} isMobile={true} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================
    MAIN SECTION
 ===================================================== */
 
@@ -273,10 +323,27 @@ export default function Contributors() {
 
   return (
     <section className="relative w-full py-28 flex flex-col overflow-hidden">
-      <ContributorRow word="Built" left={[people[0]]} right={[people[1], people[2]]} direction="ltr" />
-      <ContributorRow word="by" left={[people[3], people[4]]} right={[people[5], people[6]]} direction="rtl" />
-      <ContributorRow word="the" left={[people[7], people[8]]} right={[people[9], people[10]]} direction="ltr" />
-      <ContributorRow word="ambitious" left={[people[11], people[12]]} right={[people[13]]} direction="rtl" />
+      <div className="md:hidden flex justify-center mb-12 z-10 relative">
+        <h1 className={`${syne.className} text-6xl leading-tight text-center`}>
+          Built<br />by<br />the<br />ambitious
+        </h1>
+      </div>
+
+      {/* DESKTOP VIEW */}
+      <div className="hidden md:flex w-full flex-col">
+        <ContributorRow word="Built" left={[people[0]]} right={[people[1], people[2]]} direction="ltr" />
+        <ContributorRow word="by" left={[people[3], people[4]]} right={[people[5], people[6]]} direction="rtl" />
+        <ContributorRow word="the" left={[people[7], people[8]]} right={[people[9], people[10]]} direction="ltr" />
+        <ContributorRow word="ambitious" left={[people[11], people[12]]} right={[people[13]]} direction="rtl" />
+      </div>
+
+      {/* MOBILE VIEW */}
+      <div className="md:hidden flex flex-col w-full gap-2">
+        <MobileContributorRow cards={[people[0], people[1], people[2]]} direction="ltr" rowIndex={1} />
+        <MobileContributorRow cards={[people[3], people[4], people[5], people[6]]} direction="rtl" rowIndex={2} />
+        <MobileContributorRow cards={[people[7], people[8], people[9], people[10]]} direction="ltr" rowIndex={3} />
+        <MobileContributorRow cards={[people[11], people[12], people[13]]} direction="rtl" rowIndex={4} />
+      </div>
     </section>
   );
 }
