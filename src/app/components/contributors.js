@@ -320,7 +320,7 @@ function MobileContributorRow({ cards, direction = "ltr", rowIndex }) {
 
 export default function Contributors() {
   const people = [
-    { name: "Varub B", domain: "Tech Lead", image: "/contributors/Varun .png", instagram: "https://www.instagram.com/varun4.b", linkedin: "https://www.linkedin.com/in/varunb45/", github: "https://github.com/varun4505" },
+    { name: "Varun B", domain: "Tech Lead", image: "/contributors/Varun .png", instagram: "https://www.instagram.com/varun4.b", linkedin: "https://www.linkedin.com/in/varunb45/", github: "https://github.com/varun4505" },
     { name: "Aditya Madan", domain: "Design Lead", image: "/contributors/Aditya Madan.png", instagram: "https://www.instagram.com/your.avg.engineer", linkedin: "https://www.linkedin.com/in/aditya-madan-90b49526b", github: "https://github.com/aditya10801" },
     { name: "Atiksh Chawla", domain: "Tech Head", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
     { name: "Ayush", domain: "Advisor", image: "/contributors/Ayush Kumar.png", instagram: "https://www.instagram.com/_ayush.0808", linkedin: "https://www.linkedin.com/in/ayushk0808/", github: "https://github.com/AyushK0808" },
