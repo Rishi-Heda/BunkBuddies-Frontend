@@ -31,7 +31,7 @@ function ContributorCard({ person, isMobile }) {
   const widthClass = isMobile ? mobileWidthClass : desktopWidthClass;
 
   const mobileTranslateClass = isTapped ? "translate-x-[100px]" : "";
-  const desktopTranslateClass = "group-hover:translate-x-[130px]";
+  const desktopTranslateClass = "group-hover:translate-x-[80px]";
   const translateClass = isMobile ? mobileTranslateClass : desktopTranslateClass;
 
   const mobileOpacityClass = isTapped ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-[25px]";
@@ -322,7 +322,7 @@ export default function Contributors() {
   const people = [
     { name: "Varun B", domain: "Tech Lead", image: "/contributors/Varun .png", instagram: "https://www.instagram.com/varun4.b", linkedin: "https://www.linkedin.com/in/varunb45/", github: "https://github.com/varun4505" },
     { name: "Aditya Madan", domain: "Design Lead", image: "/contributors/Aditya Madan.png", instagram: "https://www.instagram.com/your.avg.engineer", linkedin: "https://www.linkedin.com/in/aditya-madan-90b49526b", github: "https://github.com/aditya10801" },
-    { name: "Atiksh Chawla", domain: "Tech Lead", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
+    { name: "Atiksh Chawla", domain: "Tech Head", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
     { name: "Ayush", domain: "Advisor", image: "/contributors/Ayush Kumar.png", instagram: "https://www.instagram.com/_ayush.0808", linkedin: "https://www.linkedin.com/in/ayushk0808/", github: "https://github.com/AyushK0808" },
     { name: "Lavan", domain: "Projects Head", image: "/contributors/Lavanbarath B .png", instagram: "https://www.instagram.com/lavan8t", linkedin: "https://www.linkedin.com/in/lavan8t/", github: "https://github.com/lavan8t/" },
     { name: "Lakshya Gupta", domain: "Senior Core", image: "/contributors/Lakshya Gupta.png", instagram: "https://www.instagram.com/2005_lakshya", linkedin: "https://www.linkedin.com/in/lakshya-gupta2005/", github: "https://github.com/2005lakshya" },
