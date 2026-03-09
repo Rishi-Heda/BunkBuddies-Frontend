@@ -153,7 +153,7 @@ function ContributorRow({
 
         if (cWidth > 0) {
           const setW = N * cWidth + N * GAP;
-          setDuration(setW / 100);
+          setDuration(setW / 75);
         }
       }
     });
@@ -322,7 +322,7 @@ export default function Contributors() {
   const people = [
     { name: "Varun B", domain: "Tech Lead", image: "/contributors/Varun .png", instagram: "https://www.instagram.com/varun4.b", linkedin: "https://www.linkedin.com/in/varunb45/", github: "https://github.com/varun4505" },
     { name: "Aditya Madan", domain: "Design Lead", image: "/contributors/Aditya Madan.png", instagram: "https://www.instagram.com/your.avg.engineer", linkedin: "https://www.linkedin.com/in/aditya-madan-90b49526b", github: "https://github.com/aditya10801" },
-    { name: "Atiksh Chawla", domain: "Tech Head", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
+    { name: "Atiksh Chawla", domain: "Tech Lead", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
     { name: "Ayush", domain: "Advisor", image: "/contributors/Ayush Kumar.png", instagram: "https://www.instagram.com/_ayush.0808", linkedin: "https://www.linkedin.com/in/ayushk0808/", github: "https://github.com/AyushK0808" },
     { name: "Lavan", domain: "Projects Head", image: "/contributors/Lavanbarath B .png", instagram: "https://www.instagram.com/lavan8t", linkedin: "https://www.linkedin.com/in/lavan8t/", github: "https://github.com/lavan8t/" },
     { name: "Lakshya Gupta", domain: "Senior Core", image: "/contributors/Lakshya Gupta.png", instagram: "https://www.instagram.com/2005_lakshya", linkedin: "https://www.linkedin.com/in/lakshya-gupta2005/", github: "https://github.com/2005lakshya" },
@@ -349,16 +349,16 @@ export default function Contributors() {
 
       {/* DESKTOP VIEW */}
       <div className="hidden md:flex w-full flex-col">
-        <ContributorRow word="Built" left={[people[0], people[2]]} right={[people[5], people[6]]} direction="ltr" />
-        <ContributorRow word="by" left={[people[1], people[3]]} right={[people[4], people[7]]} direction="rtl" />
+        <ContributorRow word="Built" left={[people[0], people[1]]} right={[people[5], people[2]]} direction="ltr" />
+        <ContributorRow word="by" left={[people[6], people[3]]} right={[people[4], people[7]]} direction="rtl" />
         <ContributorRow word="the" left={[people[8], people[9], people[10]]} right={[people[11], people[12]]} direction="ltr" />
         <ContributorRow word="ambitious" left={[people[13], people[14]]} right={[people[15], people[16]]} direction="rtl" />
       </div>
 
       {/* MOBILE VIEW */}
       <div className="md:hidden flex flex-col w-full gap-1.5">
-        <MobileContributorRow cards={[people[0], people[2], people[5], people[6]]} direction="ltr" rowIndex={1} />
-        <MobileContributorRow cards={[people[1], people[3], people[4], people[7]]} direction="rtl" rowIndex={2} />
+        <MobileContributorRow cards={[people[0], people[1], people[5], people[2]]} direction="ltr" rowIndex={1} />
+        <MobileContributorRow cards={[people[6], people[3], people[4], people[7]]} direction="rtl" rowIndex={2} />
         <MobileContributorRow cards={[people[8], people[9], people[10], people[11], people[12]]} direction="ltr" rowIndex={3} />
         <MobileContributorRow cards={[people[13], people[14], people[15], people[16]]} direction="rtl" rowIndex={4} />
       </div>

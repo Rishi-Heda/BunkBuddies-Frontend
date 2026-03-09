@@ -13,7 +13,7 @@ const syne = Syne({
   weight: ["400", "600", "700"],
 });
 
-const WS_BASE = process.env.NEXT_PUBLIC_WS_URL;
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
 export default function ChatPage() {
   const router = useRouter();
