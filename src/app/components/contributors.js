@@ -58,10 +58,25 @@ function ContributorCard({ person, isMobile }) {
             {person.name}
           </h3>
 
-          <div className="flex gap-4 mt-3 text-lg md:text-xl">
-            <FaInstagram />
-            <FaLinkedin />
-            <FaGithub />
+          <div className="flex gap-4 mt-3 text-lg md:text-xl relative z-20">
+            <button
+              onClick={(e) => { e.stopPropagation(); if (person.instagram) window.open(person.instagram, '_blank'); }}
+              aria-label="Instagram"
+            >
+              <FaInstagram className="hover:scale-110 transition-transform cursor-pointer" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); if (person.linkedin) window.open(person.linkedin, '_blank'); }}
+              aria-label="LinkedIn"
+            >
+              <FaLinkedin className="hover:scale-110 transition-transform cursor-pointer" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); if (person.github) window.open(person.github, '_blank'); }}
+              aria-label="GitHub"
+            >
+              <FaGithub className="hover:scale-110 transition-transform cursor-pointer" />
+            </button>
           </div>
         </div>
 
@@ -111,10 +126,10 @@ function ContributorRow({
   const [duration, setDuration] = useState(20);
 
   const WORD_SHIFT = {
-    Built: 48,
-    by: -72,
-    the: 340,
-    ambitious: 120,
+    Built: 400,
+    by: -112,
+    the: 800,
+    ambitious: 1,
   };
 
   const SHIFT = WORD_SHIFT[word] ?? 0;
@@ -305,20 +320,23 @@ function MobileContributorRow({ cards, direction = "ltr", rowIndex }) {
 
 export default function Contributors() {
   const people = [
-    { name: "Aarav Mehta", domain: "Board", image: "/contributors/1.png" },
-    { name: "Riya Kapoor", domain: "Board", image: "/contributors/2.png" },
-    { name: "Devansh Shah", domain: "Board", image: "/contributors/3.png" },
-    { name: "Ishita Nair", domain: "Board", image: "/contributors/4.png" },
-    { name: "Kunal Verma", domain: "Board", image: "/contributors/5.png" },
-    { name: "Pranav Iyer", domain: "Tech JC", image: "/contributors/1.png" },
-    { name: "Sneha Reddy", domain: "Tech JC", image: "/contributors/2.png" },
-    { name: "Arjun Malhotra", domain: "Tech JC", image: "/contributors/3.png" },
-    { name: "Neel Patel", domain: "Tech JC", image: "/contributors/4.png" },
-    { name: "Tanmay Kulkarni", domain: "Tech JC", image: "/contributors/5.png" },
-    { name: "Ananya Bose", domain: "Design JC", image: "/contributors/1.png" },
-    { name: "Kabir Arora", domain: "Design JC", image: "/contributors/2.png" },
-    { name: "Mehul Jain", domain: "Design JC", image: "/contributors/3.png" },
-    { name: "Diya Sen", domain: "Design JC", image: "/contributors/4.png" },
+    { name: "Varun B", domain: "Tech Lead", image: "/contributors/Varun .png", instagram: "https://www.instagram.com/varun4.b", linkedin: "https://www.linkedin.com/in/varunb45/", github: "https://github.com/varun4505" },
+    { name: "Aditya Madan", domain: "Design Lead", image: "/contributors/Aditya Madan.png", instagram: "https://www.instagram.com/your.avg.engineer", linkedin: "https://www.linkedin.com/in/aditya-madan-90b49526b", github: "https://github.com/aditya10801" },
+    { name: "Atiksh Chawla", domain: "Tech Head", image: "/contributors/Atiksh Chawla.png", instagram: "https://www.instagram.com/atiksh_chawla/", linkedin: "https://www.linkedin.com/in/atikshchawla/", github: "https://github.com/atikshchawla/" },
+    { name: "Ayush", domain: "Advisor", image: "/contributors/Ayush Kumar.png", instagram: "https://www.instagram.com/_ayush.0808", linkedin: "https://www.linkedin.com/in/ayushk0808/", github: "https://github.com/AyushK0808" },
+    { name: "Lavan", domain: "Projects Head", image: "/contributors/Lavanbarath B .png", instagram: "https://www.instagram.com/lavan8t", linkedin: "https://www.linkedin.com/in/lavan8t/", github: "https://github.com/lavan8t/" },
+    { name: "Lakshya Gupta", domain: "Senior Core", image: "/contributors/Lakshya Gupta.png", instagram: "https://www.instagram.com/2005_lakshya", linkedin: "https://www.linkedin.com/in/lakshya-gupta2005/", github: "https://github.com/2005lakshya" },
+    { name: "Tanmoy Saha", domain: "Senior Core", image: "/contributors/Tanmoy Saha .png", instagram: "https://www.instagram.com/tanmoy._saha", linkedin: "https://www.linkedin.com/in/tanmoy-saha-4b0ab228a/", github: "https://github.com/TSaha4/" },
+    { name: "Kumar Ayush", domain: "Design Head", image: "/contributors/Kumar Ayush.png", instagram: "https://www.instagram.com/krayush21", linkedin: "https://www.linkedin.com/in/kumar-ayush-090b92386?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app", github: "https://github.com/yush08" },
+    { name: "Vedant Vidhani", domain: "Developer", image: "/contributors/Vedant Vidhani.png", instagram: "https://www.instagram.com/vedant.v19", linkedin: "https://www.linkedin.com/in/vedant-vidhani-18291436b/", github: "https://github.com/Tommy12356F/" },
+    { name: "Riddhima Jain", domain: "Developer", image: "/contributors/Riddhima Jain copy.png", instagram: "https://www.instagram.com/reeddheemaa/", linkedin: "https://www.linkedin.com/in/riddhima-jain-431092260/", github: "https://github.com/riddhimajain08/" },
+    { name: "Tvisha Thakur", domain: "Developer", image: "/contributors/Tvisha Thakur.png", instagram: "https://www.instagram.com/tvxsha_", linkedin: "https://www.linkedin.com/in/tvisha-thakur-2225713b5?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app", github: "https://github.com/tvxsha" },
+    { name: "Rishi Pankaj Heda", domain: "Developer", image: "/contributors/Rishi Pankaj Heda .png", instagram: "https://www.instagram.com/rishi.heda", linkedin: "https://www.linkedin.com/in/rishi-heda/", github: "https://github.com/Rishi-Heda/" },
+    { name: "Shreya Verma", domain: "Developer", image: "/contributors/Shreya Verma.png", instagram: "https://www.instagram.com/shverma_29", linkedin: "https://www.linkedin.com/in/shreya-verma-060041363/", github: "https://github.com/shverma524/" },
+    { name: "Atharv Namdeo", domain: "Designer", image: "/contributors/Atharv Namdeo.png", instagram: "https://www.instagram.com/atharvnamdeo/", linkedin: "https://www.linkedin.com/in/atharvnamdeo", github: "https://github.com/atharv-namdeo" },
+    { name: "Akshit Saharia", domain: "Designer", image: "/contributors/Akshit Saharia.png", instagram: "https://www.instagram.com/akshit_saharia", linkedin: "https://www.linkedin.com/in/AkshitSaharia/", github: "https://github.com/akshit-saharia/" },
+    { name: "Bhumi Agarwal", domain: "Designer", image: "/contributors/Bhumi Agarwal.png", instagram: "https://www.instagram.com/bhumiii_agarwall", linkedin: "www.linkedin.com/in/bhumiagarwal07", github: "https://github.com/Bhumi711/" },
+    { name: "Kashvi Jain", domain: "Designer", image: "/contributors/Kashvi Jain.png", instagram: "https://www.instagram.com/that_one_potatoh", linkedin: "https://www.linkedin.com/in/kashvi-jain-579676380", github: "https://github.com/jkashvi12/" },
   ];
 
   return (
@@ -331,18 +349,18 @@ export default function Contributors() {
 
       {/* DESKTOP VIEW */}
       <div className="hidden md:flex w-full flex-col">
-        <ContributorRow word="Built" left={[people[0]]} right={[people[1], people[2]]} direction="ltr" />
-        <ContributorRow word="by" left={[people[3], people[4]]} right={[people[5], people[6]]} direction="rtl" />
-        <ContributorRow word="the" left={[people[7], people[8]]} right={[people[9], people[10]]} direction="ltr" />
-        <ContributorRow word="ambitious" left={[people[11], people[12]]} right={[people[13]]} direction="rtl" />
+        <ContributorRow word="Built" left={[people[0], people[2]]} right={[people[5], people[6]]} direction="ltr" />
+        <ContributorRow word="by" left={[people[1], people[3]]} right={[people[4], people[7]]} direction="rtl" />
+        <ContributorRow word="the" left={[people[8], people[9], people[10]]} right={[people[11], people[12]]} direction="ltr" />
+        <ContributorRow word="ambitious" left={[people[13], people[14]]} right={[people[15], people[16]]} direction="rtl" />
       </div>
 
       {/* MOBILE VIEW */}
       <div className="md:hidden flex flex-col w-full gap-1.5">
-        <MobileContributorRow cards={[people[0], people[1], people[2]]} direction="ltr" rowIndex={1} />
-        <MobileContributorRow cards={[people[3], people[4], people[5], people[6]]} direction="rtl" rowIndex={2} />
-        <MobileContributorRow cards={[people[7], people[8], people[9], people[10]]} direction="ltr" rowIndex={3} />
-        <MobileContributorRow cards={[people[11], people[12], people[13]]} direction="rtl" rowIndex={4} />
+        <MobileContributorRow cards={[people[0], people[2], people[5], people[6]]} direction="ltr" rowIndex={1} />
+        <MobileContributorRow cards={[people[1], people[3], people[4], people[7]]} direction="rtl" rowIndex={2} />
+        <MobileContributorRow cards={[people[8], people[9], people[10], people[11], people[12]]} direction="ltr" rowIndex={3} />
+        <MobileContributorRow cards={[people[13], people[14], people[15], people[16]]} direction="rtl" rowIndex={4} />
       </div>
     </section>
   );
