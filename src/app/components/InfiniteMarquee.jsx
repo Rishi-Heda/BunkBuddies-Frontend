@@ -86,11 +86,13 @@ export default function InfiniteMarquee() {
 		<div className="relative w-screen overflow-hidden py-2">
 			<div className="flex animate-marquee" style={{ width: "max-content" }}>
 				{track.map((_, index) => {
-					const shapeIndex = index % 4;
+					const position = index % 5; // 5 items per cycle: shape0, shape1, shape2, shape2, shape3
+					const shapeIndices = [0, 1, 2, 2, 3]; // 3rd row (shape2) appears twice
+					const shapeIndex = shapeIndices[position];
 					const shapeSrc = shapes[shapeIndex];
-					const cycleIndex = Math.floor(index / 4);
-					const offsets = [0, 1, 3, 4];
-					const imgIndex = cycleIndex * 5 + offsets[shapeIndex];
+					const cycleIndex = Math.floor(index / 5);
+					const offsets = [0, 1, 3, 4, 5]; // 6 images per cycle for 5 items
+					const imgIndex = cycleIndex * 6 + offsets[position];
 					const imgSrc = track[imgIndex % track.length].src;
 					const imgSrc2 = track[(imgIndex + 1) % track.length].src;
 

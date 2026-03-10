@@ -13,7 +13,7 @@ const syne = Syne({
   weight: ["400", "600", "700"],
 });
 
-const WS_BASE = process.env.NEXT_PUBLIC_WS_URL?.replace(/\/$/, "") || "";
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
 function resolveWsBase() {
   if (WS_BASE) return WS_BASE;
@@ -27,6 +27,7 @@ function resolveWsBase() {
 export default function ChatPage() {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
+  const activeGroupRef = useRef(null);
 
   // Current user
   const [myRegNo, setMyRegNo] = useState(null);
@@ -35,8 +36,15 @@ export default function ChatPage() {
   // Chat data
   const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState(null);
+  const handleSetActiveGroup = (group) => {
+    activeGroupRef.current = group;
+    setActiveGroup(group);
+  };
   const [messages, setMessages] = useState({});
   const [input, setInput] = useState("");
+  //ADDITIONS FOR ALERT
+  const [showGuidelines, setShowGuidelines] = useState(true);
+  
 
   // WebSocket refs: one for general chat, one for DM
   const generalWsRef = useRef(null);
@@ -61,6 +69,14 @@ export default function ChatPage() {
     };
     loadUser();
   }, []);
+
+  // ADDITIONS FOR ALERT
+  useEffect(() => {
+  const agreed = localStorage.getItem("chat_guidelines_agreed");
+  if (!agreed) {
+    setShowGuidelines(true);
+  }
+}, []);
 
   // ── Build groups list: general chat room + DM contacts ──
   useEffect(() => {
@@ -231,8 +247,13 @@ export default function ChatPage() {
             ...prev,
             [groupId]: [...(prev[groupId] || []), msg],
           }));
-        } else if (data.type === "error") {
-          console.error("[chat] DM server error:", data.message || "Unknown error");
+          setGroups((prev) =>
+            prev.map((g) =>
+              g.id === groupId && activeGroupRef.current?.id !== groupId
+                ? { ...g, unread: (g.unread || 0) + 1 }
+                : g
+            )
+          );
         }
       } catch { }
     };
@@ -254,6 +275,9 @@ export default function ChatPage() {
           time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         }));
         setMessages((prev) => ({ ...prev, [activeGroup.id]: mapped }));
+        setGroups((prev) =>
+          prev.map((g) => g.id === activeGroup.id ? { ...g, unread: 0 } : g)
+        );
       } catch { }
     };
     loadHistory();
@@ -289,11 +313,47 @@ export default function ChatPage() {
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
-
+  // ADDITIONS FOR ALERT
+  const acceptGuidelines = () => {
+  localStorage.setItem("chat_guidelines_agreed", "true");
+  setShowGuidelines(false);
+};
   const currentMessages = activeGroup ? (messages[activeGroup.id] || []) : [];
 
   return (
     <BackgroundGrid>
+      {/*ADDITIONS FOR ALERT*/ }
+      {/* Chat Guidelines Popup */}
+      {/* Chat Guidelines Popup */}
+{showGuidelines && (
+  <div className="fixed inset-0 flex items-center justify-center z-[999]">
+
+    <div className="bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-6 max-w-[500px] flex flex-col items-center gap-4">
+
+      <p className="font-semibold text-center">
+        Guidelines to use the chat feature
+      </p>
+
+      <ul className="text-sm text-center list-disc list-inside space-y-1">
+        <li>Be respectful and maintain friendly conversation.</li>
+        <li>Do not use abusive, offensive or discriminatory language.</li>
+        <li>Avoid sharing personal or sensitive information.</li>
+        <li>No spam, promotions, or repeated messages.</li>
+      </ul>
+
+      <button
+        onClick={acceptGuidelines}
+        className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] px-4 py-2 font-semibold hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px]"
+      >
+        I Agree
+      </button>
+
+    </div>
+
+  </div>
+)}
+
+     {!showGuidelines && (
       <div className={`${syne.className} min-h-screen relative p-4 flex flex-col items-center justify-center pt-20 md:pt-20 pb-10 md:pb-2`}>
 
         {/* ── Top bar: Logo + Navbar ── */}
@@ -316,9 +376,12 @@ export default function ChatPage() {
           <Navbar wrapperClass="static flex items-center h-8 md:h-12" />
         </div>
 
+         
         {/* ── Main card ── */}
-        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black] rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
-          }`}>
+        <main className={`w-full max-w-[1045px] bg-[#9AD7FD] border border-black shadow-[5px_5px_0px_black]
+         rounded-[5px] px-5 py-6 md:px-7 md:py-8 relative mt-4 md:mt-0 transition-all duration-300 ease-out
+            ${isAnimating ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"}
+              `}>
 
           {/* Header */}
           <div className="flex flex-row justify-between items-center mb-5 gap-3">
@@ -326,7 +389,7 @@ export default function ChatPage() {
               Chat with your soon-to-be roommates!
             </h1>
             <button
-              onClick={() => setActiveGroup(null)}
+              onClick={() => handleSetActiveGroup(null)}
               aria-label="Go back"
               className="bg-[#FB5E4C] border border-black shadow-[2.5px_2.5px_0px_black] rounded-[4px] p-1.5 md:p-2 hover:translate-x-[0.5px] hover:translate-y-[0.5px] active:shadow-none active:translate-x-[2.5px] active:translate-y-[2.5px] transition-all self-start mt-1 md:mt-0 md:self-auto"
             >
@@ -337,7 +400,7 @@ export default function ChatPage() {
           </div>
 
           {/* Chat layout */}
-          <div className="flex gap-4" style={{ height: "calc(100vh - 280px)", minHeight: 360 }}>
+          <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 360 }}>
 
             {/* Sidebar */}
             <div className={`chat-scrollbar flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
@@ -348,7 +411,7 @@ export default function ChatPage() {
                 {groups.map((g) => (
                   <button
                     key={g.id}
-                    onClick={() => setActiveGroup(g)}
+                    onClick={() => handleSetActiveGroup(g)}
                     className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-[4px] border border-black transition-all
                       ${activeGroup?.id === g.id
                         ? "bg-[#c0392b] shadow-[1px_1px_0px_black] translate-x-[2px] translate-y-[2px]"
@@ -380,7 +443,7 @@ export default function ChatPage() {
                   {/* Chat header */}
                   <div className="bg-[#FB5E4C] border-b border-black px-4 py-3 flex items-center gap-3 flex-shrink-0">
                     <button
-                      onClick={() => setActiveGroup(null)}
+                      onClick={() => handleSetActiveGroup(null)}
                       className="md:hidden text-white text-xl font-bold pr-1"
                     >
                       ←
@@ -470,6 +533,9 @@ export default function ChatPage() {
           }
         `}</style>
       </div>
-    </BackgroundGrid>
+    
+            )}
+
+            </BackgroundGrid>
   );
 }

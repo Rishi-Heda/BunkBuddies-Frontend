@@ -143,7 +143,6 @@ export default function ProfilePage() {
 		event.preventDefault();
 		setErrorMessage("");
 
-		// Check mandatory fields and show popup if any are missing
 		const missing = [];
 		if (!formData.hostelType) missing.push("Hostel Type");
 		if (!formData.hostelGroup) missing.push("Hostel Group");
@@ -258,7 +257,7 @@ export default function ProfilePage() {
 				<div className="w-full max-w-[945px] lg:max-w-[1045px] transition-all duration-300 mt-[101px] md:mt-[69px] mb-8 md:mb-0">
 					<form
 						onSubmit={handleSubmit}
-						className={`w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-4 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-700 ease-out ${isAnimating
+						className={`w-full bg-[#BE8EF8] rounded-md border border-black shadow-[4px_4px_0px_black] md:shadow-[5px_5px_0px_black] p-3 sm:p-4 md:p-5 relative overflow-hidden transition-all duration-700 ease-out ${isAnimating
 								? "translate-y-0 opacity-100"
 								: "translate-y-full opacity-0"
 							}`}
@@ -299,7 +298,8 @@ export default function ProfilePage() {
 							</p>
 						) : null}
 
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-3 mb-4">
+						<div className="grid grid-cols-1 md:grid-cols-4 gap-x-3 gap-y-3 mb-4">
+							{/* Row 1 */}
 							<div className="flex flex-col gap-1">
 								<label className="text-sm md:text-base font-bold">Name</label>
 								<input
@@ -309,14 +309,12 @@ export default function ProfilePage() {
 									readOnly
 									placeholder="Aditya Madan"
 									disabled={isLoading}
-									className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
+									className="w-full h-8 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
 								/>
 							</div>
 
 							<div className="flex flex-col gap-1">
-								<label className="text-sm md:text-base font-bold">
-									Email ID
-								</label>
+								<label className="text-sm md:text-base font-bold">Email ID</label>
 								<input
 									type="email"
 									name="email"
@@ -324,14 +322,12 @@ export default function ProfilePage() {
 									readOnly
 									disabled={isLoading}
 									placeholder="name@vitstudent.ac.in"
-									className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
+									className="w-full h-8 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
 								/>
 							</div>
 
 							<div className="flex flex-col gap-1">
-								<label className="text-sm md:text-base font-bold">
-									Register Number
-								</label>
+								<label className="text-sm md:text-base font-bold">Register Number</label>
 								<input
 									type="text"
 									name="registerNumber"
@@ -339,10 +335,11 @@ export default function ProfilePage() {
 									readOnly
 									disabled={isLoading}
 									placeholder="24BCExxx"
-									className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
+									className="w-full h-8 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
 								/>
 							</div>
 
+							{/* Row 2 */}
 							<div className="flex flex-col gap-1">
 								<label className="text-sm md:text-base font-bold">
 									Hostel Type <span className="text-red-600">*</span>
@@ -354,11 +351,9 @@ export default function ProfilePage() {
 									readOnly
 									disabled={isLoading}
 									placeholder="Set in personality quiz"
-									className="w-full h-9 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
+									className="w-full h-8 bg-[#47D19D]/80 rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40 cursor-not-allowed"
 								/>
-								<span className="text-[11px] md:text-xs text-black/70 font-semibold">
-									Hostel Type is locked and cannot be changed here.
-								</span>
+
 							</div>
 
 							<div className="flex flex-col gap-1">
@@ -370,7 +365,7 @@ export default function ProfilePage() {
 									value={formData.hostelGroup}
 									onChange={handleChange}
 									disabled={isLoading}
-									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none"
+									className="w-full h-8 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none"
 								>
 									<option value="">Select group</option>
 									{hostelGroupOptions.map((group) => (
@@ -379,6 +374,22 @@ export default function ProfilePage() {
 										</option>
 									))}
 								</select>
+							</div>
+
+							<div className="flex flex-col gap-1">
+								<label className="text-sm md:text-base font-bold">
+									Hostel Rank <span className="text-red-600">*</span>
+								</label>
+								<input
+									type="text"
+									name="rank"
+									value={formData.rank}
+									onChange={handleChange}
+									placeholder="Enter rank"
+									disabled={isLoading}
+									inputMode="numeric"
+									className="w-full h-8 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40"
+								/>
 							</div>
 
 							<div className="flex flex-col gap-1">
@@ -394,30 +405,13 @@ export default function ProfilePage() {
 									disabled={isLoading}
 									inputMode="numeric"
 									maxLength={10}
-									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
-								/>
-							</div>
-
-							<div className="flex flex-col gap-1">
-								<label className="text-sm md:text-base font-bold">
-									Hostel Rank <span className="text-red-600">*</span>
-								</label>
-								<input
-									type="text"
-									name="rank"
-									value={formData.rank}
-									onChange={handleChange}
-									placeholder="Enter rank"
-									disabled={isLoading}
-									inputMode="numeric"
-									className="w-full h-9 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm md:text-base font-normal text-black focus:outline-none placeholder:text-black/40"
+									className="w-full h-8 bg-[#47D19D] rounded-[4px] border border-black px-3 text-sm font-normal text-black focus:outline-none placeholder:text-black/40"
 								/>
 							</div>
 						</div>
 
 						<p className="mb-3 text-xs md:text-sm text-black/80">
-							Name, Email ID, and Register Number are auto-filled from your
-							Google login and cannot be edited. Hostel Type is also locked.
+							Name, Email ID, Register Number and Hostel Type are auto-filled from your Google login and cannot be edited.
 						</p>
 
 						<div className="flex flex-col gap-1 mb-5">
@@ -430,7 +424,7 @@ export default function ProfilePage() {
 								onChange={handleChange}
 								placeholder="Tell us about yourself..."
 								disabled={isLoading}
-								className="w-full h-16 bg-[#47D19D] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
+								className="w-full h-36 bg-[#47D19D] rounded-[4px] border border-black p-2 text-sm md:text-base font-normal text-black focus:outline-none resize-none placeholder:text-black/40"
 							/>
 						</div>
 
@@ -484,19 +478,18 @@ export default function ProfilePage() {
 								<p className="text-sm mb-4 text-black/80">
 									If you notice any discrepancies in your Hostel Type or any other profile details, please reach out to us at:
 								</p>
-								
-								<a	href="mailto:bunkbuddiesbyvinnovateit@gmail.com"
+								<a href="mailto:bunkbuddiesbyvinnovateit@gmail.com"
 									className="block bg-[#47D19D] border border-black rounded-[4px] px-3 py-2 text-sm font-semibold text-center break-all hover:opacity-90 transition-opacity"
 								>
 									bunkbuddiesbyvinnovateit@gmail.com
 								</a>
 								<div className="flex justify-center mt-5">
 									<button
-									type="button"
-									onClick={() => setShowInfoModal(false)}
-									className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
+										type="button"
+										onClick={() => setShowInfoModal(false)}
+										className="bg-[#FB5E4C] border border-black rounded-[4px] shadow-[3px_3px_0px_black] px-6 py-2 text-base font-medium hover:translate-x-[0.5px] hover:translate-y-[0.5px] transition-all active:translate-x-[3px] active:translate-y-[3px] active:shadow-none cursor-pointer"
 									>
-									Got It
+										Got It
 									</button>
 								</div>
 							</div>

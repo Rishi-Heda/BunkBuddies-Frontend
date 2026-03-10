@@ -14,7 +14,8 @@ const syne = Syne({
   weight: ["400", "600", "700"],
 });
 
-const LANGUAGES = ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada"];
+const LANGUAGES = ["Hindi", "English", "Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi", "Gujarati", "Punjabi", "Odia", "Assamese"];
+const OTHER_LANGUAGES = [];
 const HOSTEL_TYPES = ["MH", "LH"];
 const MH_HOSTEL_GROUPS = ["1", "2", "3"];
 const LH_HOSTEL_GROUPS = ["1", "2", "3", "4"];
@@ -192,6 +193,7 @@ export default function PersonalityQuizPage() {
   const [answers, setAnswers] = useState(getInitialAnswers);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showOtherLangs, setShowOtherLangs] = useState(false);
 
   useEffect(() => { setIsAnimating(true); }, []);
   useEffect(() => {
@@ -555,7 +557,7 @@ export default function PersonalityQuizPage() {
 
             {/* Multi-select language chips */}
             {q.type === "multiselect" && (
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 items-center justify-center">
                 {LANGUAGES.map((lang) => {
                   const selected = (answers[q.id] || []).includes(lang);
                   return (
@@ -575,6 +577,8 @@ export default function PersonalityQuizPage() {
                     </button>
                   );
                 })}
+
+
               </div>
             )}
 
@@ -629,3 +633,4 @@ export default function PersonalityQuizPage() {
     </BackgroundGrid>
   );
 }
+
