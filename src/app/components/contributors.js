@@ -355,7 +355,7 @@ export default function Contributors() {
       {/* DESKTOP VIEW */}
       <div className="hidden md:flex w-full flex-col">
         <ContributorRow word="Built" left={[people[0], people[1]]} right={[people[5], people[2]]} direction="ltr" />
-        <ContributorRow word="by" left={[people[6], people[3]]} right={[people[4], people[7], people[17]]} direction="rtl" />
+        <ContributorRow word="by" left={[people[6], people[3]]} right={[people[4], people[17], people[7]]} direction="rtl" />
         <ContributorRow word="the" left={[people[8], people[9], people[10]]} right={[people[11], people[12]]} direction="ltr" />
         <ContributorRow word="ambitious" left={[people[13], people[14]]} right={[people[15], people[16]]} direction="rtl" />
       </div>
@@ -363,7 +363,7 @@ export default function Contributors() {
       {/* MOBILE VIEW */}
       <div className="md:hidden flex flex-col w-full gap-1.5">
         <MobileContributorRow cards={[people[0], people[1], people[5], people[2]]} direction="ltr" rowIndex={1} />
-        <MobileContributorRow cards={[people[6], people[3], people[4], people[7], people[17]]} direction="rtl" rowIndex={2} />
+        <MobileContributorRow cards={[people[6], people[3], people[4], people[17], people[7]]} direction="rtl" rowIndex={2} />
         <MobileContributorRow cards={[people[8], people[9], people[10], people[11], people[12]]} direction="ltr" rowIndex={3} />
         <MobileContributorRow cards={[people[13], people[14], people[15], people[16]]} direction="rtl" rowIndex={4} />
       </div>
