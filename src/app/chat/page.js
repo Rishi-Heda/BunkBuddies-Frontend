@@ -15,6 +15,15 @@ const syne = Syne({
 
 const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000";
 
+function resolveWsBase() {
+  if (WS_BASE) return WS_BASE;
+  if (typeof window !== "undefined") {
+    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    return `${wsProtocol}://${window.location.host}`;
+  }
+  return "";
+}
+
 export default function ChatPage() {
   const router = useRouter();
   const [isAnimating, setIsAnimating] = useState(false);
@@ -22,6 +31,7 @@ export default function ChatPage() {
 
   // Current user
   const [myRegNo, setMyRegNo] = useState(null);
+  const [generalRoomId, setGeneralRoomId] = useState(null);
 
   // Chat data
   const [groups, setGroups] = useState([]);
@@ -54,6 +64,7 @@ export default function ChatPage() {
           return;
         }
         setMyRegNo(student.regNo);
+        setGeneralRoomId(student.hostelType || null);
       } catch { }
     };
     loadUser();
@@ -101,15 +112,41 @@ export default function ChatPage() {
   useEffect(() => {
     if (!myRegNo) return;
 
-    const ws = new WebSocket(`${WS_BASE}/generalChat/ws/${myRegNo}`);
+    const wsBase = resolveWsBase();
+    if (!wsBase) {
+      console.error("[chat] Unable to resolve WebSocket base URL for general chat.");
+      return;
+    }
+
+    const wsUrl = `${wsBase}/generalChat/ws/${myRegNo}`;
+    console.info("[chat] Connecting general chat socket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     generalWsRef.current = ws;
+
+    ws.onopen = () => {
+      console.info("[chat] General chat socket connected.");
+    };
+
+    ws.onerror = (event) => {
+      console.error("[chat] General chat socket error:", event);
+    };
+
+    ws.onclose = (event) => {
+      console.warn("[chat] General chat socket closed:", {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+      });
+    };
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.type === "chat") {
+        if (data.type === "welcome") {
+          setGeneralRoomId(data.room_id || null);
+        } else if (data.type === "chat") {
           const msg = {
-            id: Date.now() + Math.random(),
+            id: data.id || Date.now() + Math.random(),
             sender: data.sender_name,
             senderId: data.sender_reg_no,
             text: data.message,
@@ -129,6 +166,8 @@ export default function ChatPage() {
               time: new Date(data.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             }],
           }));
+        } else if (data.type === "error") {
+          console.error("[chat] General chat server error:", data.message || "Unknown error");
         }
       } catch { }
     };
@@ -136,12 +175,60 @@ export default function ChatPage() {
     return () => ws.close();
   }, [myRegNo]);
 
+  // ── Load hostel chat history ──
+  useEffect(() => {
+    if (!myRegNo || !generalRoomId) return;
+    const loadGeneralHistory = async () => {
+      try {
+        const history = await backendFetch(`generalChat/history/${generalRoomId}`);
+        const mapped = (history || []).map((msg) => ({
+          id: msg.id || Date.now() + Math.random(),
+          sender: msg.sender_name,
+          senderId: msg.sender_reg_no,
+          text: msg.message,
+          time: new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }));
+        setMessages((prev) => {
+          const existingGeneral = prev.general || [];
+          const historyIds = new Set(mapped.map((msg) => String(msg.id)));
+          const liveOnly = existingGeneral.filter((msg) => !historyIds.has(String(msg.id)));
+          return { ...prev, general: [...mapped, ...liveOnly] };
+        });
+      } catch { }
+    };
+    loadGeneralHistory();
+  }, [myRegNo, generalRoomId]);
+
   // ── Connect DM WebSocket ──
   useEffect(() => {
     if (!myRegNo) return;
 
-    const ws = new WebSocket(`${WS_BASE}/dm/ws/${myRegNo}`);
+    const wsBase = resolveWsBase();
+    if (!wsBase) {
+      console.error("[chat] Unable to resolve WebSocket base URL for DM.");
+      return;
+    }
+
+    const wsUrl = `${wsBase}/dm/ws/${myRegNo}`;
+    console.info("[chat] Connecting DM socket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     dmWsRef.current = ws;
+
+    ws.onopen = () => {
+      console.info("[chat] DM socket connected.");
+    };
+
+    ws.onerror = (event) => {
+      console.error("[chat] DM socket error:", event);
+    };
+
+    ws.onclose = (event) => {
+      console.warn("[chat] DM socket closed:", {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+      });
+    };
 
     ws.onmessage = (event) => {
       try {
@@ -316,7 +403,7 @@ export default function ChatPage() {
           <div className="flex gap-4" style={{ height: "calc(100vh - 320px)", minHeight: 360 }}>
 
             {/* Sidebar */}
-            <div className={`flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
+            <div className={`chat-scrollbar flex-shrink-0 bg-[#FFB7B6] border border-black shadow-[3px_3px_0px_black] rounded-[5px] p-4 overflow-y-auto
               ${activeGroup ? "hidden md:block" : "block"}
               w-full md:w-[220px] lg:w-[260px]`}>
               <h2 className="text-xl font-bold mb-4">Chats</h2>
@@ -365,7 +452,7 @@ export default function ChatPage() {
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+                  <div className="chat-scrollbar flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                     {currentMessages.map((msg) => {
                       if (msg.isSystem) {
                         return (
@@ -419,6 +506,32 @@ export default function ChatPage() {
             </div>
           </div>
         </main>
+        <style jsx global>{`
+          .chat-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #8e8e95 #f3b1b0;
+            scrollbar-gutter: stable;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar {
+            width: 10px;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-track {
+            background: #f3b1b0;
+            border-left: 1px solid #000;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-thumb {
+            background: #8e8e95;
+            border-radius: 999px;
+            border: 2px solid #f3b1b0;
+          }
+
+          .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #74747b;
+          }
+        `}</style>
       </div>
     
             )}
