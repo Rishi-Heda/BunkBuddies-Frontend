@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { Syne } from "next/font/google";
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 
@@ -90,13 +91,16 @@ function ContributorCard({ person, isMobile }) {
           absolute inset-0
           flex justify-center items-end
           transition-transform duration-500
+          pointer-events-none
           ${translateClass}
         `}
       >
-        <img
+        <Image
           src={person.image}
           alt={person.name}
-          className="h-full object-contain pointer-events-none"
+          fill
+          className="object-contain object-bottom"
+          sizes="(max-width: 768px) 260px, 360px"
         />
       </div>
     </div>
@@ -326,7 +330,7 @@ export default function Contributors() {
     { name: "Ayush", domain: "Mentor", image: "/contributors/ayush-kumar.png", instagram: "https://www.instagram.com/_ayush.0808", linkedin: "https://www.linkedin.com/in/ayushk0808/", github: "https://github.com/AyushK0808" },
     { name: "Lavan", domain: "Project Head", image: "/contributors/lavanbarath-b.png", instagram: "https://www.instagram.com/lavan8t", linkedin: "https://www.linkedin.com/in/lavan8t/", github: "https://github.com/lavan8t/" },
     { name: "Lakshya Gupta", domain: "Tech Manager", image: "/contributors/lakshya-gupta.png", instagram: "https://www.instagram.com/2005_lakshya", linkedin: "https://www.linkedin.com/in/lakshya-gupta2005/", github: "https://github.com/2005lakshya" },
-    { name: "Tanmoy Saha", domain: "Mentor", image: "/contributors/tanmoy-saha.png", instagram: "https://www.instagram.com/tanmoy._saha", linkedin: "https://www.linkedin.com/in/tanmoy-saha-4b0ab228a/", github: "https://github.com/TSaha4/" },
+    { name: "Tanmoy Saha", domain: "Tech Manager", image: "/contributors/tanmoy-saha.png", instagram: "https://www.instagram.com/tanmoy._saha", linkedin: "https://www.linkedin.com/in/tanmoy-saha-4b0ab228a/", github: "https://github.com/TSaha4/" },
     { name: "Kumar Ayush", domain: "Design Head", image: "/contributors/kumar-ayush.png", instagram: "https://www.instagram.com/krayush21", linkedin: "https://www.linkedin.com/in/kumar-ayush-090b92386?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app", github: "https://github.com/yush08" },
     { name: "Vedant Vidhani", domain: "Developer", image: "/contributors/vedant-vidhani.png", instagram: "https://www.instagram.com/vedant.v19", linkedin: "https://www.linkedin.com/in/vedant-vidhani-18291436b/", github: "https://github.com/Tommy12356F/" },
     { name: "Riddhima Jain", domain: "Developer", image: "/contributors/riddhima-jain.png", instagram: "https://www.instagram.com/reeddheemaa/", linkedin: "https://www.linkedin.com/in/riddhima-jain-431092260/", github: "https://github.com/riddhimajain08/" },
@@ -337,6 +341,7 @@ export default function Contributors() {
     { name: "Akshit Saharia", domain: "Designer", image: "/contributors/akshit-saharia.png", instagram: "https://www.instagram.com/akshit_saharia", linkedin: "https://www.linkedin.com/in/AkshitSaharia/", github: "https://github.com/akshit-saharia/" },
     { name: "Bhumi Agarwal", domain: "Designer", image: "/contributors/bhumi-agarwal.png", instagram: "https://www.instagram.com/bhumiii_agarwall", linkedin: "www.linkedin.com/in/bhumiagarwal07", github: "https://github.com/Bhumi711/" },
     { name: "Kashvi Jain", domain: "Designer", image: "/contributors/kashvi-jain.png", instagram: "https://www.instagram.com/that_one_potatoh", linkedin: "https://www.linkedin.com/in/kashvi-jain-579676380", github: "https://github.com/jkashvi12/" },
+    { name: "Palkee Pandit", domain: "Editorial Lead", image: "/contributors/palkee-pandit.jpg", instagram: "https://www.instagram.com/palkeepandit/", linkedin: "https://in.linkedin.com/in/palkee-pandit-825244309", github: "" },
   ];
 
   return (
@@ -350,7 +355,7 @@ export default function Contributors() {
       {/* DESKTOP VIEW */}
       <div className="hidden md:flex w-full flex-col">
         <ContributorRow word="Built" left={[people[0], people[1]]} right={[people[5], people[2]]} direction="ltr" />
-        <ContributorRow word="by" left={[people[6], people[3]]} right={[people[4], people[7]]} direction="rtl" />
+        <ContributorRow word="by" left={[people[6], people[3]]} right={[people[4], people[7], people[17]]} direction="rtl" />
         <ContributorRow word="the" left={[people[8], people[9], people[10]]} right={[people[11], people[12]]} direction="ltr" />
         <ContributorRow word="ambitious" left={[people[13], people[14]]} right={[people[15], people[16]]} direction="rtl" />
       </div>
@@ -358,7 +363,7 @@ export default function Contributors() {
       {/* MOBILE VIEW */}
       <div className="md:hidden flex flex-col w-full gap-1.5">
         <MobileContributorRow cards={[people[0], people[1], people[5], people[2]]} direction="ltr" rowIndex={1} />
-        <MobileContributorRow cards={[people[6], people[3], people[4], people[7]]} direction="rtl" rowIndex={2} />
+        <MobileContributorRow cards={[people[6], people[3], people[4], people[7], people[17]]} direction="rtl" rowIndex={2} />
         <MobileContributorRow cards={[people[8], people[9], people[10], people[11], people[12]]} direction="ltr" rowIndex={3} />
         <MobileContributorRow cards={[people[13], people[14], people[15], people[16]]} direction="rtl" rowIndex={4} />
       </div>
