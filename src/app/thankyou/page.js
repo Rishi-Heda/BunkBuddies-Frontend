@@ -55,7 +55,7 @@ export default function ThankYouPage() {
 						style={{
 							fontSize: "clamp(19px, 2.8vw, 43px)",
 							fontWeight: 500,
-							letterSpacing: "0.022em",
+							letterSpacing: "0.025em",
 						}}
 					>
 						For all the lovely support and response shown this year 🫶
