@@ -18,7 +18,7 @@ const heroSyne = Syne({
 const INITIAL_SESSION = {
 	checked: false,
 	authenticated: false,
-	nextRoute: "/signin",
+	nextRoute: "/thankyou",
 	shouldGoExplore: false,
 };
 
@@ -27,6 +27,7 @@ function mapSessionPayload(payload) {
 		return {
 			...INITIAL_SESSION,
 			checked: true,
+			nextRoute: "/thankyou"
 		};
 	}
 
@@ -55,6 +56,7 @@ async function fetchSessionState() {
 		return {
 			...INITIAL_SESSION,
 			checked: true,
+			nextRoute: "/thankyou",
 		};
 	}
 }
@@ -83,20 +85,10 @@ export default function Landing() {
 	}, []);
 
 	const handleSignIn = async () => {
-		if (isRouting) {
-			return;
-		}
-
+		if (isRouting) return;
 		setIsRouting(true);
-
 		try {
-			const nextSession = sessionState.checked
-				? sessionState
-				: await fetchSessionState();
-			if (!sessionState.checked) {
-				setSessionState(nextSession);
-			}
-			router.push(nextSession.nextRoute);
+			router.push("/thankyou");
 		} finally {
 			setIsRouting(false);
 		}
