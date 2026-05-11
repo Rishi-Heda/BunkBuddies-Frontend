@@ -82,16 +82,6 @@ Use wisely: don't overfill & don't use too heavy imgs
 </details>
 
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-<picture>
-  <img alt="BunkBuddies Logo" src="./public/bb_logo.svg" width="220" align="right">
-</picture>
-
-BunkBuddies is a roommate discovery platform built for the VIT hostel experience. The frontend provides the complete user journey: landing page, Google sign-in, personality quiz, student profile setup, room creation, room discovery, group management, join request handling, and real-time chat.
-
-The app is built with the Next.js App Router and uses frontend API routes as an auth-aware proxy to the backend. User authentication is handled through Google OAuth on the backend, while the frontend stores the received access token in an HTTP-only cookie and forwards authenticated requests through `/api/backend`.
 
 ### Core Features
 
