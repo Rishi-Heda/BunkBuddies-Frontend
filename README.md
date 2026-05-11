@@ -274,18 +274,14 @@ Authenticated frontend calls should use `backendFetch()` from `src/app/utils/bac
 
 ## Acknowledgments
 
-- [Next.js](https://nextjs.org/) for the React framework and App Router
-- [React](https://react.dev/) and [React DOM](https://react.dev/reference/react-dom) for the frontend UI layer
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- [OpenNext for Cloudflare](https://opennext.js.org/cloudflare) and [Cloudflare Workers](https://developers.cloudflare.com/workers/) for deployment support
-- [Lucide React](https://lucide.dev/) and [React Icons](https://react-icons.github.io/react-icons/) for iconography
-- [React Hot Toast](https://react-hot-toast.com/) for toast notifications
-- [ESLint](https://eslint.org/) and [eslint-config-next](https://nextjs.org/docs/app/api-reference/config/eslint) for linting
-
+- [VinnovateIT Family](https://vinnovateit.com) for mentoring and resources
+- A huge thank you to the open-source community behind the core stack: [Next.js](https://nextjs.org/), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [Cloudflare Workers](https://developers.cloudflare.com/workers/), [ESLint](https://eslint.org/) & [OpenNext](https://opennext.js.org/).
 
 <p align="center">
 	Made with :heart: by <a href="https://vinnovateit.com">VinnovateIT</a>
 </p>
+
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Next.js]: https://img.shields.io/badge/next.js-000000?&logo=nextdotjs&logoColor=white
